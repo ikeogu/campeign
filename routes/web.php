@@ -85,7 +85,7 @@ Route::get('/dashboard', function () {
     return Inertia::render('Dashboard', [
         'user' => Auth::user(),
     ]);
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth', 'verified', 'onboarded'])->name('dashboard');
 
 
 
