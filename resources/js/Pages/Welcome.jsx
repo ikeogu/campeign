@@ -1,0 +1,241 @@
+import { Link } from "@inertiajs/react";
+//import Navbar from "@/Components/Navbar";
+import Footer from "@/Components/Footer";
+
+export default function Landing({ liveGigs = [], brandLogos = [] }) {
+
+    const getPlatformStyle = (platform) => {
+        const styles = {
+            twitter: 'bg-blue-50 text-blue-600 border-blue-100',
+            instagram: 'bg-pink-50 text-pink-600 border-pink-100',
+            tiktok: 'bg-slate-900 text-white border-slate-700',
+            whatsapp: 'bg-green-50 text-green-600 border-green-100',
+            facebook: 'bg-indigo-50 text-indigo-600 border-indigo-100',
+        };
+        return styles[platform?.toLowerCase()] || 'bg-gray-100 text-gray-600 border-gray-200';
+    };
+
+    const socialPlatforms = [
+        "Facebook", "Youtube", "Instagram", "Whatsapp",
+        "WeChat", "Telegram", "Tiktok", "Snapchat", "Twitter"
+    ];
+
+    return (
+        <div className="bg-white min-h-screen font-sans selection:bg-pink-100 selection:text-pink-900">
+
+            {/* 1. LIVE GIGS TEASER (The Hook) */}
+            <section className="py-20 bg-gray-50 border-b border-gray-100">
+                <div className="max-w-7xl mx-auto px-4">
+                    <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+                        <div>
+                            <span className="inline-block animate-pulse mb-2 px-3 py-1 bg-red-100 text-red-600 text-[10px] font-black uppercase tracking-widest rounded-full">
+                                ● Live Now
+                            </span>
+                            <h2 className="text-3xl font-black text-gray-900 tracking-tight">
+                                Trending <span className="text-pink-600">Active Gigs</span>
+                            </h2>
+                            <p className="text-gray-500 mt-1 font-medium italic">Promoters are currently earning from these campaigns.</p>
+                        </div>
+                        <Link href={route('login')} className="text-pink-600 font-bold hover:underline flex items-center gap-2 group">
+                            View all active campaigns
+                            <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+                        </Link>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {[1, 2, 3, 4].map((i) => (
+                            <Link
+                                key={i}
+                                href={route('login')}
+                                className={`group relative bg-white p-6 rounded-[2rem] border transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:border-pink-200
+                                    ${i > 2 ? 'opacity-40 grayscale pointer-events-none' : 'opacity-100 shadow-sm'}`}
+                            >
+                                <div className="flex justify-between items-start mb-4">
+                                    <span className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border ${getPlatformStyle(i === 1 ? 'instagram' : 'tiktok')}`}>
+                                        {i === 1 ? 'Instagram' : 'TikTok'}
+                                    </span>
+                                    <span className="text-green-600 font-black text-sm">₦5,000</span>
+                                </div>
+                                <h4 className="font-bold text-gray-800 mb-2">Exclusive Brand Launch {i}</h4>
+                                <div className="flex items-center gap-2 mt-4">
+                                    <div className="h-1.5 flex-grow bg-gray-100 rounded-full overflow-hidden">
+                                        <div className={`h-full bg-pink-500 ${i === 1 ? 'w-4/5' : 'w-1/2'}`}></div>
+                                    </div>
+                                    <span className="text-[10px] font-bold text-gray-400">{i === 1 ? '82%' : '45%'}</span>
+                                </div>
+                                {i > 2 && (
+                                    <div className="absolute inset-0 flex items-center justify-center bg-white/40 backdrop-blur-[1px] rounded-[2rem]">
+                                        <span className="bg-gray-800 text-white text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-tighter">Budget Reached</span>
+                                    </div>
+                                )}
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* 2. HERO & LOGO WALL SECTION */}
+            <section className="relative overflow-hidden py-32 bg-white">
+                {/* LOGO WALL BACKGROUND */}
+                <div className="absolute inset-0 opacity-[0.04] pointer-events-none select-none overflow-hidden">
+                    <div className="grid grid-cols-6 gap-12 rotate-12 scale-150">
+                        {(brandLogos.length > 0 ? brandLogos : Array(24).fill('/logo-placeholder.png')).map((logo, i) => (
+                            <img key={i} src={logo} alt="brand" className="w-24 grayscale" />
+                        ))}
+                    </div>
+                </div>
+
+                <div className="relative z-10 max-w-5xl mx-auto text-center px-4">
+                    <h1 className="text-5xl md:text-7xl font-black text-gray-900 mb-8 leading-[1.05] tracking-tight">
+                        Share brands you <span className="text-pink-600 italic">genuinely like,</span> get paid for every share.
+                    </h1>
+                    <p className="text-xl text-gray-500 font-medium max-w-2xl mx-auto mb-12">
+                        Earn without limits. Connect with top brands, share verified content to your social circles, and watch your wallet grow.
+                    </p>
+
+                    <div className="flex flex-wrap justify-center gap-4">
+                        <Link href={route('register')} className="px-10 py-5 bg-pink-600 text-white font-black rounded-2xl shadow-xl shadow-pink-200 hover:bg-pink-700 hover:scale-105 transition-all text-lg">
+                            Get Started
+                        </Link>
+                        <Link href={route('login')} className="px-10 py-5 bg-white text-gray-900 border-2 border-gray-100 font-black rounded-2xl hover:bg-gray-50 transition-all text-lg">
+                            Login
+                        </Link>
+                    </div>
+
+                    {/* PLATFORM LIST */}
+                    <div className="mt-20">
+                        <p className="text-xs font-black text-gray-400 uppercase tracking-[0.4em] mb-8">Supported Platforms</p>
+                        <div className="flex flex-wrap justify-center gap-3 md:gap-4 max-w-4xl mx-auto">
+                            {socialPlatforms.map((platform) => (
+                                <div key={platform} className="px-5 py-3 bg-white rounded-2xl border border-gray-100 shadow-sm font-bold text-gray-700 text-sm hover:border-pink-300 transition-colors cursor-default">
+                                    {platform}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* 3. ORIGINAL FEATURES SECTION (Refined) */}
+            <section className="py-24 bg-gray-50">
+                <div className="max-w-6xl mx-auto px-4">
+                    <h2 className="text-4xl font-black text-center text-gray-900 mb-16 tracking-tight">
+                        A Platform Built for <span className="text-green-600">Both Sides</span>
+                    </h2>
+
+                    <div className="grid md:grid-cols-3 gap-8">
+                        {/* Promoters */}
+                        <div className="bg-white p-10 rounded-[2.5rem] shadow-sm hover:shadow-xl transition-all border border-gray-100 group">
+                            <div className="w-14 h-14 bg-pink-50 text-pink-600 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-pink-600 group-hover:text-white transition-colors">
+                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.6560.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                            </div>
+                            <h3 className="text-2xl font-black mb-4">For Promoters</h3>
+                            <p className="text-gray-500 font-medium leading-relaxed">
+                                Turn your social presence into a paycheck. Earn between ₦200 – ₦5,000 per share. Simple tasks, instant wallet credits.
+                            </p>
+                        </div>
+
+                        {/* Advertisers */}
+                        <div className="bg-white p-10 rounded-[2.5rem] shadow-sm hover:shadow-xl transition-all border border-gray-100 group">
+                            <div className="w-14 h-14 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-green-600 group-hover:text-white transition-colors">
+                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" /></svg>
+                            </div>
+                            <h3 className="text-2xl font-black mb-4">For Advertisers</h3>
+                            <p className="text-gray-500 font-medium leading-relaxed">
+                                Reach authentic, verified audiences. Launch campaigns in minutes and pay only for actual, trackable shares.
+                            </p>
+                        </div>
+
+                        {/* Automation */}
+                        <div className="bg-white p-10 rounded-[2.5rem] shadow-sm hover:shadow-xl transition-all border border-gray-100 group">
+                            <div className="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            </div>
+                            <h3 className="text-2xl font-black mb-4">Auto-Payments</h3>
+                            <p className="text-gray-500 font-medium leading-relaxed">
+                                No manual processing. Funds are secured in escrow and moved automatically once the share is verified.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* 4. HIGH CONTRAST VALUE PROP (Green Card) */}
+            <section className="py-24 bg-green-600 text-white rounded-[4rem] mx-4 mb-10 shadow-3xl shadow-green-100 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+                <div className="max-w-6xl mx-auto px-8 relative z-10">
+                    <div className="grid md:grid-cols-2 gap-16 items-center">
+                        <div>
+                            <h2 className="text-4xl md:text-5xl font-black mb-8 leading-tight italic">Built for the next generation of promoters.</h2>
+                            <p className="text-green-50 text-xl font-medium mb-10 leading-relaxed opacity-90">
+                                We've removed the middleman. Advertisers list their content, you share it, and our AI-driven verification system pays you instantly.
+                            </p>
+                            <div className="space-y-5">
+                                {['Instant Wallet Credits', 'Verified Social Shares', 'Low Withdrawal Minimums'].map(item => (
+                                    <div key={item} className="flex items-center gap-4 font-black text-lg">
+                                        <div className="p-1 bg-white rounded-full">
+                                            <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7" /></svg>
+                                        </div>
+                                        {item}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="bg-white/10 p-12 rounded-[3rem] border border-white/20 backdrop-blur-xl shadow-inner">
+                            <div className="text-center mb-10">
+                                <div className="text-6xl font-black mb-2 tracking-tighter">₦50M+</div>
+                                <p className="text-green-100 font-bold uppercase tracking-widest text-sm">Distributed to users</p>
+                            </div>
+                            <div className="grid grid-cols-3 gap-4">
+                                <div className="h-24 bg-white/20 rounded-2xl animate-pulse"></div>
+                                <div className="h-24 bg-white/20 rounded-2xl animate-pulse delay-75"></div>
+                                <div className="h-24 bg-white/20 rounded-2xl animate-pulse delay-150"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* 5. STATS SECTION */}
+            <section className="py-24 bg-white">
+                <div className="max-w-6xl mx-auto px-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-12 text-center">
+                        <div className="p-8 border-r border-gray-100 last:border-0">
+                            <div className="text-5xl font-black text-pink-600 mb-2">10K+</div>
+                            <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">Active Promoters</p>
+                        </div>
+                        <div className="p-8 border-r border-gray-100 last:border-0">
+                            <div className="text-5xl font-black text-green-600 mb-2">500+</div>
+                            <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">Campaigns Run</p>
+                        </div>
+                        <div className="col-span-2 md:col-span-1 p-8">
+                            <div className="text-5xl font-black text-blue-600 mb-2">₦500k</div>
+                            <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">Max Single Payout</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* 6. FINAL CTA SECTION */}
+            <section className="py-24 mb-20">
+                <div className="max-w-4xl mx-auto text-center px-4 bg-gray-900 text-white rounded-[3rem] py-20 relative overflow-hidden shadow-2xl">
+                    <div className="absolute inset-0 bg-gradient-to-br from-pink-600/20 to-green-600/20"></div>
+                    <div className="relative z-10">
+                        <h2 className="text-4xl md:text-5xl font-black mb-6">Ready to Get Started?</h2>
+                        <p className="text-xl mb-10 text-gray-400 max-w-lg mx-auto font-medium">
+                            Join thousands of promoters and advertisers growing their presence today.
+                        </p>
+                        <Link
+                            href={route('register')}
+                            className="inline-block px-12 py-5 bg-pink-600 text-white font-black rounded-2xl shadow-xl shadow-pink-900/40 hover:bg-pink-700 hover:scale-105 transition-all text-lg"
+                        >
+                            Create Your Free Account
+                        </Link>
+                    </div>
+                </div>
+            </section>
+
+            <Footer />
+        </div>
+    );
+}
