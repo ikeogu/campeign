@@ -3,6 +3,7 @@
 namespace App\Modules\Promoter\Services;
 
 use App\Models\PostVerification;
+use App\Models\PromoterEarning;
 use App\Models\Transaction;
 use App\Modules\Campeigner\Notifications\CampaignProcessCompletedNotification;
 use App\Modules\Promoter\Jobs\VerifyPostInitialJob;
@@ -93,12 +94,12 @@ class PostVerificationService
                 return;
             }
 
-            $submission->shareLogs()->create([
-                'user_id' => $verification->user_id,
-                'campaign_id' => $campaign->id,
-                'earned_amount' => $campaign->payout,
-                'action' => 'verified',
-            ]);
+            $submission->shareLogs()->where('user_id', $verification->user_id)
+                ->where('campaign_id', $campaign->id)
+                ->first()
+                ->update([
+                    'action' => 'verified',
+                ]);
 
             $campaign->decrement('available_slots', 1);
 
@@ -107,6 +108,7 @@ class PostVerificationService
                 $campaign->status = 'completed';
                 $campaign->save();
             }
+
 
             $submission->user->transactions()->create([
                 'type' => 'credit',

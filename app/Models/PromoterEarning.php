@@ -12,11 +12,12 @@ class PromoterEarning extends Model
 
     protected $fillable = [
         'promoter_id', 'campaign_id', 'amount',
-        'status', 'completed_at'
+        'status', 'completed_at', 'share_log_id'
     ];
 
     public function campaign(): BelongsTo
     {
         return $this->belongsTo(Campaign::class);
     }
+    
 }

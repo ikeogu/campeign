@@ -56,7 +56,7 @@ class Campaign extends Model
         return $this->hasMany(PromoterSubmission::class);
     }
 
-    
+
 
 
     public function verifiedSubmissions()
@@ -83,6 +83,10 @@ class Campaign extends Model
     }
 
 
+    public function promoterSubmissions()
+    {
+        return $this->hasMany(PromoterSubmission::class);
+    }
     protected static function booted()
     {
         static::created(function ($campaign) {

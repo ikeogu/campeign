@@ -57,6 +57,7 @@ class PromoterSubmission extends Model
         return $this->hasOne(PostVerification::class);
     }
 
+    
     protected static function booted()
     {
         static::created(function ($submission) {
@@ -72,6 +73,8 @@ class PromoterSubmission extends Model
                 'status'           => 'pending',
                 'checks'           => 0,
             ]);
+
+            
         });
     }
 }

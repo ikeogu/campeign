@@ -20,12 +20,12 @@ export default function Create({ auth }) {
     });
 
     const followerRanges = [
-        { label: '100 - 1k', value: '100-1000' },
-        { label: '1k - 5k', value: '1000-5000' },
-        { label: '5k - 10k', value: '5000-10000' },
-        { label: '10k - 50k', value: '10000-50000' },
-        { label: '50k - 100k', value: '50000-100000' },
-        { label: '100k+', value: '100000+' },
+        { label: '100', value: '100' },
+        { label: '1k', value: '1000' },
+        { label: '5k', value: '5000' },
+        { label: '10k', value: '10000' },
+        { label: '50k', value: '50000' },
+        { label: '100k+', value: '100000' },
     ];
 
     // --- AUTOMATIC BUDGET CALCULATIONS ---

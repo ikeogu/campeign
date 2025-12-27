@@ -15,7 +15,9 @@ class Transaction extends Model
         'amount',
         'reference',
         'description',
-        'metadata'
+        'metadata',
+        'status',
+        'channel'
     ];
 
 

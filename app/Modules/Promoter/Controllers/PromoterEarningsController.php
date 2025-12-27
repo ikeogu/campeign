@@ -24,7 +24,7 @@ class PromoterEarningsController extends ApiController
             ->where('status', 'completed')
             ->sum('amount');
 
-        $totalWithdrawals = Transaction::where('wallet_id', $user->wallet?->id)
+        $totalWithdrawals = Transaction::where('wallet_id', $user->wallet->id)
             ->where('type', 'debit')
             ->sum('amount');
 
@@ -58,7 +58,7 @@ class PromoterEarningsController extends ApiController
             'summary' => [
                 'totalEarnings' => $totalEarnings,
                 'totalWithdrawals' => $totalWithdrawals,
-                'availableBalance' => $availableBalance,
+                'availableBalance' => $availableBalance / 100,
                 'completedPromotions' => $completedPromotions,
                 'pendingPayments' => $pendingPayments,
             ],

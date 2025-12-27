@@ -52,7 +52,7 @@ export default function AuthenticatedLayout({ header, children }) {
                         <div className="pt-6 space-y-2">
                             <p className="px-4 text-[10px] font-black uppercase text-green-500 tracking-[0.2em] mb-4">Advertiser Hub</p>
                             <ThemedNavLink href={route('campaigns.index')} active={route().current('campaigns.index')} icon="🚀">Campaigns</ThemedNavLink>
-                            <ThemedNavLink href={route('wallet.index')} active={route().current('wallet.index')} icon="💳">Budget</ThemedNavLink>
+                            <ThemedNavLink href={route('wallet.index')} active={route().current('wallet.index')} icon="💳">Wallet</ThemedNavLink>
                         </div>
                     )}
 

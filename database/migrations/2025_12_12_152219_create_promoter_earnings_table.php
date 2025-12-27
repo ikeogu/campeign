@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('promoter_earnings', function (Blueprint $table) {
             $table->ulid('id')->primary();
             $table->foreignUlid('promoter_id')->constrained()->cascadeOnDelete();
-             $table->foreignUlid('campaign_id')->constrained()->cascadeOnDelete();
-
+            $table->foreignUlid('campaign_id')->constrained()->cascadeOnDelete();
+            
             $table->decimal('amount');
             $table->string('status');
             $table->timestamp('completed_at');

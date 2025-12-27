@@ -23,7 +23,7 @@ class SubmitPostRequest extends FormRequest
     public function rules(): array
     {
         return [
-             'submissions' => ['required', 'array'],
+            'submissions' => ['required', 'array'],
             'submissions.*.link' => ['required', 'url', Rule::unique('promoter_submissions', 'link')],
             'submissions.*.proof' => ['nullable', 'file', 'mimes:jpg,png,mp4,mov,avi', 'max:5120'],
             'submissions.*.platform' => ['required', 'string'],
@@ -43,5 +43,4 @@ class SubmitPostRequest extends FormRequest
             'submissions.*.platform.required' => 'The platform is required.',
         ];
     }
-
 }
