@@ -21,5 +21,6 @@ export default defineConfig({
         alias: {
             '@': '/resources/js',
         },
+        extensions: ['.mjs', '.js', '.jsx', '.ts', '.tsx', '.json']
     }
 });
