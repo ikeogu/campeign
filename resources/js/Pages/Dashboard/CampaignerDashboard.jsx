@@ -13,18 +13,18 @@ import {
   Bar,
 } from 'recharts';
 
-import { 
-  DollarSign, 
-  Eye, 
-  MousePointer, 
-  Users, 
-  Activity, 
-  TrendingUp, 
-  PlusCircle, 
+import {
+  DollarSign,
+  Eye,
+  MousePointer,
+  Users,
+  Activity,
+  TrendingUp,
+  PlusCircle,
   Wallet,
   CheckCircle2
 } from 'lucide-react';
-import StatCard from '@/Components/Dashboard/StatCard';
+import StatCard from '@/Components/dashboard/StatCard';
 import { Link, usePage  } from '@inertiajs/react';
 
 export default function CampaignerDashboard() {
@@ -40,13 +40,13 @@ const campaignerSpendData = charts.monthly ?? [
     { month: 'May', spend: 185000, reach: 438000, submissions: 1900 },
     { month: 'Jun', spend: 210000, reach: 555000, submissions: 2400 },
   ];
-const campaignerCampaignPerformance = charts.campaignPerformance ?? 
+const campaignerCampaignPerformance = charts.campaignPerformance ??
 [
     { name: 'Viral Tiktok', completion: 98, spend: 45000 },
     { name: 'IG Awareness', completion: 75, spend: 32000 },
     { name: 'X Re-posts', completion: 100, spend: 15000 },
     { name: 'YT Reviews', completion: 45, spend: 85000 },
-  ]; 
+  ];
 
   return (
     <div className="space-y-8">
@@ -100,7 +100,7 @@ const campaignerCampaignPerformance = charts.campaignPerformance ??
       {/*   <StatCard
           icon={Activity}
           title="Avg. Engagement"
-          value={`${stats.avgEngagement}%`} 
+          value={`${stats.avgEngagement}%`}
           change={2.1}
           color="bg-pink-500"
         /> */}
@@ -131,7 +131,7 @@ const campaignerCampaignPerformance = charts.campaignPerformance ??
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
               <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fontSize: 12, fontWeight: 'bold', fill: '#9ca3af'}} />
               <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12, fontWeight: 'bold', fill: '#9ca3af'}} />
-              <Tooltip 
+              <Tooltip
                 contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'}}
               />
               <Area type="monotone" dataKey="spend" stroke="#8b5cf6" strokeWidth={4} fillOpacity={1} fill="url(#colorSpend)" />
@@ -143,7 +143,7 @@ const campaignerCampaignPerformance = charts.campaignPerformance ??
         {/* --- COMPLETION RATES BY CAMPAIGN (1/3 width) --- */}
         <div className="bg-white rounded-[2.5rem] shadow-sm p-8 border border-gray-100">
           <h2 className="text-xl font-black text-gray-900 uppercase tracking-tight mb-8">Campaign Health</h2>
-          
+
           <div className="space-y-6">
             {campaignerCampaignPerformance.map((campaign) => (
               <div key={campaign.name} className="space-y-2">
@@ -152,7 +152,7 @@ const campaignerCampaignPerformance = charts.campaignPerformance ??
                   <span className="font-bold text-purple-600">{campaign.completion}%</span>
                 </div>
                 <div className="w-full bg-gray-100 h-3 rounded-full overflow-hidden">
-                  <div 
+                  <div
                     className={`h-full rounded-full ${campaign.completion === 100 ? 'bg-emerald-500' : 'bg-purple-600'}`}
                     style={{ width: `${campaign.completion}%` }}
                   ></div>

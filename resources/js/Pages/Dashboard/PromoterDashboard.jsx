@@ -11,16 +11,16 @@ import {
   Cell,
 } from 'recharts';
 
-import { 
-  DollarSign, 
-  CheckCircle, 
-  Clock, 
-  Zap, 
-  Briefcase, 
+import {
+  DollarSign,
+  CheckCircle,
+  Clock,
+  Zap,
+  Briefcase,
   ArrowUpRight,
   ShieldCheck
 } from 'lucide-react';
-import StatCard from '@/Components/Dashboard/StatCard';
+import StatCard from '@/Components/dashboard/StatCard';
 import { Link, usePage } from '@inertiajs/react';
 
 export default function PromoterDashboard() {
@@ -111,7 +111,7 @@ export default function PromoterDashboard() {
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
               <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fontSize: 12, fontWeight: 'bold', fill: '#9ca3af'}} />
               <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12, fontWeight: 'bold', fill: '#9ca3af'}} />
-              <Tooltip 
+              <Tooltip
                 formatter={(value) => [`₦${value.toLocaleString()}`, 'Earned']}
                 contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'}}
               />
@@ -123,7 +123,7 @@ export default function PromoterDashboard() {
         {/* --- PLATFORM BREAKDOWN --- */}
         <div className="bg-white rounded-[2.5rem] shadow-sm p-8 border border-gray-100 flex flex-col">
           <h2 className="text-xl font-black text-gray-900 uppercase tracking-tight mb-8">Platform Strength</h2>
-          
+
           <div className="flex-grow">
             <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={platformPerformance} layout="vertical">
@@ -156,9 +156,9 @@ export default function PromoterDashboard() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {gigs.length > 0 ? gigs.map((gig) => (
-                <Link 
-                  key={gig.id} 
-                  href={route('promoter.gigs.show', gig.id)} 
+                <Link
+                  key={gig.id}
+                  href={route('promoter.gigs.show', gig.id)}
                   className="group p-6 rounded-[2rem] border border-gray-50 bg-gray-50/50 hover:bg-white hover:border-green-100 hover:shadow-xl hover:shadow-green-500/5 transition-all cursor-pointer"
                 >
                     <div className="flex justify-between items-start mb-4">

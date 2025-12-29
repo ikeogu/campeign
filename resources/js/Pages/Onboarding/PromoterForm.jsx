@@ -1,5 +1,5 @@
 import { Head, useForm } from '@inertiajs/react';
-import Navbar from '../../components/Navbar';
+import Navbar from '../../Components/Navbar';
 
 export default function PromoterOnboard() {
     const { data, setData, post, processing, errors } = useForm({
