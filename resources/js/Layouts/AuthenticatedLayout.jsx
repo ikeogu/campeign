@@ -58,11 +58,15 @@ export default function AuthenticatedLayout({ header, children }) {
 
                     <div className="pt-10 border-t border-pink-50 mt-10">
                         <ThemedNavLink href={route('profile.edit')} active={route().current('profile.edit')} icon="👤">My Profile</ThemedNavLink>
-                        <form method="POST" action={route('logout')} className="mt-2">
-                            <button type="submit" className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-gray-400 hover:bg-rose-50 hover:text-rose-600 transition-all">
-                                <span>🚪</span> Logout
-                            </button>
-                        </form>
+                        <Dropdown.Link
+                            href={route('logout')}
+                            method="post"
+                            as="button"
+                            className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-gray-400 hover:bg-rose-50 hover:text-rose-600 transition-all"
+                        >
+                            <span>🚪</span> Logout
+                        </Dropdown.Link>
+
                     </div>
                 </nav>
             </aside>
