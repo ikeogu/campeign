@@ -23,10 +23,10 @@ export default function Landing({ liveGigs = [], brandLogos = [] }) {
     return (
         <div className="bg-white min-h-screen font-sans selection:bg-pink-100 selection:text-pink-900">
 
-            {/* 1. LIVE GIGS TEASER (The Hook) */}
-            <section className="py-20 bg-gray-50 border-b border-gray-100">
+            {/* 1. LIVE GIGS TEASER */}
+            <section className="py-16 bg-gray-50 border-b border-gray-100 overflow-hidden">
                 <div className="max-w-7xl mx-auto px-4">
-                    <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+                    <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
                         <div>
                             <span className="inline-block animate-pulse mb-2 px-3 py-1 bg-red-100 text-red-600 text-[10px] font-black uppercase tracking-widest rounded-full">
                                 ● Live Now
@@ -34,48 +34,100 @@ export default function Landing({ liveGigs = [], brandLogos = [] }) {
                             <h2 className="text-3xl font-black text-gray-900 tracking-tight">
                                 Trending <span className="text-pink-600">Active Gigs</span>
                             </h2>
-                            <p className="text-gray-500 mt-1 font-medium italic">Promoters are currently earning from these campaigns.</p>
+                            <p className="text-gray-500 mt-1 text-sm font-medium italic">Promoters are currently earning from these campaigns.</p>
                         </div>
-                        <Link href={route('login')} className="text-pink-600 font-bold hover:underline flex items-center gap-2 group">
+                        <Link href={route('guest.gigs')} className="text-pink-600 font-bold hover:underline flex items-center gap-2 group text-sm">
                             View all active campaigns
                             <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
                         </Link>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {[1, 2, 3, 4].map((i) => (
-                            <Link
-                                key={i}
-                                href={route('login')}
-                                className={`group relative bg-white p-6 rounded-[2rem] border transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:border-pink-200
-                                    ${i > 2 ? 'opacity-40 grayscale pointer-events-none' : 'opacity-100 shadow-sm'}`}
+                    {/* Horizontal Scroll Container */}
+                    <div className="flex overflow-x-auto pb-8 gap-6 snap-x no-scrollbar">
+                        {[
+                            { id: 1, brand: 'Adidas', platform: 'instagram', amount: '5,000', progress: '82%', color: 'bg-pink-600', img: '👟' },
+                            { id: 2, brand: 'MTN Nigeria', platform: 'tiktok', amount: '3,500', progress: '45%', color: 'bg-slate-900', img: '📱' },
+                            { id: 3, brand: 'Nike Air', platform: 'twitter', amount: '7,000', progress: '100%', color: 'bg-blue-600', img: '🏀' },
+                            { id: 4, brand: 'Netflix', platform: 'facebook', amount: '4,200', progress: '100%', color: 'bg-indigo-600', img: '🎬' },
+                        ].map((gig) => (
+                            <div
+                                key={gig.id}
+                                className={`flex-none w-[300px] md:w-[320px] snap-start group relative bg-white overflow-hidden rounded-[2.5rem] border transition-all duration-300 shadow-sm hover:shadow-2xl hover:border-pink-200
+                                    ${gig.id > 2 ? 'opacity-60 grayscale pointer-events-none' : 'opacity-100'}`}
                             >
-                                <div className="flex justify-between items-start mb-4">
-                                    <span className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border ${getPlatformStyle(i === 1 ? 'instagram' : 'tiktok')}`}>
-                                        {i === 1 ? 'Instagram' : 'TikTok'}
-                                    </span>
-                                    <span className="text-green-600 font-black text-sm">₦5,000</span>
-                                </div>
-                                <h4 className="font-bold text-gray-800 mb-2">Exclusive Brand Launch {i}</h4>
-                                <div className="flex items-center gap-2 mt-4">
-                                    <div className="h-1.5 flex-grow bg-gray-100 rounded-full overflow-hidden">
-                                        <div className={`h-full bg-pink-500 ${i === 1 ? 'w-4/5' : 'w-1/2'}`}></div>
+                                {/* Brand Header */}
+                                <div className="p-5 pb-3">
+                                    <div className="flex justify-between items-center">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-9 h-9 rounded-xl bg-gray-900 flex items-center justify-center text-white font-black text-sm">
+                                                {gig.brand.charAt(0)}
+                                            </div>
+                                            <div>
+                                                <h4 className="font-black text-gray-900 leading-none uppercase text-[12px] tracking-tight">{gig.brand}</h4>
+                                                <p className="text-[10px] text-gray-400 font-bold">Campaign active</p>
+                                            </div>
+                                        </div>
+                                        <span className="text-green-600 font-black text-sm">₦{gig.amount}</span>
                                     </div>
-                                    <span className="text-[10px] font-bold text-gray-400">{i === 1 ? '82%' : '45%'}</span>
                                 </div>
-                                {i > 2 && (
-                                    <div className="absolute inset-0 flex items-center justify-center bg-white/40 backdrop-blur-[1px] rounded-[2rem]">
-                                        <span className="bg-gray-800 text-white text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-tighter">Budget Reached</span>
+
+                                {/* Reworked Product Visual Area (Larger & Bolder) */}
+                                <div className="mx-4 relative h-48 rounded-[2rem] bg-gradient-to-b from-gray-50 to-gray-100 overflow-hidden flex items-center justify-center border border-gray-100/50">
+                                    {/* Background subtle watermark */}
+                                    <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] select-none">
+                                        <span className="text-8xl font-black italic uppercase tracking-tighter">{gig.brand}</span>
+                                    </div>
+
+                                    {/* Main Image/Icon - Size increased to text-7xl */}
+                                    <div className="text-7xl filter drop-shadow-2xl transition-all duration-500 transform group-hover:scale-110 group-hover:rotate-6">
+                                        {gig.img}
+                                    </div>
+
+                                    <span className={`absolute top-4 left-4 text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-lg border shadow-sm ${getPlatformStyle(gig.platform)}`}>
+                                        {gig.platform}
+                                    </span>
+                                </div>
+
+                                {/* Footer Info & Action */}
+                                <div className="p-5 pt-4">
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <div className="h-2 flex-grow bg-gray-100 rounded-full overflow-hidden">
+                                            <div className="h-full bg-pink-500 transition-all duration-700" style={{ width: gig.progress }}></div>
+                                        </div>
+                                        <span className="text-[10px] font-black text-gray-500">{gig.progress}</span>
+                                    </div>
+
+                                    <Link
+                                        href={route('login')}
+                                        className={`block w-full py-3.5 rounded-2xl text-center text-white font-black text-[11px] uppercase tracking-[0.15em] transition-all active:scale-95 shadow-lg hover:brightness-110 ${gig.color}`}
+                                    >
+                                        Share & Earn
+                                    </Link>
+                                </div>
+
+                                {/* Budget Reached Overlay */}
+                                {gig.id > 2 && (
+                                    <div className="absolute inset-0 flex items-center justify-center bg-white/40 backdrop-blur-[2px] z-20">
+                                        <span className="bg-gray-900 text-white text-[10px] font-black px-5 py-2 rounded-full uppercase tracking-tighter shadow-xl">
+                                            Budget Reached
+                                        </span>
                                     </div>
                                 )}
-                            </Link>
+                            </div>
                         ))}
                     </div>
                 </div>
+
+                {/* Scrollbar hide helper */}
+                <style dangerouslySetInnerHTML={{ __html: `
+                    .no-scrollbar::-webkit-scrollbar { display: none; }
+                    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+                `}} />
             </section>
 
+
             {/* 2. HERO & LOGO WALL SECTION */}
-            <section className="relative overflow-hidden py-32 bg-white">
+           <section className="relative overflow-hidden py-32 bg-gray-50/50"> {/* Added subtle background color */}
                 {/* LOGO WALL BACKGROUND */}
                 <div className="absolute inset-0 opacity-[0.04] pointer-events-none select-none overflow-hidden">
                     <div className="grid grid-cols-6 gap-12 rotate-12 scale-150">
@@ -106,11 +158,30 @@ export default function Landing({ liveGigs = [], brandLogos = [] }) {
                     <div className="mt-20">
                         <p className="text-xs font-black text-gray-400 uppercase tracking-[0.4em] mb-8">Supported Platforms</p>
                         <div className="flex flex-wrap justify-center gap-3 md:gap-4 max-w-4xl mx-auto">
-                            {socialPlatforms.map((platform) => (
-                                <div key={platform} className="px-5 py-3 bg-white rounded-2xl border border-gray-100 shadow-sm font-bold text-gray-700 text-sm hover:border-pink-300 transition-colors cursor-default">
-                                    {platform}
-                                </div>
-                            ))}
+                            {socialPlatforms.map((platform) => {
+                                // Mapping dynamic colors based on platform name
+                                const colors = {
+                                    whatsapp: 'bg-green-50 text-green-700 border-green-100 hover:border-green-400',
+                                    facebook: 'bg-blue-50 text-blue-700 border-blue-100 hover:border-blue-400',
+                                    twitter: 'bg-sky-50 text-sky-700 border-sky-100 hover:border-sky-400',
+                                    instagram: 'bg-pink-50 text-pink-700 border-pink-100 hover:border-pink-400',
+                                    tiktok: 'bg-slate-100 text-slate-900 border-slate-200 hover:border-slate-500',
+                                    youtube: 'bg-red-50 text-red-700 border-red-100 hover:border-red-400',
+                                    telegram: 'bg-indigo-50 text-indigo-700 border-indigo-100 hover:border-indigo-400',
+                                    snapchat: 'bg-yellow-50 text-yellow-800 border-yellow-100 hover:border-yellow-400',
+                                };
+
+                                const colorStyle = colors[platform.toLowerCase()] || 'bg-gray-100 text-gray-700 border-gray-200 hover:border-pink-300';
+
+                                return (
+                                    <div
+                                        key={platform}
+                                        className={`px-5 py-3 rounded-2xl border shadow-sm font-bold text-sm transition-all cursor-default ${colorStyle}`}
+                                    >
+                                        {platform}
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
                 </div>
@@ -131,7 +202,7 @@ export default function Landing({ liveGigs = [], brandLogos = [] }) {
                             </div>
                             <h3 className="text-2xl font-black mb-4">For Promoters</h3>
                             <p className="text-gray-500 font-medium leading-relaxed">
-                                Turn your social presence into a paycheck. Earn between ₦200 – ₦5,000 per share. Simple tasks, instant wallet credits.
+                                Turn your social presence into a paycheck. Earn unlimited per share. Simple tasks, instant wallet credits.
                             </p>
                         </div>
 

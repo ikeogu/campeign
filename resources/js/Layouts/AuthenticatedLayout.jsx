@@ -30,7 +30,7 @@ export default function AuthenticatedLayout({ header, children }) {
                 <div className="p-8 border-b border-pink-50">
                     <Link href="/" className="flex items-center gap-3">
                         <ApplicationLogo className="h-10 w-auto text-pink-600" />
-                        <span className="font-black text-2xl tracking-tighter text-gray-900">TIDP<span className="text-pink-600">.</span></span>
+                        <span className="font-black text-2xl tracking-tighter text-gray-900">GigAC<span className="text-pink-600">.</span></span>
                     </Link>
                 </div>
 
@@ -43,6 +43,7 @@ export default function AuthenticatedLayout({ header, children }) {
                         <div className="pt-6 space-y-2">
                             <p className="px-4 text-[10px] font-black uppercase text-pink-400 tracking-[0.2em] mb-4">Promoter Tools</p>
                             <ThemedNavLink href={route('promoter.gigs.index')} active={route().current('promoter.gigs.index')} icon="⚡">Gigs Grid</ThemedNavLink>
+                            <ThemedNavLink href={route('promoter.analytics')} active={route().current('promoter.analytics')} icon="⚡">Analytics</ThemedNavLink>
                             <ThemedNavLink href={route('promoter.submissions')} active={route().current('promoter.submissions')} icon="📸">My Shares</ThemedNavLink>
                             <ThemedNavLink href={route('wallet.index')} active={route().current('wallet.index')} icon="💰">Earnings</ThemedNavLink>
                         </div>

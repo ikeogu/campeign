@@ -22,6 +22,8 @@ Route::get('/', function () {
     ]);
 });
 
+Route::get('guest-gigs', [PromoterGigController::class, 'guestIndex'])->name('guest.gigs');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -86,6 +88,7 @@ Route::middleware('auth')->group(function () {
     Route::post('wallet-fund-initialize', [WalletController::class, 'initialize'])->name('wallet.fund.initialize');
     Route::get('withdraw-create', [WalletController::class, 'withdraw'])->name('withdraw.create');
      Route::post('payout', [WalletController::class, 'payout'])->name('withdraw.store');
+     Route::get('/promoter-analysis', [DashboardController::class, 'promoterAnalysis'])->name('promoter.analytics');
 });
 
 Route::get('/dashboard', [DashboardController::class, 'dashboard'])->middleware(['auth', 'verified', 'onboarded'])->name('dashboard');

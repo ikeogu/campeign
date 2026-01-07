@@ -46,7 +46,7 @@ export default function SelectUserType() {
                                 </div>
                                 <h2 className="text-3xl font-black text-white mb-3 tracking-tight">Promoter</h2>
                                 <p className="text-slate-300 leading-relaxed mb-8 text-lg">
-                                    Monetize your social reach. Earn <span className="text-green-400 font-black italic">₦200 – ₦500</span> per task.
+                                    Monetize your social reach. Earn <span className="text-green-400 font-black italic">Unlimited</span> per task.
                                 </p>
                                 <div className="inline-flex items-center text-xs font-black uppercase tracking-widest text-white bg-green-600 px-8 py-4 rounded-2xl group-hover:bg-green-500 transition-all duration-300 shadow-xl shadow-green-900/20">
                                     Open Wallet

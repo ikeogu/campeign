@@ -1,164 +1,143 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Link, usePage } from '@inertiajs/react';
+import { Link, usePage, Head } from '@inertiajs/react';
 
-// Utility function to get platform icon/color (simplified)
 const getPlatformStyle = (platform) => {
     switch (platform?.toLowerCase()) {
-        case 'twitter':
-        case 'x':
-            return {
-                name: 'X / Twitter',
-                classes: 'bg-blue-50 text-blue-600 border-blue-200'
-            };
+        case 'twitter': case 'x':
+            return { name: 'X', classes: 'bg-blue-50 text-blue-600 border-blue-200' };
         case 'instagram':
-            return {
-                name: 'Instagram',
-                classes: 'bg-pink-50 text-pink-600 border-pink-200'
-            };
+            return { name: 'Instagram', classes: 'bg-pink-50 text-pink-600 border-pink-200' };
         case 'facebook':
-            return {
-                name: 'Facebook',
-                classes: 'bg-indigo-50 text-indigo-600 border-indigo-200'
-            };
+            return { name: 'Facebook', classes: 'bg-indigo-50 text-indigo-600 border-indigo-200' };
         case 'tiktok':
-            return {
-                name: 'TikTok',
-                classes: 'bg-slate-900 text-slate-100 border-slate-700'
-            };
+            return { name: 'TikTok', classes: 'bg-slate-900 text-slate-100 border-slate-700' };
         case 'youtube':
-            return {
-                name: 'YouTube',
-                classes: 'bg-red-50 text-red-600 border-red-200'
-            };
+            return { name: 'YouTube', classes: 'bg-red-50 text-red-600 border-red-200' };
         default:
-            return {
-                name: platform,
-                classes: 'bg-gray-50 text-gray-600 border-gray-200'
-            };
+            return { name: platform, classes: 'bg-gray-50 text-gray-600 border-gray-200' };
     }
 };
 
-// Utility function to format currency
-const formatCurrency = (amount) => {
-    return `₦${Number(amount).toLocaleString('en-NG', { minimumFractionDigits: 0 })}`;
-};
+const formatCurrency = (amount) => `₦${Number(amount).toLocaleString('en-NG')}`;
 
 export default function PromoterCampaignIndex() {
-    // Assuming the controller passes 'gigs' (live campaigns)
     const { gigs, auth } = usePage().props;
 
     return (
-        <AuthenticatedLayout user={auth.user} header="Available Gigs (Live Campaigns)">
-            <div className="bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">
+        <AuthenticatedLayout user={auth.user}>
+            <Head title="Available Gigs" />
+
+            <div className="bg-gray-50 min-h-screen py-12 px-4 sm:px-6 lg:px-8 font-sans">
                 <div className="max-w-7xl mx-auto">
-
-                    {/* Header */}
-                    <div className="mb-8 pb-4 border-b border-gray-200">
-                        <h1 className="text-3xl font-extrabold text-gray-900">
-                            Find Sharing Opportunities
-                        </h1>
-                        <p className="text-gray-500 mt-1">
-                            Select a campaign, share the content, and earn your payout instantly!
-                        </p>
-                    </div>
-
-                    {/* Gigs Grid */}
-                    {gigs.length === 0 ? (
-                        <div className="p-12 bg-white rounded-2xl text-center shadow-lg border border-pink-100">
-                            <h3 className="text-xl font-bold text-gray-700">
-                                No Gigs Available Right Now
-                            </h3>
-                            <p className="text-gray-500 mt-2">
-                                Check back later for new campaigns that match your profile.
+                    {/* Catchy Header with Urgency */}
+                    <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
+                        <div>
+                            <span className="inline-block animate-pulse mb-2 px-3 py-1 bg-red-100 text-red-600 text-[10px] font-black uppercase tracking-widest rounded-full">
+                                ● Live Now
+                            </span>
+                            <h1 className="text-4xl font-black text-gray-900 tracking-tight">
+                                Trending <span className="text-pink-600">Active Gigs</span>
+                            </h1>
+                            <p className="text-gray-500 mt-1 font-medium italic">
+                                Promoters are currently earning from these campaigns right now.
                             </p>
                         </div>
-                    ) : (
-                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {gigs.map((gig) => {
-                                return (
-                                    <div
-                                        key={gig.id}
-                                        className="bg-white rounded-2xl shadow-xl hover:shadow-2xl transition duration-300 p-6 flex flex-col border border-pink-100"
-                                    >
-                                        <div className="flex-grow">
-                                           {/* Payout & Platform Badges */}
-                                            <div className="flex justify-between items-start mb-4">
-                                                {/* Platform Pill Container */}
-                                                <div className="flex flex-wrap gap-1.5 max-w-[65%]">
-                                                    {gig.platforms && gig.platforms.map((p, idx) => {
-                                                        const style = getPlatformStyle(p);
-                                                        return (
-                                                            <span
-                                                                key={idx}
-                                                                className={`
-                                                                    text-[10px] uppercase tracking-widest font-extrabold
-                                                                    px-2.5 py-1 rounded-md border shadow-sm
-                                                                    ${style.classes}
-                                                                `}
-                                                            >
-                                                                {style.name}
-                                                            </span>
-                                                        );
-                                                    })}
-                                                </div>
+                        <div className="bg-white px-4 py-2 rounded-2xl border border-gray-200 shadow-sm">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase">Available Payouts</p>
+                            <p className="text-xl font-black text-green-600">
+                                {formatCurrency(gigs.reduce((acc, gig) => acc + Number(gig.payout), 0))}
+                            </p>
+                        </div>
+                    </div>
 
-                                                {/* Payout Badge (Theme Green) */}
-                                                <div className="flex flex-col items-end">
-                                                    <span className="text-xs font-bold text-gray-400 uppercase tracking-tighter">Payout</span>
-                                                    <div className="text-lg font-black text-green-700">
-                                                        {formatCurrency(gig.payout)}
-                                                    </div>
+                    {gigs.length === 0 ? (
+                        <div className="p-16 bg-white rounded-[3rem] text-center shadow-sm border border-gray-100">
+                            <span className="text-5xl mb-4 block">🔍</span>
+                            <h3 className="text-2xl font-black text-gray-900">The vault is empty!</h3>
+                            <p className="text-gray-500 mt-2 font-medium">New high-paying gigs land daily. Refresh in a bit.</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            {gigs.map((gig) => {
+                                // Extract brand details from user.campaigner relationship
+                                const brandName = gig.user?.campaigner?.brand_name || "Exclusive Brand";
+                                const brandLogo = gig.user?.campaigner?.logo_url;
+
+                                return (
+                                    <div key={gig.id} className="group relative bg-white rounded-[2.5rem] border border-gray-100 shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 flex flex-col overflow-hidden">
+
+                                        {/* 1. BRAND HEADER */}
+                                        <div className="p-6 pb-4 flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-12 h-12 rounded-2xl bg-gray-900 flex items-center justify-center text-white font-black text-lg overflow-hidden border border-gray-100 shadow-inner">
+                                                    {brandLogo ? (
+                                                        <img src={brandLogo} className="w-full h-full object-cover" alt={brandName} />
+                                                    ) : (
+                                                        brandName.charAt(0)
+                                                    )}
+                                                </div>
+                                                <div>
+                                                    <h4 className="font-black text-gray-900 uppercase text-[13px] tracking-tight leading-none">{brandName}</h4>
+                                                    <p className="text-[10px] text-gray-400 font-bold mt-1">Campaign Active</p>
                                                 </div>
                                             </div>
-
-                                            {/* Title */}
-                                            <h2 className="font-extrabold text-xl text-gray-900 line-clamp-2 min-h-[3rem]">
-                                                {gig.title}
-                                            </h2>
-
-                                            {/* Description */}
-                                            <p className="text-gray-600 mt-2 text-sm line-clamp-3 min-h-[3.75rem]">
-                                                {gig.description}
-                                            </p>
-
-                                            {/* Target & Images */}
-                                            <div className="mt-4 pt-4 border-t border-gray-100 space-y-2">
-                                                <p className="text-sm text-gray-700">
-                                                    <span className="font-semibold text-pink-600">Target Shares:</span> {gig.target_shares}
-                                                </p>
-                                                <p className="text-sm text-gray-700">
-                                                    <span className="font-semibold text-pink-600">Min. Followers:</span> {gig.min_followers?.toLocaleString() || 'N/A'}
-                                                </p>
-
-                                                {/* Images Preview */}
-                                                {gig.image_urls && gig.image_urls.length > 0 && (
-                                                    <div className="flex flex-wrap gap-2 pt-2">
-                                                        {gig.image_urls.slice(0, 3).map((img, index) => (
-                                                            <img
-                                                                key={img.id}
-                                                                src={img.url}
-                                                                className="w-10 h-10 object-cover rounded-md border border-gray-200"
-                                                                alt={`Image ${index + 1}`}
-                                                            />
-                                                        ))}
-                                                        {gig.image_urls.length > 3 && (
-                                                            <div className="w-10 h-10 bg-gray-100 text-gray-500 rounded-md flex items-center justify-center text-xs font-semibold">
-                                                                +{gig.image_urls.length - 3}
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                )}
+                                            <div className="text-right">
+                                                <span className="text-green-600 font-black text-xl leading-none block">{formatCurrency(gig.payout)}</span>
+                                                <p className="text-[9px] text-gray-400 font-black uppercase tracking-widest mt-0.5">Earnings</p>
                                             </div>
                                         </div>
 
-                                        {/* Action Button */}
-                                        <div className="mt-6 pt-4 border-t border-gray-100">
-                                            <Link
-                                                href={route('promoter.gigs.show', gig.id)}
-                                                className="w-full text-center bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 rounded-xl transition shadow-md block"
-                                            >
-                                                View Criteria & Share
-                                            </Link>
+                                        {/* 2. DYNAMIC VISUAL AREA (The "Catchy" Part) */}
+                                        <div className="mx-4 relative h-48 rounded-[2rem] bg-gray-50 overflow-hidden flex items-center justify-center border border-gray-50 group-hover:bg-gray-100 transition-colors">
+                                            {/* Watermark Background */}
+                                            <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] select-none pointer-events-none">
+                                                <span className="text-8xl font-black italic uppercase -rotate-12">{brandName}</span>
+                                            </div>
+
+                                            {/* Main Image Asset */}
+                                            <div className="relative z-10 transition-transform duration-700 group-hover:scale-110">
+                                                {gig.image_urls?.[0] ? (
+                                                    <img src={gig.image_urls[0].url} className="h-40 object-contain drop-shadow-2xl" alt="Campaign Asset" />
+                                                ) : (
+                                                    <span className="text-7xl drop-shadow-xl">📢</span>
+                                                )}
+                                            </div>
+
+                                            {/* Platform Badge Floating */}
+                                            <div className="absolute top-4 left-4 flex flex-wrap gap-1">
+                                                {gig.platforms?.slice(0, 2).map((p, idx) => (
+                                                    <span key={idx} className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-lg border shadow-sm ${getPlatformStyle(p).classes}`}>
+                                                        {getPlatformStyle(p).name}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* 3. INFO & FOMO BAR */}
+                                        <div className="p-6 flex-grow flex flex-col">
+                                            <h2 className="font-black text-gray-900 text-lg leading-tight line-clamp-1 mb-2">
+                                                {gig.title}
+                                            </h2>
+
+                                            <div className="mt-auto">
+                                                <div className="flex items-center justify-between text-[10px] font-black uppercase text-gray-400 mb-2 tracking-widest">
+                                                    <span>Budget Used</span>
+                                                    <span>{gig.completion_percentage || 0}%</span>
+                                                </div>
+                                                <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden mb-6">
+                                                    <div
+                                                        className="h-full bg-pink-500 rounded-full transition-all duration-1000"
+                                                        style={{ width: `${gig.completion_percentage || 0}%` }}
+                                                    ></div>
+                                                </div>
+
+                                                <Link
+                                                    href={route('promoter.gigs.show', gig.id)}
+                                                    className="block w-full py-4 bg-gray-900 text-white rounded-2xl text-center font-black text-xs uppercase tracking-[0.2em] shadow-xl hover:bg-pink-600 transition-all active:scale-95 group-hover:shadow-pink-200"
+                                                >
+                                                    Share & Earn {formatCurrency(gig.payout)}
+                                                </Link>
+                                            </div>
                                         </div>
                                     </div>
                                 );

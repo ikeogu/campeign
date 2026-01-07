@@ -98,7 +98,7 @@ class DashboardController extends ApiController
                 'spend'      => (int) $campaign->total_budget,
             ]);
 
-        return [
+        $data = [
             'stats' => [
                 'totalSpend'        => $totalSpend,
                 //'totalReach'        => $totalReach,
@@ -110,9 +110,11 @@ class DashboardController extends ApiController
                 'campaignPerformance' => $campaignPerformance,
             ],
         ];
+
+        return Inertia::render('Dashboard', array_merge($data, ['user' => $user]));
     }
 
-    public function promoter()
+    public function promoterAnalysis()
     {
         $user = Auth::user();
         $userId = $user->id;
@@ -201,7 +203,7 @@ class DashboardController extends ApiController
                 'ends_at' => $campaign->ends_at?->diffForHumans(),
             ]);
 
-        return [
+        $data = [
             'stats' => [
                 'totalPayouts'   => $totalPayouts,
                 'approvedProofs' => $approvedProofs,
@@ -215,16 +217,46 @@ class DashboardController extends ApiController
             ],
             'recommendedGigs' => $recommendedGigs,
         ];
+
+        return Inertia::render('Dashboard', array_merge($data, ['user' => $user]));
     }
 
     public function dashboard()
     {
         $user = Auth::user();
-        $data =  match ($user->role) {
-            'promoter' => $this->promoter(),
+        return  match ($user->role) {
+            'promoter' => $this->index(),
             default => $this->campainer()
         };
 
-        return Inertia::render('Dashboard', array_merge($data, ['user' => $user]));
+
+    }
+
+    public function index()
+    {
+        $gigs = Campaign::with('images')
+            ->where('status', 'live')
+            ->latest()
+            ->get()
+            ->map(function ($gig) {
+                return [
+                    'id' => $gig->id,
+                    'title' => $gig->title,
+                    'description' => $gig->description,
+                    'platforms' => $gig->platforms,
+                    'payout' => $gig->payout,
+                    'target_shares' => $gig->target_shares,
+                    'target_followers' => $gig->target_followers,
+                    'available_slots' => $gig->available_slots,
+                    'image_urls' => $gig->images->map(fn($i) => [
+                        'id' => $i->id,
+                        'url' => asset('storage/' . $i->file_path),
+                    ]),
+                ];
+            });
+
+        return Inertia::render('Promoter/Gigs/Index', [
+            'gigs' => $gigs,
+        ]);
     }
 }

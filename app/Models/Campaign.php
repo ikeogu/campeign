@@ -18,6 +18,7 @@ class Campaign extends Model
     protected $fillable = [
         'user_id',
         'title',
+        'category',
         'description',
         'min_followers',
         'platforms',

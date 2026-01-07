@@ -43,6 +43,34 @@ class PromoterGigController extends ApiController
         ]);
     }
 
+    public function guestIndex()
+    {
+        $gigs = Campaign::with('images')
+            ->where('status', 'live')
+            ->latest()
+            ->get()
+            ->map(function ($gig) {
+                return [
+                    'id' => $gig->id,
+                    'title' => $gig->title,
+                    'description' => $gig->description,
+                    'platforms' => $gig->platforms,
+                    'payout' => $gig->payout,
+                    'target_shares' => $gig->target_shares,
+                    'target_followers' => $gig->target_followers,
+                    'available_slots' => $gig->available_slots,
+                    'image_urls' => $gig->images->map(fn($i) => [
+                        'id' => $i->id,
+                        'url' => asset('storage/' . $i->file_path),
+                    ]),
+                ];
+            });
+
+        return Inertia::render('GuestCampaign', [
+            'allGigs' => $gigs,
+        ]);
+    }
+
     public function show($id)
     {
         $gig = Campaign::with('images')->findOrFail($id);
