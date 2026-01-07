@@ -31,12 +31,13 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-     
+
 
         $request->validate([
 
             'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
             'password' => ['required', 'confirmed', Rules\Password::min(6)],
+            'accepted_terms' => ['required', 'bool']
         ]);
 
         Log::info('Register data received:', $request->all());

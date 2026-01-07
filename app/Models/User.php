@@ -28,7 +28,8 @@ class User extends Authenticatable
         'email',
         'role',
         'password',
-        'onboarded'
+        'onboarded',
+        'accepted_terms'
     ];
 
     /**
