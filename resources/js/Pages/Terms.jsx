@@ -101,14 +101,7 @@ export default function TermsAndConditions() {
                 </div>
 
                 {/* CALL TO ACTION */}
-                <div className="mt-16 text-center">
-                    <Link
-                        href={route('register')}
-                        className="inline-block bg-gray-900 text-white px-10 py-5 rounded-[2rem] font-black uppercase text-xs tracking-[0.2em] shadow-2xl hover:bg-pink-600 transition-all active:scale-95"
-                    >
-                        Accept & Continue
-                    </Link>
-                </div>
+                
             </main>
 
             <Footer />
