@@ -3,21 +3,43 @@ import { useForm, Link, Head } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 
 export default function Create({ auth }) {
-    // Local state for browser image previews
     const [previews, setPreviews] = useState([]);
 
     const { data, setData, post, errors, processing } = useForm({
         title: '',
         description: '',
+        category: '', // Added category to form state
         platforms: [],
         min_followers: '',
         payout: '',
         target_shares: '',
-        base_budget: 0,      // Pure payout cost
-        management_fee: 0,   // 3% platform fee
-        total_budget: 0,     // Grand Total
-        files: [],           // Key consistently named 'files'
+        base_budget: 0,
+        management_fee: 0,
+        total_budget: 0,
+        files: [],
     });
+
+    const categories = [
+       'Fashion & Beauty',
+        'Technology & Gadgets',
+        'Software & Apps',
+        'Finance & Investments',
+        'Food & Beverages',
+        'Health & Wellness',
+        'Education & Learning',
+        'Real Estate & Housing',
+        'Household & Living',
+        'Entertainment & Media',
+        'Sports & Gaming',
+        'Transportation & Mobility',
+        'Retail & E-commerce',
+        'Politics & Governance',
+        'NGOs & Social Impact',
+        'Jobs, Careers & Gigs',
+        'Events & Experiences',
+        'Religion & Faith-Based',
+        'Agriculture & Agribusiness'
+    ];
 
     const followerRanges = [
         { label: '100', value: '100' },
@@ -28,11 +50,9 @@ export default function Create({ auth }) {
         { label: '100k+', value: '100000' },
     ];
 
-    // --- AUTOMATIC BUDGET CALCULATIONS ---
     useEffect(() => {
         const payout = Number(data.payout) || 0;
         const shares = Number(data.target_shares) || 0;
-
         const baseCost = payout * shares;
         const fee = baseCost * 0.03;
         const total = baseCost + fee;
@@ -45,24 +65,16 @@ export default function Create({ auth }) {
         }));
     }, [data.payout, data.target_shares]);
 
-    // --- IMAGE HANDLING LOGIC ---
     function handleImages(e) {
         const newlySelectedFiles = Array.from(e.target.files);
-
-        // Fix: Use data.files to match useForm key
         setData('files', [...data.files, ...newlySelectedFiles]);
-
-        // Generate temporary preview URLs
         const newPreviewUrls = newlySelectedFiles.map((file) => URL.createObjectURL(file));
         setPreviews((prev) => [...prev, ...newPreviewUrls]);
     }
 
     function removeImage(index) {
-        // Remove from form data
         const updatedFiles = data.files.filter((_, i) => i !== index);
         setData('files', updatedFiles);
-
-        // Remove from UI previews
         const updatedPreviews = previews.filter((_, i) => i !== index);
         setPreviews(updatedPreviews);
     }
@@ -76,15 +88,10 @@ export default function Create({ auth }) {
     }
 
     return (
-        <AuthenticatedLayout
-            user={auth.user}
-            header="Create Campaign"
-        >
+        <AuthenticatedLayout user={auth.user} header="Create Campaign">
             <Head title="Create Campaign" />
 
-            <div className="max-w-4xl mx-auto pb-20">
-
-                {/* Header Section */}
+            <div className="max-w-4xl mx-auto pb-20 px-4">
                 <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
                     <div>
                         <Link href={route('campaigns.index')} className="text-pink-600 font-black text-[10px] uppercase tracking-[0.2em] flex items-center gap-2 mb-2">
@@ -96,22 +103,68 @@ export default function Create({ auth }) {
                 </div>
 
                 <form onSubmit={submit} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-                    {/* LEFT COLUMN: Main Details */}
                     <div className="lg:col-span-2 space-y-6">
 
-                        {/* Basic Info Card */}
-                        <div className="bg-white p-6 sm:p-8 rounded-[2.5rem] border border-pink-50 shadow-sm space-y-6">
+                        {/* Basic Info & Category */}
+                        <div className="bg-white p-6 sm:p-8 rounded-[2.5rem] border border-pink-50 shadow-sm space-y-8">
                             <div>
                                 <label className="block text-[10px] font-black uppercase text-gray-400 tracking-widest mb-2">Campaign Title</label>
                                 <input
                                     type="text"
-                                    placeholder="e.g. New Product Launch 2024"
-                                    className="w-full bg-gray-50 border-none rounded-2xl py-4 px-6 focus:ring-2 focus:ring-pink-500 font-bold text-gray-700 placeholder:text-gray-300 transition-all"
+                                    placeholder="e.g. Summer Sales Blast"
+                                    className="w-full bg-gray-50 border-none rounded-2xl py-4 px-6 focus:ring-2 focus:ring-pink-500 font-bold text-gray-700 placeholder:text-gray-300"
                                     value={data.title}
                                     onChange={(e) => setData('title', e.target.value)}
                                 />
                                 {errors.title && <p className="mt-2 text-xs text-pink-600 font-bold">{errors.title}</p>}
+                            </div>
+
+                            {/* CATEGORY SELECTION */}
+                            {/* CATEGORY SELECTION - COMPACT SEARCHABLE VERSION */}
+                            <div>
+                                <label className="block text-[10px] font-black uppercase text-pink-600 tracking-widest mb-4">
+                                    Campaign Category
+                                </label>
+                                <div className="relative group">
+                                    <select
+                                        value={data.category}
+                                        onChange={(e) => setData('category', e.target.value)}
+                                        className="w-full bg-gray-50 border-none rounded-2xl py-4 px-6 focus:ring-2 focus:ring-pink-500 font-bold text-gray-700 appearance-none cursor-pointer"
+                                    >
+                                        <option value="" className="text-gray-300">Select Industry...</option>
+                                        {categories.map((cat) => (
+                                            <option key={cat} value={cat}>
+                                                {cat}
+                                            </option>
+                                        ))}
+                                    </select>
+
+                                    {/* Custom Chevron for the Select Box */}
+                                    <div className="absolute inset-y-0 right-0 flex items-center pr-6 pointer-events-none text-gray-400 group-hover:text-pink-500 transition-colors">
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </div>
+                                </div>
+
+                                {/* Quick-select chips for the 4 most popular categories */}
+                                <div className="flex flex-wrap gap-2 mt-3">
+                                    {['Entertainment & Media', 'Fashion & Beauty', 'Technology & Gadgets', 'Food & Beverages'].map((pop) => (
+                                        <button
+                                            key={pop}
+                                            type="button"
+                                            onClick={() => setData('category', pop)}
+                                            className={`px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-tight transition-all border ${
+                                                data.category === pop
+                                                ? 'bg-pink-600 border-pink-600 text-white'
+                                                : 'bg-white border-gray-100 text-gray-400 hover:border-pink-200'
+                                            }`}
+                                        >
+                                            {pop}
+                                        </button>
+                                    ))}
+                                </div>
+                                {errors.category && <p className="mt-2 text-xs text-pink-600 font-bold">{errors.category}</p>}
                             </div>
 
                             <div>
@@ -119,7 +172,7 @@ export default function Create({ auth }) {
                                 <textarea
                                     rows="4"
                                     placeholder="Tell promoters what to write and where to post..."
-                                    className="w-full bg-gray-50 border-none rounded-2xl py-4 px-6 focus:ring-2 focus:ring-pink-500 font-medium text-gray-700 transition-all"
+                                    className="w-full bg-gray-50 border-none rounded-2xl py-4 px-6 focus:ring-2 focus:ring-pink-500 font-medium text-gray-700"
                                     value={data.description}
                                     onChange={(e) => setData('description', e.target.value)}
                                 />
@@ -127,47 +180,45 @@ export default function Create({ auth }) {
                         </div>
 
                         {/* Targeting Card */}
-                        <div className="bg-white p-6 sm:p-8 rounded-[2.5rem] border border-pink-50 shadow-sm">
-                            <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight mb-6">Targeting & Reach</h3>
+                        <div className="bg-white p-6 sm:p-8 rounded-[2.5rem] border border-pink-50 shadow-sm space-y-8">
+                            <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight">Targeting & Reach</h3>
 
-                            <div className="space-y-8">
-                                <div>
-                                    <p className="text-[10px] font-black uppercase text-pink-600 tracking-widest mb-4">Select Platforms</p>
-                                    <div className="flex flex-wrap gap-2">
-                                        {['Facebook', 'YouTube', 'Instagram', 'WhatsApp', 'TikTok', 'Twitter'].map((p) => {
-                                            const id = p.toLowerCase();
-                                            const isChecked = data.platforms.includes(id);
-                                            return (
-                                                <button
-                                                    key={id}
-                                                    type="button"
-                                                    onClick={() => {
-                                                        const current = [...data.platforms];
-                                                        setData('platforms', isChecked ? current.filter(x => x !== id) : [...current, id]);
-                                                    }}
-                                                    className={`px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border-2 ${isChecked ? 'bg-pink-600 border-pink-600 text-white shadow-lg' : 'bg-white border-gray-100 text-gray-400 hover:border-pink-200'}`}
-                                                >
-                                                    {p}
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <p className="text-[10px] font-black uppercase text-pink-600 tracking-widest mb-4">Minimum Follower Requirement</p>
-                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                                        {followerRanges.map((range) => (
+                            <div>
+                                <p className="text-[10px] font-black uppercase text-pink-600 tracking-widest mb-4">Select Platforms</p>
+                                <div className="flex flex-wrap gap-2">
+                                    {['Facebook', 'YouTube', 'Instagram', 'WhatsApp', 'TikTok', 'Twitter'].map((p) => {
+                                        const id = p.toLowerCase();
+                                        const isChecked = data.platforms.includes(id);
+                                        return (
                                             <button
-                                                key={range.value}
+                                                key={id}
                                                 type="button"
-                                                onClick={() => setData('min_followers', range.value)}
-                                                className={`py-3 rounded-xl text-[10px] font-black uppercase transition-all border-2 ${data.min_followers === range.value ? 'bg-gray-900 border-gray-900 text-white' : 'bg-white border-gray-100 text-gray-400 hover:bg-pink-50'}`}
+                                                onClick={() => {
+                                                    const current = [...data.platforms];
+                                                    setData('platforms', isChecked ? current.filter(x => x !== id) : [...current, id]);
+                                                }}
+                                                className={`px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border-2 ${isChecked ? 'bg-pink-600 border-pink-600 text-white shadow-lg' : 'bg-white border-gray-100 text-gray-400 hover:border-pink-200'}`}
                                             >
-                                                {range.label}
+                                                {p}
                                             </button>
-                                        ))}
-                                    </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            <div>
+                                <p className="text-[10px] font-black uppercase text-pink-600 tracking-widest mb-4">Minimum Follower Requirement</p>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                    {followerRanges.map((range) => (
+                                        <button
+                                            key={range.value}
+                                            type="button"
+                                            onClick={() => setData('min_followers', range.value)}
+                                            className={`py-3 rounded-xl text-[10px] font-black uppercase transition-all border-2 ${data.min_followers === range.value ? 'bg-gray-900 border-gray-900 text-white' : 'bg-white border-gray-100 text-gray-400 hover:bg-pink-50'}`}
+                                        >
+                                            {range.label}
+                                        </button>
+                                    ))}
                                 </div>
                             </div>
                         </div>
@@ -201,7 +252,7 @@ export default function Create({ auth }) {
                         </div>
                     </div>
 
-                    {/* RIGHT COLUMN: Budget & Submit */}
+                    {/* RIGHT COLUMN: Budget Summary */}
                     <div className="space-y-6">
                         <div className="bg-gray-900 rounded-[2.5rem] p-8 text-white shadow-2xl sticky top-8">
                             <h3 className="text-xs font-black text-pink-500 uppercase tracking-[0.2em] mb-8">Budget Summary</h3>
@@ -228,12 +279,12 @@ export default function Create({ auth }) {
                                     </div>
                                 </div>
 
-                                <div className="pt-6 border-t border-white/10 space-y-3">
-                                    <div className="flex justify-between text-xs font-bold">
+                                <div className="pt-6 border-t border-white/10 space-y-3 text-xs font-bold">
+                                    <div className="flex justify-between">
                                         <span className="text-gray-400">Net Spend</span>
                                         <span>₦{data.base_budget.toLocaleString()}</span>
                                     </div>
-                                    <div className="flex justify-between text-xs font-bold">
+                                    <div className="flex justify-between">
                                         <span className="text-gray-400">Platform Fee (3%)</span>
                                         <span className="text-pink-500">+₦{data.management_fee.toLocaleString()}</span>
                                     </div>
@@ -254,7 +305,6 @@ export default function Create({ auth }) {
                             </div>
                         </div>
                     </div>
-
                 </form>
             </div>
         </AuthenticatedLayout>

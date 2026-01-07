@@ -28,6 +28,7 @@ export default function Campaigns({ allGigs = [] }) {
         <div className="bg-gray-50 min-h-screen font-sans selection:bg-pink-100">
             <Head title="Browse Campaigns" />
 
+            {/* Header with improved styling */}
             <div className="bg-white border-b border-gray-100 pt-12 pb-8">
                 <div className="max-w-7xl mx-auto px-6">
                     <h1 className="text-3xl font-black text-gray-900 tracking-tight">Active <span className="text-pink-600">Gigs</span></h1>
@@ -38,9 +39,9 @@ export default function Campaigns({ allGigs = [] }) {
             <main className="max-w-7xl mx-auto px-6 py-10">
                 <div className="flex flex-col lg:flex-row gap-8">
 
-                    {/* Compact Sidebar */}
+                    {/* Compact Sidebar with dynamic category list */}
                     <aside className="w-full lg:w-56 flex-shrink-0">
-                        <div className="bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm sticky top-24">
+                        <div className="bg-white p-5 rounded-[2.5rem] border border-gray-100 shadow-sm sticky top-24">
                             <h3 className="font-black text-gray-400 uppercase text-[9px] tracking-[0.2em] mb-4">Categories</h3>
                             <div className="flex flex-row lg:flex-col gap-1.5 overflow-x-auto no-scrollbar">
                                 {categories.map((cat) => (
@@ -64,8 +65,7 @@ export default function Campaigns({ allGigs = [] }) {
                     <div className="flex-grow">
                         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
                             {filteredGigs.map((gig) => {
-                                // Accessing brand data via relationship: gig.user.campaigner
-                                const brandName = gig.user?.campaigner?.brand_name || "Exclusive Brand";
+                                const brandName = gig.user?.campaigner?.company_name || "Exclusive Brand";
                                 const brandLogo = gig.user?.campaigner?.logo_url;
 
                                 return (
@@ -102,7 +102,7 @@ export default function Campaigns({ allGigs = [] }) {
                                             </div>
                                         </div>
 
-                                        {/* Main Asset View (Taller than before, but narrower card) */}
+                                        {/* Main Asset View with Overlay Category Badge */}
                                         <div className="px-3">
                                             <div className="relative h-44 rounded-[1.5rem] bg-gray-900 overflow-hidden flex items-center justify-center">
                                                 {gig.image_urls && gig.image_urls.length > 0 ? (
@@ -114,28 +114,37 @@ export default function Campaigns({ allGigs = [] }) {
                                                 ) : (
                                                     <span className="text-5xl opacity-20">📢</span>
                                                 )}
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                                                <span className="absolute bottom-3 left-4 text-white font-black text-[10px] uppercase tracking-widest">
-                                                    {gig.category || 'Promo'}
+
+                                                {/* Gradient Overlay for Text Readability */}
+                                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+
+                                                {/* Category Label - Styled as a floating badge */}
+                                                <span className="absolute bottom-3 left-4 bg-pink-600 text-white font-black text-[8px] uppercase tracking-widest px-2 py-0.5 rounded shadow-lg">
+                                                    {gig.category || 'General'}
                                                 </span>
                                             </div>
                                         </div>
 
                                         {/* Footer Action */}
                                         <div className="p-4">
-                                            <div className="flex items-center gap-2 mb-3">
+                                            {/* Campaign Title Added for Public Context */}
+                                            <h2 className="font-black text-gray-900 text-sm leading-tight line-clamp-1 mb-3">
+                                                {gig.title}
+                                            </h2>
+
+                                            <div className="flex items-center gap-2 mb-4">
                                                 <div className="h-1 flex-grow bg-gray-100 rounded-full overflow-hidden">
                                                     <div
                                                         className="h-full bg-pink-500 rounded-full transition-all"
                                                         style={{ width: `${gig.completion_percentage || 0}%` }}
                                                     ></div>
                                                 </div>
-                                                <span className="text-[9px] font-black text-gray-400">{gig.completion_percentage || 0}%</span>
+                                                <span className="text-[9px] font-black text-gray-400 uppercase">{gig.completion_percentage || 0}% Used</span>
                                             </div>
 
                                             <Link
                                                 href={route('login')}
-                                                className="block w-full py-3 bg-gray-900 text-white rounded-xl text-center font-black text-[10px] uppercase tracking-[0.15em] hover:bg-pink-600 transition-colors shadow-lg shadow-gray-200"
+                                                className="block w-full py-3.5 bg-gray-900 text-white rounded-xl text-center font-black text-[10px] uppercase tracking-[0.15em] hover:bg-pink-600 transition-colors shadow-lg shadow-gray-200"
                                             >
                                                 Start Earning
                                             </Link>

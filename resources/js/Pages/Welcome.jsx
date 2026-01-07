@@ -19,11 +19,20 @@ export default function Landing({ liveGigs = [], brandLogos = [] }) {
         "Facebook", "Youtube", "Instagram", "Whatsapp",
         "WeChat", "Telegram", "Tiktok", "Snapchat", "Twitter"
     ];
+    // 1. FALLBACK STATIC DATA
+    const staticGigs = [
+        { id: 's1', title: 'Summer Collection', category: 'Fashion', user: { campaigner: { brand_name: 'Adidas' } }, platforms: ['instagram'], payout: 5000, completion_percentage: 82, status: 'active', isStatic: true, emoji: '👟' },
+        { id: 's2', title: 'Data Blowout', category: 'Telecom', user: { campaigner: { brand_name: 'MTN Nigeria' } }, platforms: ['tiktok'], payout: 3500, completion_percentage: 45, status: 'active', isStatic: true, emoji: '📱' },
+        { id: 's3', title: 'Jordan Launch', category: 'Sports', user: { campaigner: { brand_name: 'Nike Air' } }, platforms: ['twitter'], payout: 7000, completion_percentage: 100, status: 'completed', isStatic: true, emoji: '🏀' },
+        { id: 's4', title: 'Movie Night', category: 'Entertainment', user: { campaigner: { brand_name: 'Netflix' } }, platforms: ['facebook'], payout: 4200, completion_percentage: 100, status: 'completed', isStatic: true, emoji: '🎬' },
+    ];
 
+    const displayGigs = liveGigs.length > 0 ? liveGigs : staticGigs;
     return (
         <div className="bg-white min-h-screen font-sans selection:bg-pink-100 selection:text-pink-900">
 
             {/* 1. LIVE GIGS TEASER */}
+           {/* LIVE GIGS TEASER */}
             <section className="py-16 bg-gray-50 border-b border-gray-100 overflow-hidden">
                 <div className="max-w-7xl mx-auto px-4">
                     <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
@@ -42,83 +51,100 @@ export default function Landing({ liveGigs = [], brandLogos = [] }) {
                         </Link>
                     </div>
 
-                    {/* Horizontal Scroll Container */}
                     <div className="flex overflow-x-auto pb-8 gap-6 snap-x no-scrollbar">
-                        {[
-                            { id: 1, brand: 'Adidas', platform: 'instagram', amount: '5,000', progress: '82%', color: 'bg-pink-600', img: '👟' },
-                            { id: 2, brand: 'MTN Nigeria', platform: 'tiktok', amount: '3,500', progress: '45%', color: 'bg-slate-900', img: '📱' },
-                            { id: 3, brand: 'Nike Air', platform: 'twitter', amount: '7,000', progress: '100%', color: 'bg-blue-600', img: '🏀' },
-                            { id: 4, brand: 'Netflix', platform: 'facebook', amount: '4,200', progress: '100%', color: 'bg-indigo-600', img: '🎬' },
-                        ].map((gig) => (
-                            <div
-                                key={gig.id}
-                                className={`flex-none w-[300px] md:w-[320px] snap-start group relative bg-white overflow-hidden rounded-[2.5rem] border transition-all duration-300 shadow-sm hover:shadow-2xl hover:border-pink-200
-                                    ${gig.id > 2 ? 'opacity-60 grayscale pointer-events-none' : 'opacity-100'}`}
-                            >
-                                {/* Brand Header */}
-                                <div className="p-5 pb-3">
-                                    <div className="flex justify-between items-center">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-9 h-9 rounded-xl bg-gray-900 flex items-center justify-center text-white font-black text-sm">
-                                                {gig.brand.charAt(0)}
+                        {displayGigs.map((gig) => {
+                            const brandName = gig.user?.campaigner?.company_name || "Exclusive Brand";
+                            const brandLogo = gig.user?.campaigner?.logo_url;
+                            const isCompleted = gig.status === 'completed' || gig.completion_percentage >= 100;
+
+                            return (
+                                <div
+                                    key={gig.id}
+                                    className={`flex-none w-[300px] md:w-[320px] snap-start group relative bg-white overflow-hidden rounded-[2.5rem] border transition-all duration-300 shadow-sm hover:shadow-2xl hover:border-pink-200
+                                        ${isCompleted ? 'opacity-60 grayscale' : 'opacity-100'}`}
+                                >
+                                    {/* Brand Header */}
+                                    <div className="p-5 pb-3">
+                                        <div className="flex justify-between items-center">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-9 h-9 rounded-xl bg-gray-900 flex items-center justify-center text-white font-black text-sm overflow-hidden">
+                                                    {brandLogo ? (
+                                                        <img src={brandLogo} className="w-full h-full object-cover" alt={brandName} />
+                                                    ) : (
+                                                        brandName.charAt(0)
+                                                    )}
+                                                </div>
+                                                <div>
+                                                    <h4 className="font-black text-gray-900 leading-none uppercase text-[11px] tracking-tight truncate w-24">{brandName}</h4>
+                                                    <p className="text-[9px] text-gray-400 font-bold uppercase mt-1 tracking-wider">
+                                                        {gig.category || 'Campaign'}
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <h4 className="font-black text-gray-900 leading-none uppercase text-[12px] tracking-tight">{gig.brand}</h4>
-                                                <p className="text-[10px] text-gray-400 font-bold">Campaign active</p>
+                                            <span className="text-green-600 font-black text-sm">₦{Number(gig.payout).toLocaleString()}</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Product Visual Area */}
+                                    <div className="mx-4 relative h-48 rounded-[2rem] bg-gradient-to-b from-gray-50 to-gray-100 overflow-hidden flex items-center justify-center border border-gray-100/50">
+                                        <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] select-none">
+                                            <span className="text-8xl font-black italic uppercase tracking-tighter">{brandName}</span>
+                                        </div>
+
+                                        <div className="relative z-10 transition-all duration-500 transform group-hover:scale-110">
+                                            {gig.image_urls?.[0] ? (
+                                                <img src={gig.image_urls[0].url} className="h-32 w-32 object-contain filter drop-shadow-2xl" alt="Gig" />
+                                            ) : (
+                                                <span className="text-7xl drop-shadow-2xl">{gig.emoji || '📢'}</span>
+                                            )}
+                                        </div>
+
+                                        <div className="absolute top-4 left-4 flex gap-1">
+                                            {gig.platforms?.slice(0, 1).map((p) => (
+                                                <span key={p} className={`text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-lg border shadow-sm ${getPlatformStyle(p)}`}>
+                                                    {p}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Footer Info & Action */}
+                                    <div className="p-5 pt-4">
+                                        <h3 className="text-[13px] font-black text-gray-900 mb-3 truncate leading-none">
+                                            {gig.title || "Promote our Brand"}
+                                        </h3>
+                                        <div className="flex items-center gap-3 mb-4">
+                                            <div className="h-1.5 flex-grow bg-gray-100 rounded-full overflow-hidden">
+                                                <div
+                                                    className="h-full bg-pink-500 transition-all duration-700"
+                                                    style={{ width: `${gig.completion_percentage}%` }}
+                                                ></div>
                                             </div>
+                                            <span className="text-[9px] font-black text-gray-400">{gig.completion_percentage}%</span>
                                         </div>
-                                        <span className="text-green-600 font-black text-sm">₦{gig.amount}</span>
-                                    </div>
-                                </div>
 
-                                {/* Reworked Product Visual Area (Larger & Bolder) */}
-                                <div className="mx-4 relative h-48 rounded-[2rem] bg-gradient-to-b from-gray-50 to-gray-100 overflow-hidden flex items-center justify-center border border-gray-100/50">
-                                    {/* Background subtle watermark */}
-                                    <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] select-none">
-                                        <span className="text-8xl font-black italic uppercase tracking-tighter">{gig.brand}</span>
+                                        <Link
+                                            href={route('login')}
+                                            className={`block w-full py-3.5 rounded-2xl text-center text-white font-black text-[10px] uppercase tracking-[0.15em] transition-all active:scale-95 shadow-lg bg-gray-900 hover:bg-pink-600`}
+                                        >
+                                            Share & Earn
+                                        </Link>
                                     </div>
 
-                                    {/* Main Image/Icon - Size increased to text-7xl */}
-                                    <div className="text-7xl filter drop-shadow-2xl transition-all duration-500 transform group-hover:scale-110 group-hover:rotate-6">
-                                        {gig.img}
-                                    </div>
-
-                                    <span className={`absolute top-4 left-4 text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-lg border shadow-sm ${getPlatformStyle(gig.platform)}`}>
-                                        {gig.platform}
-                                    </span>
-                                </div>
-
-                                {/* Footer Info & Action */}
-                                <div className="p-5 pt-4">
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <div className="h-2 flex-grow bg-gray-100 rounded-full overflow-hidden">
-                                            <div className="h-full bg-pink-500 transition-all duration-700" style={{ width: gig.progress }}></div>
+                                    {/* Budget Reached Overlay */}
+                                    {isCompleted && (
+                                        <div className="absolute inset-0 flex items-center justify-center bg-white/40 backdrop-blur-[2px] z-20">
+                                            <span className="bg-gray-900 text-white text-[9px] font-black px-5 py-2 rounded-full uppercase tracking-widest shadow-xl">
+                                                Budget Reached
+                                            </span>
                                         </div>
-                                        <span className="text-[10px] font-black text-gray-500">{gig.progress}</span>
-                                    </div>
-
-                                    <Link
-                                        href={route('login')}
-                                        className={`block w-full py-3.5 rounded-2xl text-center text-white font-black text-[11px] uppercase tracking-[0.15em] transition-all active:scale-95 shadow-lg hover:brightness-110 ${gig.color}`}
-                                    >
-                                        Share & Earn
-                                    </Link>
+                                    )}
                                 </div>
-
-                                {/* Budget Reached Overlay */}
-                                {gig.id > 2 && (
-                                    <div className="absolute inset-0 flex items-center justify-center bg-white/40 backdrop-blur-[2px] z-20">
-                                        <span className="bg-gray-900 text-white text-[10px] font-black px-5 py-2 rounded-full uppercase tracking-tighter shadow-xl">
-                                            Budget Reached
-                                        </span>
-                                    </div>
-                                )}
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
 
-                {/* Scrollbar hide helper */}
                 <style dangerouslySetInnerHTML={{ __html: `
                     .no-scrollbar::-webkit-scrollbar { display: none; }
                     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

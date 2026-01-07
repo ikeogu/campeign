@@ -54,6 +54,7 @@ class CampaignController extends ApiController
         $validated = $request->validate([
             'title'         => 'required|string|max:255',
             'description'   => 'nullable|string',
+            'category'   => 'nullable|string',
             'platforms'      => 'required|array',
             'platforms.*'   => 'string',
             'payout'        => 'required|numeric|min:1',
@@ -73,13 +74,11 @@ class CampaignController extends ApiController
 
         /** @var User $user */
         $user = Auth::user();
-        abort_if(
+       /*  abort_if(
             $user->campaigner && ! $user->campaigner->is_approved,
             403,
             'Your campaigner account is pending approval.'
-        );
-
-
+        ); */
 
 
         DB::transaction(function () use ($validated, $user, $request) {
@@ -87,6 +86,7 @@ class CampaignController extends ApiController
                 'title'         => $validated['title'],
                 'description'   => $validated['description'] ?? null,
                 'platforms'      => $validated['platforms'],
+                'category'      => $validated['category'],
                 'payout'        => $validated['payout'],
                 'target_shares' => $validated['target_shares'],
                 'total_budget' => $validated['total_budget'],
@@ -138,6 +138,7 @@ class CampaignController extends ApiController
             'title'         => 'required|string|max:255',
             'description'   => 'nullable|string',
             'platforms'      => 'required|array',
+            'category'      => 'nullable|string',
             'platforms.*'   => 'string',
             'payout'        => 'required|numeric|min:1',
             'target_shares' => 'required|integer|min:1',
@@ -164,6 +165,7 @@ class CampaignController extends ApiController
             'platforms'      => $validated['platforms'],
             'payout'        => $validated['payout'],
             'target_shares' => $validated['target_shares'],
+            'category'      => $validated['category'],
             //'target_budget' => $validated['target_budget'],
             'status'        => $validated['status'],
             'total_budget' => $validated['total_budget'],
@@ -288,7 +290,7 @@ class CampaignController extends ApiController
             ->latest()
             ->get();
 
-        
+
         return Inertia::render('Advertiser/Campaigns/Submissions', [
             'campaign' => $campaign,
             'submissions' => $submissions,

@@ -8,6 +8,7 @@ use App\Models\CampaignMedia;
 use App\Models\PromoterSubmission;
 use App\Models\ShareLog;
 use App\Modules\Promoter\Requests\SubmitPostRequest;
+use App\Modules\Shared\Services\CampaignService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -45,26 +46,7 @@ class PromoterGigController extends ApiController
 
     public function guestIndex()
     {
-        $gigs = Campaign::with('images')
-            ->where('status', 'live')
-            ->latest()
-            ->get()
-            ->map(function ($gig) {
-                return [
-                    'id' => $gig->id,
-                    'title' => $gig->title,
-                    'description' => $gig->description,
-                    'platforms' => $gig->platforms,
-                    'payout' => $gig->payout,
-                    'target_shares' => $gig->target_shares,
-                    'target_followers' => $gig->target_followers,
-                    'available_slots' => $gig->available_slots,
-                    'image_urls' => $gig->images->map(fn($i) => [
-                        'id' => $i->id,
-                        'url' => asset('storage/' . $i->file_path),
-                    ]),
-                ];
-            });
+        $gigs = app(CampaignService::class)->fetchLiveCampaigns();
 
         return Inertia::render('GuestCampaign', [
             'allGigs' => $gigs,

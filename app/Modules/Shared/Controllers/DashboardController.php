@@ -8,6 +8,7 @@ use App\Models\PostVerification;
 use App\Models\PromoterEarning;
 use App\Models\PromoterSubmission;
 use App\Models\ShareLog;
+use App\Modules\Shared\Services\CampaignService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -234,26 +235,7 @@ class DashboardController extends ApiController
 
     public function index()
     {
-        $gigs = Campaign::with('images')
-            ->where('status', 'live')
-            ->latest()
-            ->get()
-            ->map(function ($gig) {
-                return [
-                    'id' => $gig->id,
-                    'title' => $gig->title,
-                    'description' => $gig->description,
-                    'platforms' => $gig->platforms,
-                    'payout' => $gig->payout,
-                    'target_shares' => $gig->target_shares,
-                    'target_followers' => $gig->target_followers,
-                    'available_slots' => $gig->available_slots,
-                    'image_urls' => $gig->images->map(fn($i) => [
-                        'id' => $i->id,
-                        'url' => asset('storage/' . $i->file_path),
-                    ]),
-                ];
-            });
+        $gigs = app(CampaignService::class)->fetchLiveCampaigns();
 
         return Inertia::render('Promoter/Gigs/Index', [
             'gigs' => $gigs,

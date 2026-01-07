@@ -7,13 +7,11 @@ const formatCurrency = (amount) => `₦${Number(amount).toLocaleString('en-NG')}
 export default function PromoterCampaignShow() {
     const { gig, hasSubmitted, auth } = usePage().props;
 
-    // Derived brand data via relationship
     const brandName = gig.user?.campaigner?.brand_name || "Premium Brand";
     const brandLogo = gig.user?.campaigner?.logo_url;
 
     const shareText = `${gig.title}\n\n${gig.description}\n\nCheck it out!`;
 
-    // Social links helper
     const getShareUrl = (platform) => {
         const text = encodeURIComponent(shareText);
         const url = gig.image_urls?.[0]?.url ? encodeURIComponent(gig.image_urls[0].url) : '';
@@ -27,7 +25,6 @@ export default function PromoterCampaignShow() {
     };
 
     const handleDownload = (img) => {
-        // Simple download trigger
         const link = document.createElement('a');
         link.href = img.url;
         link.download = `campaign-asset-${img.id}.jpg`;
@@ -51,9 +48,13 @@ export default function PromoterCampaignShow() {
                             <div className="w-8 h-8 rounded-lg bg-gray-900 overflow-hidden flex items-center justify-center text-white text-[10px] font-black uppercase">
                                 {brandLogo ? <img src={brandLogo} className="w-full h-full object-cover" /> : brandName[0]}
                             </div>
-                            <span className="text-xs font-black text-gray-900 uppercase tracking-tight">{brandName}</span>
+                            <div className="flex flex-col">
+                                <span className="text-xs font-black text-gray-900 uppercase tracking-tight leading-none">{brandName}</span>
+                                {/* Small header category tag */}
+                                <span className="text-[8px] font-bold text-pink-600 uppercase tracking-widest mt-0.5">{gig.category || 'General'}</span>
+                            </div>
                         </div>
-                        <div className="w-10"></div> {/* Spacer */}
+                        <div className="w-10"></div>
                     </div>
                 </div>
 
@@ -71,18 +72,22 @@ export default function PromoterCampaignShow() {
                         <h1 className="text-5xl font-black text-white mb-2 tracking-tighter">
                             {formatCurrency(gig.payout)}
                         </h1>
-                        <p className="text-gray-400 font-medium text-sm">For sharing this {gig.platform} campaign</p>
+                        <p className="text-gray-400 font-medium text-sm">For sharing this {gig.platforms?.join(' & ')} campaign</p>
                     </div>
 
                     {/* 3. KEY CRITERIA TILES */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div className="bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm">
-                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Required Followers</p>
-                            <p className="text-xl font-black text-gray-900">{gig.min_followers?.toLocaleString() || '1'}</p>
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Industry</p>
+                            <p className="text-lg font-black text-pink-600 uppercase">{gig.category || 'General'}</p>
                         </div>
                         <div className="bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm">
-                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Available Slots</p>
-                            <p className="text-xl font-black text-pink-600">{gig.available_slots || 'Unlimited'}</p>
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Min. Followers</p>
+                            <p className="text-lg font-black text-gray-900">{gig.min_followers?.toLocaleString() || '100'}</p>
+                        </div>
+                        <div className="bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm">
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Remaining Slots</p>
+                            <p className="text-lg font-black text-gray-900">{gig.target_shares - (gig.submissions_count || 0)}</p>
                         </div>
                     </div>
 
@@ -114,7 +119,10 @@ export default function PromoterCampaignShow() {
                             <div className="bg-gray-50 p-5 rounded-2xl relative group">
                                 <p className="text-gray-600 text-sm leading-relaxed mb-4">{gig.description}</p>
                                 <button
-                                    onClick={() => navigator.clipboard.writeText(shareText)}
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(shareText);
+                                        alert('Text copied to clipboard!');
+                                    }}
                                     className="flex items-center gap-2 text-[10px] font-black uppercase text-pink-600 hover:text-pink-700 transition-colors"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>

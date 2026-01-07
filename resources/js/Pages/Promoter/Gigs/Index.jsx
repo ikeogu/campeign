@@ -29,7 +29,7 @@ export default function PromoterCampaignIndex() {
 
             <div className="bg-gray-50 min-h-screen py-12 px-4 sm:px-6 lg:px-8 font-sans">
                 <div className="max-w-7xl mx-auto">
-                    {/* Catchy Header with Urgency */}
+                    {/* Catchy Header */}
                     <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
                         <div>
                             <span className="inline-block animate-pulse mb-2 px-3 py-1 bg-red-100 text-red-600 text-[10px] font-black uppercase tracking-widest rounded-full">
@@ -42,7 +42,7 @@ export default function PromoterCampaignIndex() {
                                 Promoters are currently earning from these campaigns right now.
                             </p>
                         </div>
-                        <div className="bg-white px-4 py-2 rounded-2xl border border-gray-200 shadow-sm">
+                        <div className="bg-white px-4 py-2 rounded-2xl border border-gray-200 shadow-sm text-right">
                             <p className="text-[10px] font-bold text-gray-400 uppercase">Available Payouts</p>
                             <p className="text-xl font-black text-green-600">
                                 {formatCurrency(gigs.reduce((acc, gig) => acc + Number(gig.payout), 0))}
@@ -59,7 +59,6 @@ export default function PromoterCampaignIndex() {
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                             {gigs.map((gig) => {
-                                // Extract brand details from user.campaigner relationship
                                 const brandName = gig.user?.campaigner?.brand_name || "Exclusive Brand";
                                 const brandLogo = gig.user?.campaigner?.logo_url;
 
@@ -87,14 +86,12 @@ export default function PromoterCampaignIndex() {
                                             </div>
                                         </div>
 
-                                        {/* 2. DYNAMIC VISUAL AREA (The "Catchy" Part) */}
+                                        {/* 2. DYNAMIC VISUAL AREA */}
                                         <div className="mx-4 relative h-48 rounded-[2rem] bg-gray-50 overflow-hidden flex items-center justify-center border border-gray-50 group-hover:bg-gray-100 transition-colors">
-                                            {/* Watermark Background */}
                                             <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] select-none pointer-events-none">
                                                 <span className="text-8xl font-black italic uppercase -rotate-12">{brandName}</span>
                                             </div>
 
-                                            {/* Main Image Asset */}
                                             <div className="relative z-10 transition-transform duration-700 group-hover:scale-110">
                                                 {gig.image_urls?.[0] ? (
                                                     <img src={gig.image_urls[0].url} className="h-40 object-contain drop-shadow-2xl" alt="Campaign Asset" />
@@ -103,7 +100,6 @@ export default function PromoterCampaignIndex() {
                                                 )}
                                             </div>
 
-                                            {/* Platform Badge Floating */}
                                             <div className="absolute top-4 left-4 flex flex-wrap gap-1">
                                                 {gig.platforms?.slice(0, 2).map((p, idx) => (
                                                     <span key={idx} className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-lg border shadow-sm ${getPlatformStyle(p).classes}`}>
@@ -115,6 +111,11 @@ export default function PromoterCampaignIndex() {
 
                                         {/* 3. INFO & FOMO BAR */}
                                         <div className="p-6 flex-grow flex flex-col">
+                                            {/* CATEGORY TAG ADDED HERE */}
+                                            <span className="text-[9px] font-black text-pink-600 uppercase tracking-widest mb-1">
+                                                {gig.category || 'General'}
+                                            </span>
+
                                             <h2 className="font-black text-gray-900 text-lg leading-tight line-clamp-1 mb-2">
                                                 {gig.title}
                                             </h2>
