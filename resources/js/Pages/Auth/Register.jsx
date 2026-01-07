@@ -5,10 +5,18 @@ export default function Register() {
         email: '',
         password: '',
         password_confirmation: '',
+        accepted_terms: false, // Added tracking for the checkbox
     });
 
     const submit = (e) => {
         e.preventDefault();
+
+        // Basic frontend guard for the checkbox
+        if (!data.accepted_terms) {
+            alert('Please accept the Terms and Conditions to continue.');
+            return;
+        }
+
         post(route('register-user'), {
             preserveScroll: true,
             onError: (errors) => {
@@ -32,7 +40,6 @@ export default function Register() {
                         alt="Join the community"
                         className="absolute inset-0 w-full h-full object-cover"
                     />
-                    {/* Dark Overlay with Branding */}
                     <div className="absolute inset-0 bg-gradient-to-t from-purple-900/90 to-transparent flex flex-col justify-end p-12 text-white">
                         <h1 className="text-4xl font-extrabold mb-4 leading-tight">
                             Connect. Promote. <br /> Grow your Influence.
@@ -52,8 +59,6 @@ export default function Register() {
                         </div>
 
                         <form onSubmit={submit} className="space-y-6">
-
-
                             {/* EMAIL */}
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-1">Email Address</label>
@@ -105,10 +110,38 @@ export default function Register() {
                                 </div>
                             </div>
 
+                            {/* TERMS AND PRIVACY CHECKBOX */}
+                            <div className="space-y-2">
+                                <div className="flex items-start gap-3">
+                                    <input
+                                        id="terms"
+                                        type="checkbox"
+                                        required
+                                        className="mt-1 w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500 transition-colors"
+                                        checked={data.accepted_terms}
+                                        onChange={(e) => setData('accepted_terms', e.target.checked)}
+                                    />
+                                    <label htmlFor="terms" className="text-sm text-gray-600 leading-tight">
+                                        I agree to the
+                                        <Link
+                                            href={route('terms')}
+                                            target="_blank"
+                                            className="text-purple-600 font-bold hover:underline mx-1"
+                                        >
+                                            Terms and Conditions
+                                        </Link>
+                                        and acknowledge the Campaign Content Disclaimer.
+                                    </label>
+                                </div>
+                                {errors.accepted_terms && (
+                                    <p className="text-xs text-red-500 font-medium">{errors.accepted_terms}</p>
+                                )}
+                            </div>
+
                             {/* DYNAMIC PROFILE HINT */}
-                            {Object.keys(errors).length > 0 && !errors.email && !errors.password && !errors.user_type && (
+                            {Object.keys(errors).length > 0 && !errors.email && !errors.password && !errors.accepted_terms && (
                                 <div className="p-4 bg-amber-50 text-amber-800 rounded-xl text-xs border border-amber-200">
-                                    <strong>Note:</strong> Additional profile details for <strong>{data.user_type}s</strong> are required in the next step.
+                                    <strong>Note:</strong> Additional profile details may be required in the next step.
                                 </div>
                             )}
 

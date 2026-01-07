@@ -27,6 +27,11 @@ Route::get('/', function () {
     ]);
 });
 
+Route::get('/terms', function () {
+
+    return Inertia::render('Terms');
+})->name('terms');
+
 Route::get('guest-gigs', [PromoterGigController::class, 'guestIndex'])->name('guest.gigs');
 
 Route::middleware('auth')->group(function () {
