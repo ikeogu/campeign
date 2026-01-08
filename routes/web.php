@@ -17,7 +17,7 @@ use Inertia\Inertia;
 
 Route::get('/', function () {
 
-    $gigs = app(CampaignService::class)->fetchLiveCampaigns();
+    $gigs = app(CampaignService::class)->fetchLiveCampaigns(5);
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),

@@ -7,11 +7,12 @@ use App\Models\Campaign;
 class CampaignService
 {
 
-    public function fetchLiveCampaigns()
+    public function fetchLiveCampaigns(int $limit = 20)
     {
         return  Campaign::with(['images', 'user'])
             ->where('status', 'live')
             ->latest()
+            ->limit($limit)
             ->get()
             ->map(function ($gig) {
 
