@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Models\Campaign;
 use App\Modules\Auth\Controllers\OnboardingController;
 use App\Modules\Campeigner\Controllers\CampaignController;
+use App\Modules\Campeigner\Notifications\CampaignCompletedNotification;
 use App\Modules\Promoter\Controllers\PromoterEarningsController;
 use App\Modules\Promoter\Controllers\PromoterGigController;
 use App\Modules\Shared\Controllers\DashboardController;
@@ -113,3 +114,10 @@ Route::get('test-fund', function () {
     app(PaymentService::class)->verifyPayment($data->data->reference, $data->data->channel);
 });
 require __DIR__ . '/auth.php';
+
+Route::get('test-mail', function(){
+
+    $camp = Campaign::latest()->first();
+
+    $camp->user->notify(new CampaignCompletedNotification($camp));
+});

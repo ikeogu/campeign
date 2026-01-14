@@ -41,6 +41,7 @@ class CampaignCompletedNotification extends Notification
             ->subject('Campaign Completed: ' . $this->campaign->title)
             ->view('mails.campaigns.completed', [
                 'campaign' => $this->campaign,
+                'user' => $notifiable
             ]);
     }
 
