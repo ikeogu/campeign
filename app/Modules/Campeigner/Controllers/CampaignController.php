@@ -2,6 +2,7 @@
 
 namespace App\Modules\Campeigner\Controllers;
 
+use App\Http\Clients\PaystackClient;
 use App\Http\Controllers\ApiController;
 use App\Models\Campaign;
 use App\Models\User;
@@ -10,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class CampaignController extends ApiController
@@ -74,7 +76,7 @@ class CampaignController extends ApiController
 
         /** @var User $user */
         $user = Auth::user();
-       /*  abort_if(
+        /*  abort_if(
             $user->campaigner && ! $user->campaigner->is_approved,
             403,
             'Your campaigner account is pending approval.'
@@ -223,7 +225,7 @@ class CampaignController extends ApiController
     public function processFunding(Request $request, Campaign $campaign)
     {
         $validated = $request->validate([
-            'amount' => 'required|numeric|min:1',
+            'amount' => ['required', 'numeric', 'min:1'],
         ]);
 
         /** @var User $user */
@@ -232,55 +234,107 @@ class CampaignController extends ApiController
 
         $amountInCents = (int) ($validated['amount'] * 100);
 
-        if ($wallet->balance < $amountInCents) {
-            $response = $this->payFromPaymentGateway($user, $campaign, $amountInCents);
-        } else {
-            $response = $this->fundCampaignFromWallet($user, $campaign, $amountInCents);
+        // Wallet sufficient → instant funding
+
+        $response = $wallet->balance < $amountInCents
+            ? $this->initiateGatewayPayment($user, $campaign, $amountInCents)
+            : $this->fundFromWallet($user, $campaign, $amountInCents);
+
+        if (! $response) {
+            return back()->with('error', 'Failed to fund campaign.');
         }
 
-        if (!$response) {
-            return redirect()->back()
-                ->with('error', 'Failed to fund the campaign. Please try again.');
+        if (is_array($response) && $response['type'] === 'paystack') {
+            return Inertia::location(
+                $response['url']
+            );
         }
 
-        $campaign->user->notify(new CampaignFundedNotification($campaign));
-
-        return redirect()->route('campaigns.index')
+        return redirect()
+            ->route('campaigns.index')
             ->with('success', 'Campaign funded successfully.');
     }
 
-    private function fundCampaignFromWallet(User $user, Campaign $campaign, $amountInCents)
+    private function fundFromWallet(User $user, Campaign $campaign, int $amountInCents): void
     {
-        $wallet = $user->wallet;
+        DB::transaction(function () use ($user, $campaign, $amountInCents) {
+            $wallet = $user->wallet;
 
-        DB::transaction(function () use ($wallet, $campaign, $amountInCents) {
-            // Deduct from wallet
+            $reference = 'CMP_' . Str::uuid();
+
+            // Debit wallet
             $wallet->decrement('balance', $amountInCents);
 
             $wallet->transactions()->create([
                 'type'        => 'debit',
                 'amount'      => $amountInCents,
-                'reference'   => 'FUND_CAMPGN' . $campaign->id,
-                'description' => 'Funding for campaign ID: ' . $campaign->id,
+                'reference'   => $reference,
+                'description' => "Campaign funding ({$campaign->id})",
                 'metadata'    => [
                     'campaign_id' => $campaign->id,
                 ],
             ]);
 
-            // Update campaign funding
-            $campaign->update(['status' => 'funded']);
-            //Notify Admin
+            // Record payment
+            $campaign->payment()->create([
+                'user_id'   => $user->id,
+                'reference' => $reference,
+                'amount'    => $amountInCents,
+                'status'    => 'success',
+                'channel'   => 'wallet',
+            ]);
+
+            // Mark campaign funded
+            $campaign->update(['status' => 'live']);
         });
 
-        return true;
+        // Notify campaign owner
+        $campaign->user->notify(new CampaignFundedNotification($campaign));
     }
 
-    private function payFromPaymentGateway(User $user, Campaign $campaign, $amountInCents)
+
+
+
+    private function initiateGatewayPayment(User $user, Campaign $campaign, int $amountInCents)
     {
-        // Implement payment gateway logic here.
-        // This is a placeholder for actual payment processing code.
-        return true;
+        $reference = 'CMP_' . Str::uuid();
+
+        // Persist intent (required for webhook reconciliation)
+        $campaign->payment()->create([
+            'user_id'   => $user->id,
+            'reference' => $reference,
+            'amount'    => $amountInCents,
+            'status'    => 'pending',
+            'channel'   => 'paystack',
+        ]);
+
+        /** @var PaystackClient $paystack */
+        $paystack = app(PaystackClient::class);
+
+        $response = $paystack->payin([
+            'email'     => $user->email,
+            'amount'    => $amountInCents,
+            'currency'  => 'NGN',
+            'reference' => $reference,
+            'callback_url' => route('handleGatewayCallback', ['campaign' => $campaign->id]),
+            'metadata'  => [
+                'campaign_id' => $campaign->id,
+                'user_id'     => $user->id,
+                'type'        => 'campaign_funding',
+            ],
+        ]);
+
+        if (! $response->json('status')) {
+            return null;
+        }
+
+        // IMPORTANT: return URL, not redirect
+        return [
+            'type' => 'paystack',
+            'url'  => $response->json('data.authorization_url'),
+        ];
     }
+
 
     public function promoterSubmissions(Campaign $campaign)
     {
@@ -294,6 +348,14 @@ class CampaignController extends ApiController
         return Inertia::render('Advertiser/Campaigns/Submissions', [
             'campaign' => $campaign,
             'submissions' => $submissions,
+        ]);
+    }
+
+    public function handleGatewayCallback(Campaign $campaign)
+    {
+
+        return Inertia::render('Advertiser/Campaigns/FundSuccess', [
+            'campaign' => $campaign
         ]);
     }
 }

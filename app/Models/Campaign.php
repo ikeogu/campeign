@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Campaign extends Model
 {
@@ -57,6 +58,11 @@ class Campaign extends Model
         return $this->hasMany(PromoterSubmission::class);
     }
 
+    public function payment(): HasOne
+    {
+
+        return $this->hasOne(CampaignPayment::class);
+    }
 
 
 

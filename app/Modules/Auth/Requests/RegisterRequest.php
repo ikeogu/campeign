@@ -42,7 +42,7 @@ class RegisterRequest extends FormRequest
             $rules = array_merge($rules, [
                 'company_name' => ['required', 'string'],
                 'bio'  => ['nullable', 'string'],
-                'website'      => ['nullable', 'url'],
+                'website'      => ['nullable'],
                 'industry'     => ['required', 'string'],
             ]);
         }

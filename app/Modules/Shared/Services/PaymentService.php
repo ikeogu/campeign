@@ -3,7 +3,9 @@
 namespace App\Modules\Shared\Services;
 
 use App\Interfaces\PaymentGateWayInterface;
+use App\Models\CampaignPayment;
 use App\Models\Transaction;
+use App\Modules\Campeigner\Notifications\CampaignFundedNotification;
 use App\Modules\Shared\Notifications\WalletFundedNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -67,5 +69,39 @@ class PaymentService
             ]);
             return false;
         }
+    }
+
+    public  function handleChargeSuccess(array $data): void
+    {
+        $reference = $data['reference'] ?? null;
+
+        if (!$reference) {
+            return;
+        }
+
+        $payment = CampaignPayment::where('reference', $reference)
+            ->where('status', 'pending')
+            ->first();
+
+        if (!$payment) {
+            return; // idempotent safety
+        }
+
+        DB::transaction(function () use ($payment, $data) {
+            $payment->update([
+                'status'       => 'success',
+                'paid_at'      => now(),
+                'gateway_data' => $data,
+            ]);
+
+            $payment->campaign->increment(
+                'funded_amount',
+                $payment->amount
+            );
+
+            $payment->campaign->update(['status' => 'live']);
+
+            $payment->campaign->user->notify(new CampaignFundedNotification($payment->campaign));
+        });
     }
 }

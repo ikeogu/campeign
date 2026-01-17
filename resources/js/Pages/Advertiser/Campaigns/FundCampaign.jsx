@@ -13,7 +13,7 @@ export default function FundCampaign() {
     const { campaign, user_balance = 0 } = usePage().props;
 
     // Calculate the total estimated cost (Example: Payout * Target Shares)
-    const estimatedCost = campaign.payout * campaign.target_shares;
+    const estimatedCost = campaign.total_budget;
 
     // Calculate required funding: Cost minus current balance (if partial funding is allowed)
     // For simplicity, let's assume the user needs to fund the entire cost via this form.
@@ -32,15 +32,22 @@ export default function FundCampaign() {
 
         // This would typically redirect to a payment gateway (e.g., Paystack, Flutterwave)
         post(route('campaigns.process_funding', campaign.id), {
-            preserveScroll: true,
-            onSuccess: () => {
-                // Handle success (e.g., show notification, redirect to campaign index)
-                console.log('Funding process initiated!');
-            },
-            onError: (err) => {
-                console.error('Funding error:', err);
+        preserveScroll: true,
+        onSuccess: (page) => {
+            // Handle Paystack redirect
+            if (page?.props?.redirect) {
+                window.location.href = page.props.redirect;
+                return;
             }
-        });
+
+            // Wallet-only funding fallback
+            console.log('Campaign funded from wallet');
+        },
+        onError: (err) => {
+            console.error('Funding error:', err);
+        }
+    });
+
     }
 
     return (
