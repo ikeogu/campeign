@@ -7,9 +7,11 @@ use App\Http\Controllers\ApiController;
 use App\Models\Campaign;
 use App\Models\User;
 use App\Modules\Campeigner\Notifications\CampaignFundedNotification;
+use App\Modules\Shared\Services\PaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -351,9 +353,20 @@ class CampaignController extends ApiController
         ]);
     }
 
-    public function handleGatewayCallback(Campaign $campaign)
+    public function handleGatewayCallback(Campaign $campaign, Request $request)
     {
+        $reference = $request->query('reference');
 
+        $response = Http::withToken(config('services.paystack.secret'))
+            ->get("https://api.paystack.co/transaction/verify/{$reference}");
+
+        if (!$response->json('status')) {
+            return redirect()->route('campaigns.index')
+                ->with('error', 'Payment verification failed.');
+        }
+
+        app(PaymentService::class)->handleChargeSuccess(['reference' => $reference]);
+        
         return Inertia::render('Advertiser/Campaigns/FundSuccess', [
             'campaign' => $campaign
         ]);
