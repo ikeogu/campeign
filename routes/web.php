@@ -97,6 +97,7 @@ Route::middleware('auth')->group(function () {
         ->name('wallet.index');
 
     Route::get('wallet-top-up', [WalletController::class, 'fundWallet'])->name('wallet-fund');
+    Route::get('handle-gateway-callback-wallet-funding', [WalletController::class, 'handleGatewayCallback'])->name('handleGatewayCallbackWalletFunding');
     Route::post('wallet-fund-initialize', [WalletController::class, 'initialize'])->name('wallet.fund.initialize');
     Route::get('withdraw-create', [WalletController::class, 'withdraw'])->name('withdraw.create');
     Route::post('payout', [WalletController::class, 'payout'])->name('withdraw.store');

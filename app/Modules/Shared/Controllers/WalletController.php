@@ -4,6 +4,7 @@ namespace App\Modules\Shared\Controllers;
 
 use App\Http\Controllers\ApiController;
 use App\Interfaces\PaymentGateWayInterface;
+use App\Modules\Shared\Services\PaymentService;
 use App\Modules\Shared\Services\WalletService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -42,7 +43,6 @@ class WalletController extends ApiController
         $request->validate(['amount' => 'required|numeric|min:100']);
         $response = $this->walletService->walletTopup($request->amount);
 
-
         return Inertia::location($response['data']['authorization_url']);
     }
 
@@ -71,7 +71,6 @@ class WalletController extends ApiController
         ]);
 
         return $this->paystackGatewayInterface->resolveAccountNumber($request->account_number, $request->bank_code)['data'] ?? null;
-        
     }
 
     public function payout(Request $request)
@@ -95,5 +94,25 @@ class WalletController extends ApiController
         $response = $this->paystackGatewayInterface->payout($request->all());
 
         return back()->with(['response' => $response, 'success' => true]);
+    }
+
+    public function handleGatewayCallback(Request $request)
+    {
+        $reference = $request->query('reference');
+        try {
+            $response = $this->paystackGatewayInterface->verifyTransaction($reference);
+        } catch (\Exception $e) {
+            return redirect()->route('wallet.index')
+                ->with('error', 'Payment verification failed: ' . $e->getMessage());
+        }
+        if (!$response->json('status')) {
+            return redirect()->route('wallet.index')
+                ->with('error', 'Payment verification failed.');
+        }
+
+        app(PaymentService::class)->verifyPayment($response->json('data')['reference'], $response->json('data')['channel']);
+
+        return redirect()->route('wallet.index')
+            ->with('success', 'Wallet funded successfully.');
     }
 }

@@ -76,7 +76,7 @@ class WalletService
                 'email' => $user->email,
                 'amount' => $amount * 100,
                 'reference' => $reference,
-                'callback_url' => route('wallet.index'),
+                'callback_url' => route('handleGatewayCallbackWalletFunding'),
                 'customizations' => [
                     'title' => 'GigsAndCampaigns',
                     'description' => 'Make money by sharing contents',

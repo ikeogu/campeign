@@ -18,6 +18,11 @@ use Inertia\Inertia;
 
 class CampaignController extends ApiController
 {
+    public function __construct(
+        protected readonly PaystackClient $paystackGatewayInterface,
+    ) {}
+
+
     public function index()
     {
         /** @var User $user */
@@ -310,10 +315,8 @@ class CampaignController extends ApiController
             'channel'   => 'paystack',
         ]);
 
-        /** @var PaystackClient $paystack */
-        $paystack = app(PaystackClient::class);
 
-        $response = $paystack->payin([
+        $response = $this->paystackGatewayInterface->payin([
             'email'     => $user->email,
             'amount'    => $amountInCents,
             'currency'  => 'NGN',
@@ -357,8 +360,7 @@ class CampaignController extends ApiController
     {
         $reference = $request->query('reference');
 
-        $response = Http::withToken(config('services.paystack.secret_key'))
-            ->get("https://api.paystack.co/transaction/verify/{$reference}");
+        $response  = $this->paystackGatewayInterface->verifyTransaction($reference);
 
         if (!$response->json('status')) {
             return redirect()->route('campaigns.index')

@@ -85,4 +85,10 @@ class PaystackClient extends PendingRequest implements PaymentGateWayInterface
     $response =  $this->get('balance');
     return $response->json('data');
   }
+
+  public function verifyTransaction(string $reference)
+  {
+    $response =  $this->get("transaction/verify/{$reference}");
+    return $response;
+  }
 }

@@ -15,5 +15,6 @@ interface PaymentGateWayInterface
     public function resolveAccountNumber(string $accountNumber, string $bankCode);
 
     public function checkBalance();
+    public function verifyTransaction(string $reference);
 
 }
