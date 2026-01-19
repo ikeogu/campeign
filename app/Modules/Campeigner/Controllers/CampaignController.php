@@ -357,7 +357,7 @@ class CampaignController extends ApiController
     {
         $reference = $request->query('reference');
 
-        $response = Http::withToken(config('services.paystack.secret'))
+        $response = Http::withToken(config('services.paystack.secret_key'))
             ->get("https://api.paystack.co/transaction/verify/{$reference}");
 
         if (!$response->json('status')) {
