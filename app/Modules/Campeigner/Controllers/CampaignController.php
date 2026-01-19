@@ -355,7 +355,7 @@ class CampaignController extends ApiController
 
     public function handleGatewayCallback(Campaign $campaign, Request $request)
     {
-        $reference = $request->query('reference');
+       /*  $reference = $request->query('reference');
 
         $response = Http::withToken(config('services.paystack.secret'))
             ->get("https://api.paystack.co/transaction/verify/{$reference}");
@@ -363,10 +363,10 @@ class CampaignController extends ApiController
         if (!$response->json('status')) {
             return redirect()->route('campaigns.index')
                 ->with('error', 'Payment verification failed.');
-        }
+        } */
 
-        app(PaymentService::class)->handleChargeSuccess(['reference' => $reference]);
-        
+       // app(PaymentService::class)->handleChargeSuccess(['reference' => $reference]);
+
         return Inertia::render('Advertiser/Campaigns/FundSuccess', [
             'campaign' => $campaign
         ]);

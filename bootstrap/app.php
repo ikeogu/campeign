@@ -24,8 +24,4 @@ return Application::configure(basePath: dirname(__DIR__))
             'onboarded' => OnboardedMiddleware::class
         ]);
     })
-    ->withExceptions(function (Exceptions $exceptions): void {
-
-    })
-
     ->create();
