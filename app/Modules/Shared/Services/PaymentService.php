@@ -94,10 +94,10 @@ class PaymentService
                 'gateway_data' => $data,
             ]);
 
-            $payment->campaign->increment(
+           /*  $payment->campaign->increment(
                 'funded_amount',
                 $payment->amount
-            );
+            ); */
 
             $payment->campaign->update(['status' => 'live']);
 
