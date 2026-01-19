@@ -155,7 +155,7 @@ export default function CampaignIndex() {
                                                                 )}
 
                                                                 <Link href={route('campaigns.submissions.index', c.id)} className="bg-gray-900 text-white px-4 py-2 rounded-xl text-xs font-black uppercase hover:bg-pink-600 transition-all shadow-lg shadow-gray-200">
-                                                                    View
+                                                                    View Submissions
                                                                 </Link>
                                                                 <Link href={route('campaigns.edit', c.id)} className="bg-gray-50 text-gray-400 p-2 rounded-xl hover:bg-pink-50 hover:text-pink-600 border border-transparent hover:border-pink-100 transition-all">
                                                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
