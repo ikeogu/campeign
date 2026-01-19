@@ -3,7 +3,8 @@ import { Link, usePage } from '@inertiajs/react';
 
 const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
-        case 'active': return 'bg-green-100 text-green-800 border-green-200';
+        case 'active':
+        case 'live': return 'bg-green-100 text-green-800 border-green-200';
         case 'pending': return 'bg-amber-100 text-amber-800 border-amber-200';
         case 'paused': return 'bg-gray-100 text-gray-800 border-gray-200';
         default: return 'bg-pink-100 text-pink-800 border-pink-200';
@@ -39,11 +40,12 @@ export default function CampaignIndex() {
                         </div>
                     ) : (
                         <>
-                            {/* MOBILE VIEW (CARDS) - Visible on small screens */}
+                            {/* MOBILE VIEW (CARDS) */}
                             <div className="grid grid-cols-1 gap-4 md:hidden">
                                 {campaigns.map((c) => {
                                     const totalSubmissions = c.submissions_count || 0;
                                     const progressPercentage = Math.min(100, (totalSubmissions / c.target_shares) * 100);
+                                    const isLive = c.status?.toLowerCase() === 'live' || c.status?.toLowerCase() === 'active';
 
                                     return (
                                         <div key={c.id} className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm">
@@ -72,9 +74,14 @@ export default function CampaignIndex() {
                                                 <Link href={route('campaigns.submissions.index', c.id)} className="flex-1 text-center bg-gray-900 text-white py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider">
                                                     Submissions
                                                 </Link>
-                                                <Link href={route('campaigns.fund', c.id)} className="flex-1 text-center bg-green-600 text-white py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider">
-                                                    Fund
-                                                </Link>
+
+                                                {/* CONDITIONAL FUND BUTTON */}
+                                                {!isLive && (
+                                                    <Link href={route('campaigns.fund', c.id)} className="flex-1 text-center bg-green-600 text-white py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider">
+                                                        Fund
+                                                    </Link>
+                                                )}
+
                                                 <Link href={route('campaigns.edit', c.id)} className="bg-gray-100 text-gray-500 p-2.5 rounded-xl">
                                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                                                 </Link>
@@ -84,7 +91,7 @@ export default function CampaignIndex() {
                                 })}
                             </div>
 
-                            {/* DESKTOP VIEW (TABLE) - Hidden on mobile */}
+                            {/* DESKTOP VIEW (TABLE) */}
                             <div className="hidden md:block bg-white shadow-[0_20px_50px_rgba(0,0,0,0.04)] rounded-3xl overflow-hidden border border-gray-100">
                                 <div className="overflow-x-auto">
                                     <table className="min-w-full divide-y divide-gray-100">
@@ -102,6 +109,7 @@ export default function CampaignIndex() {
                                                 const totalSubmissions = c.submissions_count || 0;
                                                 const sharesLeft = Math.max(0, c.target_shares - totalSubmissions);
                                                 const progressPercentage = Math.min(100, (totalSubmissions / c.target_shares) * 100);
+                                                const isLive = c.status?.toLowerCase() === 'live' || c.status?.toLowerCase() === 'active';
 
                                                 return (
                                                     <tr key={c.id} className="hover:bg-pink-50/30 transition-colors group">
@@ -139,9 +147,13 @@ export default function CampaignIndex() {
 
                                                         <td className="px-6 py-8 text-right">
                                                             <div className="flex justify-center items-center gap-2">
-                                                                <Link href={route('campaigns.fund', c.id)} className="bg-green-600 text-white px-4 py-2 rounded-xl text-xs font-black uppercase hover:bg-green-700 transition-all shadow-lg shadow-green-100">
-                                                                    Fund
-                                                                </Link>
+                                                                {/* CONDITIONAL FUND BUTTON */}
+                                                                {!isLive && (
+                                                                    <Link href={route('campaigns.fund', c.id)} className="bg-green-600 text-white px-4 py-2 rounded-xl text-xs font-black uppercase hover:bg-green-700 transition-all shadow-lg shadow-green-100">
+                                                                        Fund
+                                                                    </Link>
+                                                                )}
+
                                                                 <Link href={route('campaigns.submissions.index', c.id)} className="bg-gray-900 text-white px-4 py-2 rounded-xl text-xs font-black uppercase hover:bg-pink-600 transition-all shadow-lg shadow-gray-200">
                                                                     View
                                                                 </Link>
