@@ -24,6 +24,8 @@ class AdminAuthenticatedSessionController
 
         $request->session()->regenerate();
 
+    
+
         return redirect()->intended(
             Filament::getPanel('admin')->getUrl()
         );
