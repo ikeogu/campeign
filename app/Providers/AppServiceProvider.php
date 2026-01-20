@@ -4,7 +4,7 @@ namespace App\Providers;
 
 use App\Http\Clients\PaystackClient;
 use App\Interfaces\PaymentGateWayInterface;
-use Illuminate\Routing\Route;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
