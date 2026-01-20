@@ -126,11 +126,11 @@ Route::get('test-mail', function(){
 });
 
 
-Route::prefix('admin')->group(function () {
+/* Route::prefix('admin')->group(function () {
     Route::post('/login', [AdminAuthenticatedSessionController::class, 'store'])
         ->name('admin.login.store');
 
     Route::post('/logout', [AdminAuthenticatedSessionController::class, 'destroy'])
         ->name('filament.admin.auth.logout');
 
-});
+}); */
