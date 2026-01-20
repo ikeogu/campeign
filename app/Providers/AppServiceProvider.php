@@ -4,9 +4,11 @@ namespace App\Providers;
 
 use App\Http\Clients\PaystackClient;
 use App\Interfaces\PaymentGateWayInterface;
+use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -35,8 +37,13 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Vite::prefetch(concurrency: 3);
+
         if (app()->isProduction()) {
             URL::forceHttps();
         }
+
+        Livewire::setUpdateRoute(function ($handle) {
+        return Route::post('/livewire/update', $handle);
+    });
     }
 }
