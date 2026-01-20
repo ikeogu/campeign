@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\Auth\AdminAuthenticatedSessionController;
 use App\Http\Controllers\ProfileController;
 use App\Models\Campaign;
 use App\Modules\Auth\Controllers\OnboardingController;
@@ -122,4 +123,14 @@ Route::get('test-mail', function(){
     $camp = Campaign::latest()->first();
 
     $camp->user->notify(new CampaignCompletedNotification($camp));
+});
+
+
+Route::prefix('admin')->group(function () {
+    Route::post('/login', [AdminAuthenticatedSessionController::class, 'store'])
+        ->name('admin.login.store');
+
+    Route::post('/logout', [AdminAuthenticatedSessionController::class, 'destroy'])
+        ->name('filament.admin.auth.logout');
+
 });
