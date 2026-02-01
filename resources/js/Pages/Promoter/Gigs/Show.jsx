@@ -12,6 +12,10 @@ export default function PromoterCampaignShow() {
     const brandLogo = gig.user?.campaigner?.logo_url;
     const shareText = `${gig.title}\n\n${gig.description}\n\nCheck it out!`;
 
+    const platforms = Array.isArray(gig.platforms)
+  ? gig.platforms
+  : JSON.parse(gig.platforms ?? '[]');
+
     const getShareUrl = (platform) => {
         const text = encodeURIComponent(shareText);
         const url = gig.image_urls?.[0]?.url ? encodeURIComponent(gig.image_urls[0].url) : '';
@@ -73,7 +77,7 @@ export default function PromoterCampaignShow() {
                         <h1 className="text-5xl font-black text-white mb-2 tracking-tighter">
                             {formatCurrency(gig.payout)}
                         </h1>
-                        <p className="text-gray-400 font-medium text-sm">For sharing this {gig.platforms?.join(' & ')} campaign</p>
+                        <p className="text-gray-400 font-medium text-sm">For sharing this on {platforms.join(' & ')} </p>
                     </div>
 
                     {/* 3. KEY CRITERIA TILES */}
@@ -88,7 +92,7 @@ export default function PromoterCampaignShow() {
                         </div>
                         <div className="bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm">
                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Remaining Slots</p>
-                            <p className="text-lg font-black text-gray-900">{gig.target_shares - (gig.submissions_count || 0)}</p>
+                            <p className="text-lg font-black text-gray-900">{gig.available_slots}</p>
                         </div>
                     </div>
 
