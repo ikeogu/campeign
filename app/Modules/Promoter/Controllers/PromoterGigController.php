@@ -71,7 +71,7 @@ class PromoterGigController extends ApiController
                 'platforms' => $gig->platforms,
                 'payout' => $gig->payout,
                 'target_followers' => $gig->target_followers,
-                'available_slots' => $gig->available_slots,
+                'available_slots' => $gig->available_slots ?? 'Unlimited',
                 'image_urls' => $gig->images->map(fn($i) => [
                     'id' => $i->id,
                     'url' => asset('storage/' . $i->file_path),

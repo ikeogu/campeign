@@ -23,6 +23,9 @@ export default function PromoterCampaignShow() {
             whatsapp: `https://wa.me/?text=${text}`,
             twitter: `https://twitter.com/intent/tweet?text=${text}%20${url}`,
             facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`,
+            instagram: 'https://www.instagram.com/',
+            tiktok: 'https://www.tiktok.com/',
+            youtube: 'https://www.youtube.com/',
         };
         return links[platform];
     };
@@ -40,6 +43,40 @@ export default function PromoterCampaignShow() {
         setShowReminder(false);
         router.visit(route('promoter.gigs.submit', gig.id));
     };
+
+    const PLATFORM_CONFIG = {
+        whatsapp: {
+            label: 'WhatsApp',
+            icon: '💬',
+            className: 'bg-green-50 border-green-100 hover:bg-green-100 text-green-700',
+        },
+        twitter: {
+            label: 'X',
+            icon: '𝕏',
+            className: 'bg-blue-50 border-blue-100 hover:bg-blue-100 text-blue-700',
+        },
+        facebook: {
+            label: 'Facebook',
+            icon: '👥',
+            className: 'bg-indigo-50 border-indigo-100 hover:bg-indigo-100 text-indigo-700',
+        },
+        instagram: {
+            label: 'Instagram',
+            icon: '📸',
+            className: 'bg-pink-50 border-pink-100 hover:bg-pink-100 text-pink-700',
+        },
+        tiktok: {
+            label: 'TikTok',
+            icon: '🎵',
+            className: 'bg-purple-50 border-purple-100 hover:bg-purple-100 text-purple-700',
+        },
+        youtube: {
+            label: 'YouTube',
+            icon: '📺',
+            className: 'bg-red-50 border-red-100 hover:bg-red-100 text-red-700',
+        },
+    };
+
 
     return (
         <AuthenticatedLayout user={auth.user}>
@@ -92,7 +129,7 @@ export default function PromoterCampaignShow() {
                         </div>
                         <div className="bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm">
                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Remaining Slots</p>
-                            <p className="text-lg font-black text-gray-900">{gig.available_slots}</p>
+                            <p className="text-lg font-black text-gray-900">{gig.available_slots ?? 0}</p>
                         </div>
                     </div>
 
@@ -115,22 +152,34 @@ export default function PromoterCampaignShow() {
 
                     {/* 5. SHARE CHANNELS */}
                     <div className="bg-white rounded-[2.5rem] p-6 border border-gray-100 shadow-sm">
-                        <h2 className="font-black text-gray-900 uppercase text-xs tracking-widest mb-6">1-Click Share</h2>
-                        <div className="grid grid-cols-3 gap-3">
-                            <a href={getShareUrl('whatsapp')} target="_blank" className="flex flex-col items-center gap-2 p-4 rounded-3xl bg-green-50 border border-green-100 hover:bg-green-100 transition-colors">
-                                <span className="text-2xl">💬</span>
-                                <span className="text-[10px] font-black uppercase text-green-700">WhatsApp</span>
+                    <h2 className="font-black text-gray-900 uppercase text-xs tracking-widest mb-6">
+                        1-Click Share
+                    </h2>
+
+                    <div className="grid grid-cols-3 gap-3">
+                        {platforms
+                        .filter((platform) => PLATFORM_CONFIG[platform])
+                        .map((platform) => {
+                            const config = PLATFORM_CONFIG[platform];
+
+                            return (
+                            <a
+                                key={platform}
+                                href={getShareUrl(platform)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={`flex flex-col items-center gap-2 p-4 rounded-3xl border transition-colors ${config.className}`}
+                            >
+                                <span className="text-2xl">{config.icon}</span>
+                                <span className="text-[10px] font-black uppercase">
+                                {config.label}
+                                </span>
                             </a>
-                            <a href={getShareUrl('twitter')} target="_blank" className="flex flex-col items-center gap-2 p-4 rounded-3xl bg-blue-50 border border-blue-100 hover:bg-blue-100 transition-colors">
-                                <span className="text-2xl">🐦</span>
-                                <span className="text-[10px] font-black uppercase text-blue-700">Twitter</span>
-                            </a>
-                            <a href={getShareUrl('facebook')} target="_blank" className="flex flex-col items-center gap-2 p-4 rounded-3xl bg-indigo-50 border border-indigo-100 hover:bg-indigo-100 transition-colors">
-                                <span className="text-2xl">👥</span>
-                                <span className="text-[10px] font-black uppercase text-indigo-700">Facebook</span>
-                            </a>
-                        </div>
+                            );
+                        })}
                     </div>
+                    </div>
+
                 </div>
 
                 {/* 6. FLOATING ACTION BAR */}
