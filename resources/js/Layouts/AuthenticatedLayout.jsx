@@ -30,7 +30,7 @@ export default function AuthenticatedLayout({ header, children }) {
                 <div className="p-8 border-b border-pink-50">
                     <Link href="/" className="flex items-center gap-3">
                         <ApplicationLogo className="h-10 w-auto text-pink-600" />
-                        <span className="font-black text-2xl tracking-tighter text-gray-900">Gigs&Campgs<span className="text-pink-600">.</span></span>
+                        <span className="font-black text-2xl tracking-tighter text-gray-900">Gigs&Campaigns<span className="text-pink-600">.</span></span>
                     </Link>
                 </div>
 
