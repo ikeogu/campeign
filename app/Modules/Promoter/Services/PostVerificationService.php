@@ -129,7 +129,7 @@ class PostVerificationService
             }
 
 
-            $submission->user->transactions()->where('reference', 'CRD-' . $submission->id)
+            $submission->user->wallet->transactions()->where('reference', 'CRD-' . $submission->id)
                 ->where('status', 'pending')
                 ->update([
                     'status' => 'successful',
@@ -147,9 +147,9 @@ class PostVerificationService
         $submission = $verification->promoterSubmission;
         $campaign = $submission->campaign;
 
-        $submission->user->transactions()->create([
+        $submission->user->wallet->transactions()->create([
             'type' => 'credit',
-            'amount' => $campaign->payout,
+            'amount' => $campaign->payout * 100, // assuming amount is in cents
             'reference' => "CRD-" . $submission->id,
             'status' => 'pending',
             'description' => 'Earnings from verified post for campaign: ' . $campaign->title,
@@ -170,7 +170,7 @@ class PostVerificationService
         $submission = $verification->promoterSubmission;
         $campaign = $submission->campaign;
 
-        $submission->user->transactions()->where('reference', 'CRD-' . $submission->id)
+        $submission->user->wallet->transactions()->where('reference', 'CRD-' . $submission->id)
             ->where('status', 'pending')
             ->update([
                 'status' => 'failed',

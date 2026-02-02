@@ -76,4 +76,19 @@ class User extends Authenticatable
     {
         return $this->hasMany(Campaign::class);
     }
+
+    public function shareLogs(): HasMany
+    {
+        return $this->hasMany(ShareLog::class);
+    }
+
+    public function postVerifications(): HasMany
+    {
+        return $this->hasMany(PostVerification::class);
+    }
+
+    public function promoterSubmission(): HasOne
+    {
+        return $this->hasOne(PromoterSubmission::class);
+    }
 }

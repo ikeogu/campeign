@@ -53,11 +53,20 @@ class ProfileController extends Controller
 
         Auth::logout();
 
-        $user->delete();
+
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
+        $user->wallet->transactions()->delete();
+        $user->wallet()->delete();
+        $user->campaigns()->delete();
+        $user->promoterSubmission()->delete();
+        $user->promoter()->delete();
+        $user->shareLogs()->delete();
+        $user->postVerifications()->delete();
+        $user->promoter()->delete();
+        $user->delete();
         return Redirect::to('/');
     }
 }
