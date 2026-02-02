@@ -9,7 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class FundWalletNotification extends Notification
+class FundWalletNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
