@@ -15,9 +15,8 @@ class VerifyPostRecheckJob implements ShouldQueue
      * Create a new job instance.
      */
     public function __construct(
-         private readonly PostVerification $verification
-    )
-    {
+        private readonly PostVerification $verification
+    ) {
         //
     }
 
@@ -26,11 +25,11 @@ class VerifyPostRecheckJob implements ShouldQueue
      */
     public function handle(PostVerificationService $service): void
     {
-                if ($this->verification->status !== 'pending') {
+        if ($this->verification->status !== 'pending') {
             return;
         }
 
-        if (!$service->isAccessible($this->verification->post_url)) {
+        if (!$service->isAccessible($this->verification->promoterSubmission->link)) {
             $this->verification->update(['status' => 'failed']);
             return;
         }
@@ -43,11 +42,13 @@ class VerifyPostRecheckJob implements ShouldQueue
                 'status' => 'verified',
                 'last_checked_at' => now(),
             ]);
+
             return;
+        }else{
+            $service->linkNotUpToTime($this->verification);
         }
 
         $this->verification->increment('checks');
         $this->verification->update(['last_checked_at' => now()]);
-
     }
 }

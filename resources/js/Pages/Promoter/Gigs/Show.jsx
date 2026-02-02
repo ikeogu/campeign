@@ -201,51 +201,68 @@ export default function PromoterCampaignShow() {
                     </div>
                 </div>
 
-                {/* 7. REMINDER MODAL */}
-                {showReminder && (
-                    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-4">
-                        <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-300" onClick={() => setShowReminder(false)}></div>
-                        <div className="relative w-full max-w-sm bg-white rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-8 duration-300">
-                            <div className="bg-pink-600 p-6 text-center text-white">
-                                <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-white/30 animate-pulse">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
-                                </div>
-                                <h3 className="text-lg font-black uppercase tracking-tight">Campaign Reminder</h3>
+              {/* 7. REMINDER MODAL */}
+            {showReminder && (
+                <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-300" onClick={() => setShowReminder(false)}></div>
+                    <div className="relative w-full max-w-sm bg-white rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-8 duration-300">
+                        <div className="bg-pink-600 p-6 text-center text-white">
+                            <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-white/30">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
                             </div>
-                            <div className="p-8">
-                                <div className="space-y-4 mb-8">
-                                    <div className="flex gap-4">
-                                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-pink-50 flex items-center justify-center text-pink-600 font-black text-xs">1</div>
-                                        <p className="text-gray-600 text-xs font-bold leading-relaxed">Ensure your shared campaign link stays live for at least <span className="text-gray-900">48 hours</span>.</p>
-                                    </div>
-                                    <div className="flex gap-4">
-                                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-pink-50 flex items-center justify-center text-pink-600 font-black text-xs">2</div>
-                                        <p className="text-gray-600 text-xs font-bold leading-relaxed">Verify your account meets the advertiser’s <span className="text-gray-900">minimum follower count</span> ({gig.min_followers?.toLocaleString()}).</p>
-                                    </div>
-                                    <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100">
-                                        <p className="text-[10px] text-amber-700 font-black uppercase leading-tight">
-                                            Non-compliance may affect validation and delay or forfeit payment.
+                            <h3 className="text-lg font-black uppercase tracking-tight leading-none">Pre-Submission Check</h3>
+                            <p className="text-[10px] font-bold text-pink-200 uppercase mt-2 tracking-widest">Don't lose your payout!</p>
+                        </div>
+                        <div className="p-7">
+                            <div className="space-y-5 mb-8">
+                                {/* Step 1: 48 Hours */}
+                                <div className="flex gap-4">
+                                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-pink-100 flex items-center justify-center text-pink-600 font-black text-[10px]">1</div>
+                                    <p className="text-gray-600 text-[11px] font-bold leading-snug">Keep your post live for at least <span className="text-gray-900 underline">48 hours</span>.</p>
+                                </div>
+
+                                {/* Step 2: Followers */}
+                                <div className="flex gap-4">
+                                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-pink-100 flex items-center justify-center text-pink-600 font-black text-[10px]">2</div>
+                                    <p className="text-gray-600 text-[11px] font-bold leading-snug">Meet the <span className="text-gray-900">{gig.min_followers?.toLocaleString()} followers</span> requirement.</p>
+                                </div>
+
+                                {/* Step 3: Copy Link & Screenshot */}
+                                <div className="flex gap-4">
+                                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-black text-[10px]">3</div>
+                                    <div className="space-y-1">
+                                        <p className="text-gray-900 text-[11px] font-black leading-snug">Action Required Now:</p>
+                                        <p className="text-gray-500 text-[10px] font-bold leading-relaxed italic">
+                                            Go to your post and <span className="text-blue-600">Copy the Link</span>, then take a <span className="text-blue-600">Full Screenshot</span> of your post.
                                         </p>
                                     </div>
                                 </div>
-                                <div className="flex flex-col gap-3">
-                                    <button
-                                        onClick={confirmAndProceed}
-                                        className="w-full py-4 bg-gray-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:bg-pink-600 transition-colors"
-                                    >
-                                        I Understand, Proceed
-                                    </button>
-                                    <button
-                                        onClick={() => setShowReminder(false)}
-                                        className="w-full py-3 bg-white text-gray-400 font-bold text-[10px] uppercase tracking-widest"
-                                    >
-                                        Go Back
-                                    </button>
+
+                                <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100">
+                                    <p className="text-[9px] text-amber-700 font-black uppercase leading-tight text-center">
+                                        Missing proof or early deletion = No Payout.
+                                    </p>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                )}
+
+                            <div className="flex flex-col gap-3">
+                                <button
+                                    onClick={confirmAndProceed}
+                                    className="w-full py-4 bg-gray-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:bg-pink-600 transition-colors active:scale-95"
+                                >
+                                    I have them, Proceed
+                                </button>
+                                                <button
+                                                    onClick={() => setShowReminder(false)}
+                                                    className="w-full py-2 bg-white text-gray-400 font-bold text-[10px] uppercase tracking-widest"
+                                                >
+                                                    Go back to copy link
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
             </div>
         </AuthenticatedLayout>
     );

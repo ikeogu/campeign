@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Modules\Promoter\Services\PostVerificationService;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PostVerification extends Model
 {
@@ -21,12 +22,12 @@ class PostVerification extends Model
         'last_checked_at' => 'datetime',
     ];
 
-    public function promoterSubmission()
+    public function promoterSubmission(): BelongsTo
     {
         return $this->belongsTo(PromoterSubmission::class);
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
@@ -35,12 +36,17 @@ class PostVerification extends Model
     {
         static::created(function ($verification) {
 
-            app(PostVerificationService::class)->start($verification->promoterSubmission->link, $verification);
+            app(PostVerificationService::class)->start($verification);
         });
 
         static::updated(function ($verification) {
+
             if ($verification->status === 'verified') {
                 app(PostVerificationService::class)->rewardPromoter($verification);
+            }
+
+            if($verification->wasChanged('first_verified_at')) {
+                app(PostVerificationService::class)->initiatePendingPayout($verification);
             }
         });
     }

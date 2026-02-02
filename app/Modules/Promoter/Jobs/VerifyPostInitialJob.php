@@ -6,16 +6,18 @@ use App\Models\PostVerification;
 use App\Modules\Promoter\Services\PostVerificationService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class VerifyPostInitialJob implements ShouldQueue
 {
-    use Queueable;
+    use Queueable, SerializesModels;
 
     /**
      * Create a new job instance.
      */
     public function __construct(
-        private readonly PostVerification $verification
+        public PostVerification $verification
     ) {
         //
     }
@@ -25,7 +27,24 @@ class VerifyPostInitialJob implements ShouldQueue
      */
     public function handle(PostVerificationService $service): void
     {
-        if (!$service->isAccessible($this->verification->post_url)) {
+
+        $submission = $this->verification->promoterSubmission;
+
+        if (!$submission || empty($submission->link)) {
+            Log::warning('Post verification aborted: missing link', [
+                'verification_id' => $this->verification->id,
+                'submission_id' => $submission?->id,
+            ]);
+
+            $this->verification->update([
+                'status' => 'failed',
+            ]);
+
+            return;
+        }
+
+        if (!$service->isAccessible($this->verification->promoterSubmission->link)) {
+            
             $this->verification->update(['status' => 'failed']);
             return;
         }
