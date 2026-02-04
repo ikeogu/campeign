@@ -212,6 +212,11 @@ class CampaignController extends ApiController
     public function destroy(Campaign $campaign)
     {
         // $this->authorize('delete', $campaign);
+        //$Total Funded - (Approved Payouts + Pending Payouts)
+
+        $totalFunded = $campaign->total_budget - $campaign->completedPayouts()->sum('amount');
+
+        $campaign->user->wallet->increment('balance', $totalFunded);
 
         $campaign->delete();
 
@@ -367,10 +372,20 @@ class CampaignController extends ApiController
                 ->with('error', 'Payment verification failed.');
         }
 
-       app(PaymentService::class)->handleChargeSuccess(['reference' => $reference]);
+        app(PaymentService::class)->handleChargeSuccess(['reference' => $reference]);
 
         return Inertia::render('Advertiser/Campaigns/FundSuccess', [
             'campaign' => $campaign
         ]);
+    }
+
+    public function updateStatus(Request $request, Campaign $campaign)
+    {
+
+        $campaign->update(['status' => $request->status]);
+
+        return redirect()
+            ->route('campaigns.index')
+            ->with('success', 'Campaign updated successfully.');
     }
 }

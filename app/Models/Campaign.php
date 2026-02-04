@@ -64,6 +64,15 @@ class Campaign extends Model
         return $this->hasOne(CampaignPayment::class);
     }
 
+    public function payoutsMade() : HasMany
+    {
+        return $this->hasMany(PromoterEarning::class);
+    }
+
+    public function completedPayouts() {
+        return $this->payoutsMade()->where('status', 'verified');
+    }
+
 
 
     public function verifiedSubmissions()

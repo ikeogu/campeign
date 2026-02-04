@@ -66,6 +66,7 @@ Route::middleware('auth')->group(function () {
         Route::post('{campaign}/process_funding', 'processFunding')->name('campaigns.process_funding');
         Route::get('promoter/submissions/{campaign}', 'promoterSubmissions')->name('campaigns.submissions.index');
         Route::get('fund-success/{campaign}', 'handleGatewayCallback')->name('handleGatewayCallback');
+        Route::patch('update-status/{campaign}', 'updateStatus')->name('campaigns.update-status');
     });
 
     Route::prefix('promoter/gigs')->controller(PromoterGigController::class)->group(function () {
