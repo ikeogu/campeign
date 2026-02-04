@@ -55,7 +55,7 @@ class PromoterGigController extends ApiController
 
     public function show($id)
     {
-        $gig = Campaign::with('images')->findOrFail($id);
+        $gig = Campaign::with(['images'])->findOrFail($id);
 
         $hasSubmitted = ShareLog::where([
             'campaign_id' => $gig->id,
@@ -78,7 +78,7 @@ class PromoterGigController extends ApiController
                 ]),
 
             ],
-
+            'companyName' => $gig->user->campaigner->company_name,
             'hasSubmitted' => $hasSubmitted,
         ]);
     }
