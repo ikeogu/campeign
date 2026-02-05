@@ -240,6 +240,10 @@ class CampaignController extends ApiController
             'amount' => ['required', 'numeric', 'min:1'],
         ]);
 
+        if ($campaign->status === 'live') {
+            return back()->with('error', 'This campaign is already funded.');
+        }
+
         /** @var User $user */
         $user = Auth::user();
         $wallet = $user->wallet;
@@ -248,26 +252,29 @@ class CampaignController extends ApiController
 
         // Wallet sufficient → instant funding
 
-        $response = $wallet->balance < $amountInCents
-            ? $this->initiateGatewayPayment($user, $campaign, $amountInCents)
-            : $this->fundFromWallet($user, $campaign, $amountInCents);
+        if ($wallet->balance >= $amountInCents) {
+            $this->fundFromWallet($user, $campaign, $amountInCents);
 
-        if (! $response) {
-            return back()->with('error', 'Failed to fund campaign.');
+            // IMPORTANT: Return a redirect so Inertia knows the request is finished
+            return redirect()
+                ->route('campaigns.index')
+                ->with('success', 'Campaign funded successfully from wallet.');
+        }
+
+        $response = $this->initiateGatewayPayment($user, $campaign, $amountInCents);
+
+        if (!$response) {
+            return back()->withErrors(['amount' => 'Failed to initiate gateway payment.']);
         }
 
         if (is_array($response) && $response['type'] === 'paystack') {
-            return Inertia::location(
-                $response['url']
-            );
+            return Inertia::location($response['url']);
         }
 
-        return redirect()
-            ->route('campaigns.index')
-            ->with('success', 'Campaign funded successfully.');
+        return back()->with('error', 'Unexpected payment response.');
     }
 
-    private function fundFromWallet(User $user, Campaign $campaign, int $amountInCents): void
+    private function fundFromWallet(User $user, Campaign $campaign, int $amountInCents)
     {
         DB::transaction(function () use ($user, $campaign, $amountInCents) {
             $wallet = $user->wallet;

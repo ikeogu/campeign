@@ -30,9 +30,13 @@ export default function FundCampaign() {
     function submit(e) {
         e.preventDefault();
 
+        if (processing) return;
         // This would typically redirect to a payment gateway (e.g., Paystack, Flutterwave)
         post(route('campaigns.process_funding', campaign.id), {
         preserveScroll: true,
+        onStart: () => {
+            // Optional: You could set a local "isRedirecting" state here
+        },
         onSuccess: (page) => {
             // Handle Paystack redirect
             if (page?.props?.redirect) {
