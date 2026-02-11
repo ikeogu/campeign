@@ -6,8 +6,10 @@ use App\Models\PostVerification;
 use App\Models\PromoterSubmission;
 use App\Modules\Promoter\Services\PostVerificationService;
 use App\Notifications\NotifyAnythingNotification;
+use Exception;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Log;
 
 class VerifyPostRecheckJob implements ShouldQueue
 {
@@ -27,33 +29,84 @@ class VerifyPostRecheckJob implements ShouldQueue
      */
     public function handle(PostVerificationService $service): void
     {
-        if ($this->verification->status !== 'pending') {
-            return;
-        }
+        try {
+            // Guard: Skip if not pending
+            if ($this->verification->status !== 'pending') {
+                return;
+            }
 
-        if (!$service->isAccessible($this->verification->promoterSubmission->link)) {
-            $this->verification->update(['status' => 'failed']);
-            $this->notifyUserOfPostStatus($this->verification->promoterSubmission, 'failed');
-            return;
-        }
+            // Ensure first_verified_at is set
+            if (!$this->verification->first_verified_at) {
+                $this->verification->update([
+                    'first_verified_at' => now(),
+                    'last_checked_at' => now(),
+                ]);
 
-        $hours = $this->verification->first_verified_at
-            ->diffInHours(now());
+                Log::warning('first_verified_at was null, set to now', [
+                    'verification_id' => $this->verification->id,
+                ]);
 
-        if ($hours >= 48) {
+                // Refresh the model
+                $this->verification->refresh();
+            }
+
+            // Guard: Check if submission exists
+            $submission = $this->verification->promoterSubmission;
+            if (!$submission) {
+                Log::error('Promoter submission not found', [
+                    'verification_id' => $this->verification->id,
+                ]);
+                $this->verification->update(['status' => 'failed']);
+                return;
+            }
+
+            // Check accessibility
+            if (!$service->isAccessible($submission->link)) {
+                $this->markAsFailed($submission, 'Post is no longer accessible');
+                return;
+            }
+
+            // Calculate hours since first verification
+            $hoursSincePost = $this->verification->first_verified_at->diffInHours(now());
+
+            // Mark as verified if 48 hours passed
+            if ($hoursSincePost >= 48) {
+                $this->markAsVerified($submission);
+                return;
+            }
+
+            // Update check metadata
             $this->verification->update([
-                'status' => 'verified',
+                'checks' => $this->verification->checks + 1,
                 'last_checked_at' => now(),
             ]);
+        } catch (Exception $e) {
+            Log::error('Post verification job failed', [
+                'verification_id' => $this->verification->id,
+                'error' => $e->getMessage(),
+            ]);
+            throw $e;
+        }
+    }
 
-            $this->notifyUserOfPostStatus($this->verification->promoterSubmission, 'verified');
-            return;
-        } /* else {
-            $service->linkNotUpToTime($this->verification);
-        } */
+    private function markAsFailed(PromoterSubmission $submission, string $reason = 'Verification failed'): void
+    {
+        $this->verification->update([
+            'status' => 'failed',
+            'last_checked_at' => now(),
+        ]);
 
-        $this->verification->increment('checks');
-        $this->verification->update(['last_checked_at' => now()]);
+        $this->notifyUserOfPostStatus($submission, 'failed');
+    }
+
+    private function markAsVerified(PromoterSubmission $submission): void
+    {
+        $this->verification->update([
+            'status' => 'verified',
+            'last_checked_at' => now(),
+        ]);
+
+        $this->notifyUserOfPostStatus($submission, 'verified');
     }
 
 
