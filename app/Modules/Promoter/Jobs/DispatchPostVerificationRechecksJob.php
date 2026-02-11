@@ -27,10 +27,10 @@ class DispatchPostVerificationRechecksJob implements ShouldQueue
 
         PostVerification::query()
             ->where('status', 'pending')
-            ->where(function ($q) {
+            /* ->where(function ($q) {
                 $q->whereNull('last_checked_at')
                   ->orWhere('last_checked_at', '<=', now()->subHours(6));
-            })
+            }) */
             ->each(function (PostVerification $verification) {
                 dispatch(new VerifyPostRecheckJob($verification));
             });
