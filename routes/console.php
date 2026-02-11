@@ -12,6 +12,8 @@ Artisan::command('inspire', function () {
 
 Schedule::macro('postVerificationRechecks', function (Schedule $schedule) {
     $schedule->call(function () {
+        info("I am checking for Post Verification");
+        
         PostVerification::where('status', 'pending')
             ->where(function ($q) {
                 $q->whereNull('last_checked_at')
