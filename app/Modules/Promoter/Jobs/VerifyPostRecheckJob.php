@@ -67,7 +67,11 @@ class VerifyPostRecheckJob implements ShouldQueue
             }
 
             // Calculate hours since first verification
-            $hoursSincePost = $this->verification->first_verified_at->diffInHours(now());
+            if ($this->verification->first_verified_at) {
+                $hoursSincePost = $this->verification->first_verified_at->diffInHours(now());
+            }else{
+                VerifyPostInitialJob::dispatch($service);
+            }
 
             // Mark as verified if 48 hours passed
             if ($hoursSincePost >= 48) {
