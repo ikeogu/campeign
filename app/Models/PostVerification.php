@@ -39,14 +39,16 @@ class PostVerification extends Model
             app(PostVerificationService::class)->start($verification);
         });
 
-        static::updated(function ($verification) {
-
-            if ($verification->status === 'verified') {
-                app(PostVerificationService::class)->rewardPromoter($verification);
-            }
-
-            if($verification->wasChanged('first_verified_at')) {
+        static::updating(function ($verification) {
+            if ($verification->isDirty('first_verified_at') && $verification->first_verified_at !== null) {
                 app(PostVerificationService::class)->initiatePendingPayout($verification);
+            }
+        });
+
+        // Use 'updated' for after-save logic
+        static::updated(function ($verification) {
+            if ($verification->status === 'verified') {
+
             }
         });
     }
