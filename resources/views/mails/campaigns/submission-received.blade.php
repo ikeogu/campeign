@@ -7,9 +7,6 @@
 
     <p>Please review the link and screenshot provided to ensure it meets your brand standards. You have 48 hours to dispute the submission before payment is automatically released.</p>
 
-    <div style="border-left: 4px solid #db2777; padding-left: 20px; font-style: italic; color: #6b7280;">
-        "I've shared the brand launch on my Twitter and Instagram handles with 5k+ followers!"
-    </div>
 
-    <a href="{{ route('advertiser.submissions.show', $campaign->id) }}" className="button" style="background-color: #111827;">Review Proof</a>
+    <a href="{{ route('campaigns.submissions.index', $campaign->id) }}" className="button" style="background-color: #111827;">Review Proof</a>
 @endsection
