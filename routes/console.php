@@ -22,5 +22,5 @@ Schedule::macro('postVerificationRechecks', function (Schedule $schedule) {
                 fn($v) =>
                 dispatch(new VerifyPostRecheckJob($v))
             );
-    })->everySixHours();
+    })->everyMinute();
 });
