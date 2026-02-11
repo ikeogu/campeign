@@ -1,4 +1,4 @@
-@extends('emails.layout')
+@extends('mails.layout')
 
 @section('content')
     <div className="status-badge" style="background: #ecfdf5; color: #059669;">New Submission</div>
