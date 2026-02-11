@@ -15,56 +15,93 @@ use Symfony\Component\HttpFoundation\Response;
 
 class PostVerificationService
 {
+
     public function isAccessible(string $url): bool
     {
         try {
-            $response = Http::timeout(10)
-                ->withHeaders([
-                    'User-Agent' => 'Mozilla/5.0',
-                ])
-                ->head($url);
+            // 1️⃣ Social media URLs - validate by pattern only
+            if ($this->isKnownSocialPlatform($url)) {
+                $isValid = $this->validateSocialMediaUrl($url);
 
-            Log::debug('Post verification HTTP response', [
-                'url' => $url,
-                'status' => $response->status(),
-                //'body' => $response->body(),
-                'failed' => $response->failed(),
-                'successful' => $response->successful(),
-                'redirect' => $response->redirect(),
+                Log::info('Social media URL validation', [
+                    'url' => $url,
+                    'valid' => $isValid,
+                ]);
 
-            ]);
-
-            if ($response->failed()) {
-                return false;
+                return $isValid;
             }
 
-            if ($response->successful() || $response->redirect()) {
-                $body = strtolower($response->body());
-
-                // Known "removed / unavailable" signals
-                if (
-                    str_contains($body, 'not available') ||
-                    str_contains($body, 'isn’t available') ||
-                    str_contains($body, 'page not found') ||
-                    str_contains($body, 'this video is unavailable') ||
-                    str_contains($body, 'private video')
-                ) {
-                    return false;
-                }
-
-                return true;
-            }
-
-            return false;
+            // 2️⃣ Regular websites - use HTTP check
+            return $this->checkHttpAccessibility($url);
         } catch (\Throwable $e) {
             Log::warning('Post verification failed', [
                 'url' => $url,
                 'error' => $e->getMessage(),
             ]);
-
             return false;
         }
     }
+
+    private function checkHttpAccessibility(string $url): bool
+    {
+        $response = Http::timeout(10)
+            ->withHeaders([
+                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                'Accept' => 'text/html',
+            ])
+            ->head($url);
+
+        if ($response->successful() || $response->redirect()) {
+            return true;
+        }
+
+        // Fallback to GET
+        $get = Http::timeout(10)->withHeaders([
+            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        ])->get($url);
+
+        return $get->successful();
+    }
+
+    private function isKnownSocialPlatform(string $url): bool
+    {
+        return (bool) preg_match(
+            '#(twitter\.com|x\.com|instagram\.com|tiktok\.com|facebook\.com|youtube\.com|youtu\.be|linkedin\.com)#i',
+            $url
+        );
+    }
+
+    private function validateSocialMediaUrl(string $url): bool
+    {
+        $patterns = [
+            // Twitter/X: https://x.com/user/status/123456789
+            '#(twitter\.com|x\.com)/.+/status/\d{18,20}#i',
+
+            // Instagram: https://instagram.com/p/ABC123 or /reel/ABC123
+            '#instagram\.com/(p|reel)/[A-Za-z0-9_-]{10,12}#i',
+
+            // TikTok: https://tiktok.com/@user/video/1234567890
+            '#tiktok\.com/@[\w.-]+/video/\d{18,20}#i',
+
+            // Facebook: https://facebook.com/user/posts/123 or /videos/123
+            '#facebook\.com/.+/(posts|videos)/\d+#i',
+
+            // YouTube: https://youtube.com/watch?v=ABC or https://youtu.be/ABC
+            '#(youtube\.com/watch\?v=|youtu\.be/)[A-Za-z0-9_-]{11}#i',
+
+            // LinkedIn: https://linkedin.com/posts/...
+            '#linkedin\.com/posts/.+#i',
+        ];
+
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $url)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 
     public function detect(string $url): ?string
     {
