@@ -42,9 +42,9 @@ class VerifyPostRecheckJob implements ShouldQueue
                     'last_checked_at' => now(),
                 ]);
 
-                Log::warning('first_verified_at was null, set to now', [
+               /*  Log::warning('first_verified_at was null, set to now', [
                     'verification_id' => $this->verification->id,
-                ]);
+                ]); */
 
                 // Refresh the model
                 $this->verification->refresh();
