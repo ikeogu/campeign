@@ -16,7 +16,7 @@ class WalletService
     public function __construct(
         public readonly PaymentGateWayInterface $paystackGatewayInterface
     ) {}
-    
+
     public function getWallet($userId)
     {
         return Wallet::firstOrCreate(['user_id' => $userId]);
@@ -45,7 +45,7 @@ class WalletService
             throw new \Exception("Insufficient balance");
         }
 
-        $wallet->decrement('balance', $amount * 100);
+        $wallet->decrement('balance', $amount);
 
         Transaction::create([
             'wallet_id' => $wallet->id,
