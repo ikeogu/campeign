@@ -14,11 +14,11 @@ class PaystackClient extends PendingRequest implements PaymentGateWayInterface
   {
     $payload = [
       'type' => 'nuban',
-      'name' => $data['bank_name'],
+      'name' => $data['account_name'],
       'account_number' => $data['account_number'],
       'bank_code' => $data['bank_code'],
       'currency' => 'NGN',
-      'description' => "Processing withdrawal for {$data['bank_name']}",
+      'description' => $data['narration'],
       'metadata' => [
         'reference' => $data['reference']
       ]

@@ -49,15 +49,17 @@ class PaymentService
                     'card' => $card ?? [], */
                 ]);
 
-                $payment->wallet->increment('balance', $payment->amount);
+                if ($payment->type === 'credit') {
+                    $payment->wallet->increment('balance', $payment->amount * 100);
 
-                Log::info('Payment verified successfully', [
-                    'payment_id' => $payment->id,
-                    //'book_trip_id' => $bookedTrip->id,
-                    'reference' => $reference
-                ]);
+                    Log::info('Payment verified successfully', [
+                        'payment_id' => $payment->id,
+                        //'book_trip_id' => $bookedTrip->id,
+                        'reference' => $reference
+                    ]);
 
-                $payment->wallet->user->notify(new WalletFundedNotification($payment));
+                    $payment->wallet->user->notify(new WalletFundedNotification($payment));
+                }
 
                 return true;
             });
@@ -94,7 +96,7 @@ class PaymentService
                 'gateway_data' => $data,
             ]);
 
-           /*  $payment->campaign->increment(
+            /*  $payment->campaign->increment(
                 'funded_amount',
                 $payment->amount
             ); */
