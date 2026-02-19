@@ -114,7 +114,7 @@ export default function SubmissionsIndex({ auth, submissions }) {
                                                         <div className={`w-1.5 h-10 rounded-full ${getPlatformBadge(sub.platform)}`} />
                                                         <div>
                                                             <p className="font-black text-gray-900 text-sm leading-tight uppercase">
-                                                                {sub.gig?.title || 'General Campaign'}
+                                                                {sub.campaign?.title || 'General Campaign'}
                                                             </p>
                                                             <a href={sub.link} target="_blank" className="text-[10px] font-bold text-pink-600 hover:underline flex items-center gap-1 mt-1">
                                                                 View Link
