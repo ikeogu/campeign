@@ -135,11 +135,11 @@ export default function SubmissionsIndex({ auth, submissions }) {
                                                     </span>
                                                 </td>
 
-                                                <td className="px-6 py-5 text-center">
+                                                {/* <td className="px-6 py-5 text-center">
                                                     <p className="text-sm font-bold text-gray-900">
                                                         ₦{sub.shareLogs?.earned_amount || '0'}
                                                     </p>
-                                                </td>
+                                                </td> */}
 
                                                 <td className="px-6 py-5 text-right">
                                                     <p className="text-xs font-black text-gray-900">

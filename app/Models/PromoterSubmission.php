@@ -44,7 +44,7 @@ class PromoterSubmission extends Model
 
     public function shareLogs(): HasMany
     {
-        return $this->hasMany(ShareLog::class);
+        return $this->hasMany(ShareLog::class, 'promoter_submission_id');
     }
 
     public function postVerification(): HasOne
