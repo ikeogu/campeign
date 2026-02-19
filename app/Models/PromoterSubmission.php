@@ -66,8 +66,9 @@ class PromoterSubmission extends Model
                 'promoter_submission_id' => $submission->id,
                 'user_id' => $submission->user_id,
                 'action'      => 'submitted',
+                'earned_amount' => $submission->campaign->payout,
             ]);
-            
+
             PostVerification::create([
                 'user_id'      => $submission->user_id,
                 'promoter_submission_id' => $submission->id,
