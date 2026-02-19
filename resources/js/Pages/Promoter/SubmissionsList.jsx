@@ -81,7 +81,7 @@ export default function SubmissionsIndex({ auth, submissions }) {
 
             <div className="py-12 bg-gray-50 min-h-screen">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    
+
                     <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                         <div>
                             <h1 className="text-3xl font-black text-gray-900 tracking-tight leading-none">Earning History</h1>
@@ -101,6 +101,7 @@ export default function SubmissionsIndex({ auth, submissions }) {
                                         <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Campaign</th>
                                         <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Post Retention</th>
                                         <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Status</th>
+                                        <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Earned Amount</th>
                                         <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Submitted</th>
                                     </tr>
                                 </thead>
@@ -116,13 +117,13 @@ export default function SubmissionsIndex({ auth, submissions }) {
                                                                 {sub.gig?.title || 'General Campaign'}
                                                             </p>
                                                             <a href={sub.link} target="_blank" className="text-[10px] font-bold text-pink-600 hover:underline flex items-center gap-1 mt-1">
-                                                                View Link 
+                                                                View Link
                                                                 <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg>
                                                             </a>
                                                         </div>
                                                     </div>
                                                 </td>
-                                                
+
                                                 {/* COUNTDOWN COLUMN */}
                                                 <td className="px-6 py-5">
                                                     <CountdownTimer createdAt={sub.created_at} />
@@ -132,6 +133,12 @@ export default function SubmissionsIndex({ auth, submissions }) {
                                                     <span className={`px-4 py-1.5 rounded-2xl text-[10px] font-black uppercase border ${getStatusStyle(sub.status)}`}>
                                                         {sub.status}
                                                     </span>
+                                                </td>
+
+                                                <td className="px-6 py-5 text-center">
+                                                    <p className="text-sm font-bold text-gray-900">
+                                                        ₦{sub.shareLogs?.earned_amount || '0'}
+                                                    </p>
                                                 </td>
 
                                                 <td className="px-6 py-5 text-right">

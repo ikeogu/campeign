@@ -101,6 +101,9 @@ class VerifyPostRecheckJob implements ShouldQueue
             'last_checked_at' => now(),
         ]);
 
+        $submission->update(['status' => 'rejected']);
+        $submission->shareLogs()->update(['action' => 'failed']);
+
         $this->notifyUserOfPostStatus($submission, 'failed');
     }
 
@@ -111,6 +114,7 @@ class VerifyPostRecheckJob implements ShouldQueue
             'last_checked_at' => now(),
         ]);
 
+        $submission->update(['status' => 'approved']);
         $submission->shareLogs()->update(['action' => 'verified']);
 
         $this->notifyUserOfPostStatus($submission, 'verified');
