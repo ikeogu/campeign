@@ -111,6 +111,7 @@ class VerifyPostRecheckJob implements ShouldQueue
             'last_checked_at' => now(),
         ]);
 
+        $submission->shareLogs()->update(['action' => 'verified']);
 
         $this->notifyUserOfPostStatus($submission, 'verified');
     }

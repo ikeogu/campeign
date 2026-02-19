@@ -56,7 +56,7 @@ class ShareLog extends Model
         static::updated(function ($shareLog) {
 
             if ($shareLog->isDirty('action') && $shareLog->action === 'verified') {
-                $shareLog->promoterEarning()->update(['status' => 'completed', 'completed_at' => now()]);
+                $shareLog->promoterEarning()->update(['status' => 'verified', 'completed_at' => now()]);
             }
         });
     }

@@ -57,7 +57,7 @@ class PromoterSubmission extends Model
         return $this->hasOne(PostVerification::class);
     }
 
-    
+
     protected static function booted()
     {
         static::created(function ($submission) {
@@ -67,6 +67,7 @@ class PromoterSubmission extends Model
                 'user_id' => $submission->user_id,
                 'action'      => 'submitted',
             ]);
+            
             PostVerification::create([
                 'user_id'      => $submission->user_id,
                 'promoter_submission_id' => $submission->id,
@@ -74,7 +75,7 @@ class PromoterSubmission extends Model
                 'checks'           => 0,
             ]);
 
-            
+
         });
     }
 }

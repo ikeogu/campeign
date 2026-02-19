@@ -31,7 +31,7 @@ class PromoterEarningsController extends ApiController
         $availableBalance = $totalEarnings - $totalWithdrawals;
 
         $completedPromotions = PromoterEarning::where('promoter_id', $userId)
-            ->where('status', 'completed')
+            ->where('status', 'verified')
             ->count();
 
         $pendingPayments = PromoterEarning::where('promoter_id', $userId)
@@ -40,7 +40,7 @@ class PromoterEarningsController extends ApiController
 
         // Chart Data (Last 30 Days)
         $chartData = PromoterEarning::where('promoter_id', $userId)
-            ->where('status', 'completed')
+            ->where('status', 'verified')
             ->whereDate('completed_at', '>=', now()->subDays(30))
             ->selectRaw('DATE(completed_at) as date, SUM(amount) as total')
             ->groupBy('date')
