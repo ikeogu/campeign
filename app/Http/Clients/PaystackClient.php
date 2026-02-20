@@ -43,7 +43,7 @@ class PaystackClient extends PendingRequest implements PaymentGateWayInterface
       'reason' => $data['narration'],
       'currency' => 'NGN',
       'reference' => $data['reference'],
-      'callback_url' => route('paystack.callback'),
+     // 'callback_url' => route('paystack.callback'),
       'metadata' => [
         'reference' => $data['reference']
       ]

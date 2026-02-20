@@ -8,6 +8,8 @@ use App\Modules\Shared\Services\PaymentService;
 use Illuminate\Support\Facades\Log;
 use Spatie\WebhookClient\Jobs\ProcessWebhookJob;
 
+use function Laravel\Prompts\info;
+
 class PaystackWebhookProcessor extends ProcessWebhookJob
 {
 
@@ -23,5 +25,7 @@ class PaystackWebhookProcessor extends ProcessWebhookJob
             default =>  $paymentService->verifyPayment(
                 $data['data']['reference'], null),
         };
+
+        info("Received Paystack Webhook: {$data['event']} with reference: {$data['data']['reference']}");
     }
 }
