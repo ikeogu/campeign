@@ -106,7 +106,7 @@ class WalletController extends ApiController
                 $reference = 'WD-' . strtoupper(Str::random(10));
 
                 // 1. Deduct the FULL amount from user wallet
-                $user->wallet->decrement('balance', $grossAmount);
+               // $user->wallet->decrement('balance', $grossAmount);
 
                 // 2. Record the transaction
                 $user->wallet->transactions()->create([
