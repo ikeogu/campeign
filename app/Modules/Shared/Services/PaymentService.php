@@ -23,7 +23,7 @@ class PaymentService
     }
 
 
-    public function verifyPayment(string $reference, string $channel): bool
+    public function verifyPayment(string $reference, ?string $channel): bool
     {
         info("I am here to verify");
         try {
