@@ -148,26 +148,6 @@ class WalletController extends ApiController
         try {
             $response = $this->paystackGatewayInterface->verifyTransaction($reference);
         } catch (\Exception $e) {
-            return redirect()->route('wallet.index')
-                ->with('error', 'Payment verification failed: ' . $e->getMessage());
-        }
-        if (!$response->json('status')) {
-            return redirect()->route('wallet.index')
-                ->with('error', 'Payment verification failed.');
-        }
-
-        app(PaymentService::class)->verifyPayment($response->json('data')['reference'], $response->json('data')['channel']);
-
-        return redirect()->route('wallet.index')
-            ->with('success', 'Wallet funded successfully.');
-    }
-
-    public function payoutCallback(Request $request)
-    {
-        $reference = $request->query('reference');
-        try {
-            $response = $this->paystackGatewayInterface->verifyTransaction($reference);
-        } catch (\Exception $e) {
             Log::error("Payout Callback Failed: " . $e->getMessage() . " at line " . $e->getLine());
             return redirect()->route('wallet.index')
                 ->with('error', 'Payout verification failed: ' . $e->getMessage());
@@ -181,7 +161,7 @@ class WalletController extends ApiController
         // Update the transaction status based on the payout response
         $data = $response->json('data');
 
-        $this->paymentService->verifyPayment($data['reference'], $data['channel']);
+        $this->paymentService->verifyPayment($data['reference'], null);
 
         return redirect()->route('wallet.index')
             ->with('success', 'Payout status updated successfully.');

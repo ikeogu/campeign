@@ -27,7 +27,7 @@ class PaymentService
     {
         info("I am here to verify");
         try {
-            return DB::transaction(function () use ($reference, $channel) {
+            return DB::transaction(function () use ($reference) {
                 $payment = Transaction::where('reference', $reference)
                     ->where('status', 'pending')
                     ->first();
@@ -43,7 +43,7 @@ class PaymentService
                 // Update payment status
                 $payment->update([
                     'status' => 'successful',
-                    'channel' => $channel,
+                    'channel' => 'paystack',
                     /*  'rave_reference' => $reference,
                     'channel' => $channel,
                     'card' => $card ?? [], */
