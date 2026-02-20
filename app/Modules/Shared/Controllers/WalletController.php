@@ -103,16 +103,16 @@ class WalletController extends ApiController
         $netPayoutKobo = $grossKobo - $feeKobo; // What actually goes to their bank
 
         try {
-            DB::transaction(function () use ($user, $grossAmount, $feeKobo, $netPayoutKobo, $request) {
+            DB::transaction(function () use ($user, $grossKobo, $feeKobo, $netPayoutKobo, $request) {
                 $reference = 'WD-' . strtoupper(Str::random(10));
 
                 // 1. Deduct the FULL amount from user wallet
-               // $user->wallet->decrement('balance', $grossAmount);
+                $user->wallet->decrement('balance', $grossKobo);
 
                 // 2. Record the transaction
                 $user->wallet->transactions()->create([
                     'type' => 'debit',
-                    'amount' => $grossAmount, // Total deducted
+                    'amount' => $grossKobo / 100, // Total deducted in Naira
                     'description' => $request->narration ?? "Withdrawal to {$request->account_number}",
                     'status' => 'pending',
                     'reference' => $reference,
