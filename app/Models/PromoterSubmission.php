@@ -42,9 +42,9 @@ class PromoterSubmission extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function shareLogs(): HasMany
+    public function shareLogs(): HasOne
     {
-        return $this->hasMany(ShareLog::class, 'promoter_submission_id');
+        return $this->hasOne(ShareLog::class, 'promoter_submission_id');
     }
 
     public function postVerification(): HasOne

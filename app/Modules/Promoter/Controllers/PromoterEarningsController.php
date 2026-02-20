@@ -73,7 +73,7 @@ class PromoterEarningsController extends ApiController
         $user = Auth::user();
         $userId = $user->id;
 
-        $submissions = PromoterSubmission::with(['campaign:id,title'])
+        $submissions = PromoterSubmission::with(['campaign:id,title', 'shareLogs:id,campaign_id,promoter_submission_id,user_id,action,earned_amount'])
             ->where('user_id', $userId)
             ->orderBy('created_at', 'desc')
             ->get();

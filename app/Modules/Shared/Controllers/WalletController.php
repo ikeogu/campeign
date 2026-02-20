@@ -85,56 +85,59 @@ class WalletController extends ApiController
             'bank_code' => 'required',
             'account_number' => 'required|digits:10',
             'account_name' => 'required|string|max:100',
+            'narration' => 'nullable|string|max:100', // Validate the new field
         ]);
 
         $percentage = config('app.transfer_fee');
-        $requestedAmountKobo = $request->amount * 100;
-        $feeKobo = (int) round(($requestedAmountKobo * $percentage) / 100);
+        $grossAmount = $request->amount; // e.g., 1000
 
-        // Check balance BEFORE starting a transaction
-        $totalNeeded = ($requestedAmountKobo + $feeKobo) / 100;
-        if ($user->wallet->balance < $totalNeeded) {
-            return back()->withErrors(['amount' => 'Insufficient funds to cover amount and fees.']);
+        // Check balance: In the inclusive model, total deduction is just the grossAmount
+        if ($user->wallet->balance < $grossAmount) {
+            return back()->withErrors(['amount' => 'Insufficient wallet balance.']);
         }
 
+        // Calculations in Kobo for Paystack accuracy
+        $grossKobo = $grossAmount * 100;
+        $feeKobo = (int) round(($grossKobo * $percentage) / 100);
+        $netPayoutKobo = $grossKobo - $feeKobo; // What actually goes to their bank
+
         try {
-            DB::transaction(function () use ($user, $requestedAmountKobo, $feeKobo, $request) {
+            DB::transaction(function () use ($user, $grossAmount, $feeKobo, $netPayoutKobo, $request) {
                 $reference = 'WD-' . strtoupper(Str::random(10));
 
-                // Deduct Total (Amount + Fee)
-                $user->wallet->decrement('balance', ($requestedAmountKobo + $feeKobo) / 100);
+                // 1. Deduct the FULL amount from user wallet
+                $user->wallet->decrement('balance', $grossAmount);
 
+                // 2. Record the transaction
                 $user->wallet->transactions()->create([
                     'type' => 'debit',
-                    'amount' => $requestedAmountKobo,
-                    'description' => "Withdrawal to {$request->account_number}",
+                    'amount' => $grossAmount, // Total deducted
+                    'description' => $request->narration ?? "Withdrawal to {$request->account_number}",
                     'status' => 'pending',
                     'reference' => $reference,
                     'metadata' => [
                         'bank_code' => $request->bank_code,
                         'account_number' => $request->account_number,
                         'fee' => $feeKobo / 100,
+                        'net_payout' => $netPayoutKobo / 100,
                     ]
                 ]);
 
-                // Trigger actual transfer
+                // 3. Trigger actual transfer: Send the NET amount to Paystack
                 $this->paystackGatewayInterface->payout([
-                    'amount' => $requestedAmountKobo,
+                    'amount' => $netPayoutKobo, // Paystack receives the amount minus the fee
                     'reference' => $reference,
                     'bank_code' => $request->bank_code,
                     'account_number' => $request->account_number,
-                    'account_name' => $request->account_name ,
-                    'narration' => $request->narration ?? "Withdrawal to {$request->account_number}"
+                    'account_name' => $request->account_name,
+                    'narration' => $request->narration ?? "Withdrawal from Wallet"
                 ]);
             });
 
             return back()->with('message', 'Withdrawal initiated successfully!');
         } catch (\Exception $e) {
-            // Log the error so you can see WHY it failed in storage/logs/laravel.log
-            Log::error("Payout Failed: " . $e->getMessage());
-            Log::error("Payout Failed: " . $e->getLine());
-
-            return back()->withErrors(['amount' => 'Payout failed: something went wrong!']);
+            Log::error("Payout Failed: " . $e->getMessage() . " at line " . $e->getLine());
+            return back()->withErrors(['amount' => 'Payout failed: ' . $e->getMessage()]);
         }
     }
 

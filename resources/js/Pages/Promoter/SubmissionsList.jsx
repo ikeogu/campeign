@@ -101,7 +101,7 @@ export default function SubmissionsIndex({ auth, submissions }) {
                                         <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Campaign</th>
                                         <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Post Retention</th>
                                         <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Status</th>
-                                        {/* <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Earned Amount</th> */}
+                                        { <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Earned Amount</th>}
                                         <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Submitted</th>
                                     </tr>
                                 </thead>
@@ -135,11 +135,11 @@ export default function SubmissionsIndex({ auth, submissions }) {
                                                     </span>
                                                 </td>
 
-                                                {/* <td className="px-6 py-5 text-center">
+                                                { <td className="px-6 py-5 text-center">
                                                     <p className="text-sm font-bold text-gray-900">
                                                         ₦{sub.shareLogs?.earned_amount || '0'}
                                                     </p>
-                                                </td> */}
+                                                </td> }
 
                                                 <td className="px-6 py-5 text-right">
                                                     <p className="text-xs font-black text-gray-900">
