@@ -60,8 +60,9 @@ class PromoterGigController extends ApiController
         $hasSubmitted = ShareLog::where([
             'campaign_id' => $gig->id,
             'user_id' => Auth::id(),
-            'action' => 'submitted',
-        ])->exists();
+        ])
+        ->whereIn('action', ['submitted', 'verified', 'completed'])
+        ->exists();
 
         return Inertia::render('Promoter/Gigs/Show', [
             'gig' => [
