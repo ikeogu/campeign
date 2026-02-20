@@ -107,9 +107,8 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/dashboard', [DashboardController::class, 'dashboard'])->middleware(['auth', 'verified', 'onboarded'])->name('dashboard');
-
-
 Route::any('paystack/callback', [WalletController::class, 'payoutCallback'])->name('paystack.callback');
+
 require __DIR__ . '/auth.php';
 
 Route::get('test-mail', function(){
