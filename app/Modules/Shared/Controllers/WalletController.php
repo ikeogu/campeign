@@ -98,7 +98,7 @@ class WalletController extends ApiController
 
         // Calculations in Kobo for Paystack accuracy
         $grossKobo = $grossAmount * 100;
-        $feeKobo = (int) round(($grossKobo * $percentage) / 100);
+        $feeKobo = (int) round(($grossAmount * $percentage) / 100);
         $netPayoutKobo = $grossKobo - $feeKobo; // What actually goes to their bank
 
         try {
