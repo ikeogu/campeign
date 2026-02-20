@@ -112,7 +112,7 @@ class WalletController extends ApiController
                 // 2. Record the transaction
                 $user->wallet->transactions()->create([
                     'type' => 'debit',
-                    'amount' => $grossKobo / 100, // Total deducted in Naira
+                    'amount' => $grossKobo , // Total deducted in wallet
                     'description' => $request->narration ?? "Withdrawal to {$request->account_number}",
                     'status' => 'pending',
                     'reference' => $reference,
