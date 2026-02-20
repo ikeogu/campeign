@@ -109,14 +109,7 @@ Route::middleware('auth')->group(function () {
 Route::get('/dashboard', [DashboardController::class, 'dashboard'])->middleware(['auth', 'verified', 'onboarded'])->name('dashboard');
 
 Route::webhooks('webhook/paystack', 'paystack');
-
-Route::get('test-fund', function () {
-    $jsonString = '{"event":"charge.success","data":{"id":5677225640,"domain":"test","status":"success","reference":"WAL-ATM165GM3B","amount":500000,"message":null,"gateway_response":"Successful","paid_at":"2025-12-27T10:59:52.000Z","created_at":"2025-12-27T10:59:43.000Z","channel":"card","currency":"NGN","ip_address":"105.112.90.140","metadata":{"referrer":"http://127.0.0.1:8000/"},"fees_breakdown":null,"log":null,"fees":17500,"fees_split":null,"authorization":{"authorization_code":"AUTH_qqt7hejxfw","bin":"408408","last4":"4081","exp_month":"12","exp_year":"2030","channel":"card","card_type":"visa ","bank":"TEST BANK","country_code":"NG","brand":"visa","reusable":true,"signature":"SIG_fXQ7MYtqD5ZwRH7vwmbl","account_name":null,"receiver_bank_account_number":null,"receiver_bank":null},"customer":{"id":328458431,"first_name":null,"last_name":null,"email":"cedarbuds@gmail.com","customer_code":"CUS_pk6nepbgfs9jubb","phone":null,"metadata":null,"risk_action":"default","international_format_phone":null},"plan":{},"subaccount":{},"split":{},"order_id":null,"paidAt":"2025-12-27T10:59:52.000Z","requested_amount":500000,"pos_transaction_data":null,"source":{"type":"api","source":"merchant_api","entry_point":"transaction_initialize","identifier":null}}}';
-
-    $data = json_decode($jsonString);
-
-    app(PaymentService::class)->verifyPayment($data->data->reference, $data->data->channel);
-});
+Route::any('paystack/callback', [WalletController::class, 'payoutCallback'])->name('paystack.callback');
 require __DIR__ . '/auth.php';
 
 Route::get('test-mail', function(){

@@ -22,9 +22,7 @@ class PaystackWebhookProcessor extends ProcessWebhookJob
             'charge.success' => $paymentService->handleChargeSuccess($data),
             default =>  $paymentService->verifyPayment(
                 $data['data']['reference'],
-                $data['data']['channel'],
-                $data['data']['created_at'],
-                $data['data']['authorization']
+                $data['data']['channel']
             ),
         };
     }
