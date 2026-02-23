@@ -24,7 +24,7 @@ class SubmitPostRequest extends FormRequest
     {
         return [
             'submissions' => ['required', 'array'],
-            'submissions.*.link' => ['required', 'url', Rule::unique('promoter_submissions', 'link')],
+            'submissions.*.link' => ['required', 'url', /* Rule::unique('promoter_submissions', 'link') */],
             'submissions.*.proof' => ['nullable', 'file', 'mimes:jpg,png,mp4,mov,avi', 'max:5120'],
             'submissions.*.platform' => ['required', 'string'],
         ];
