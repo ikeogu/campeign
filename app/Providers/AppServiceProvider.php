@@ -17,6 +17,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+
         app()->bind(
             PaymentGateWayInterface::class,
             function () {
@@ -42,8 +43,13 @@ class AppServiceProvider extends ServiceProvider
             URL::forceHttps();
         }
 
-        Livewire::setUpdateRoute(function ($handle) {
-        return Route::post('/livewire/update', $handle);
-    });
+        // This is likely breaking Filament's Livewire requests
+        // Scope it to only non-admin routes
+        /*  if (!request()->is('admin*')) {
+            Livewire::setUpdateRoute(function ($handle) {
+                return Route::post('/livewire/update', $handle);
+            });
+        } */
+
     }
 }

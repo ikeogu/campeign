@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+
+
 Route::get('/', function () {
 
     $gigs = app(CampaignService::class)->fetchLiveCampaigns(5);
@@ -30,13 +32,13 @@ Route::get('/', function () {
 });
 
 Route::get('/terms', function () {
-
     return Inertia::render('Terms');
 })->name('terms');
 
 Route::get('guest-gigs', [PromoterGigController::class, 'guestIndex'])->name('guest.gigs');
 
-Route::middleware('auth')->group(function () {
+
+Route::middleware(['web', 'auth:web'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -104,26 +106,9 @@ Route::middleware('auth')->group(function () {
     Route::get('withdraw-create', [WalletController::class, 'withdraw'])->name('withdraw.create');
     Route::post('payout', [WalletController::class, 'payout'])->name('withdraw.store');
     Route::get('/promoter-analysis', [DashboardController::class, 'promoterAnalysis'])->name('promoter.analytics');
+    Route::get('/dashboard', [DashboardController::class, 'dashboard'])->middleware(['auth', 'verified', 'onboarded'])->name('dashboard');
 });
 
-Route::get('/dashboard', [DashboardController::class, 'dashboard'])->middleware(['auth', 'verified', 'onboarded'])->name('dashboard');
- //Route::any('paystack/callback', [WalletController::class, 'handleGatewayCallback'])->name('paystack.callback');
 
 require __DIR__ . '/auth.php';
 
-Route::get('test-mail', function(){
-
-    $camp = Campaign::latest()->first();
-
-    $camp->user->notify(new CampaignCompletedNotification($camp));
-});
-
-
-/* Route::prefix('admin')->group(function () {
-    Route::post('/login', [AdminAuthenticatedSessionController::class, 'store'])
-        ->name('admin.login.store');
-
-    Route::post('/logout', [AdminAuthenticatedSessionController::class, 'destroy'])
-        ->name('filament.admin.auth.logout');
-
-}); */
