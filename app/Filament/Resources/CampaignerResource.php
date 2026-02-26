@@ -13,12 +13,15 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 
 class CampaignerResource extends Resource
 {
     protected static ?string $model = Campaigner::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+     protected static ?string $navigationLabel = 'Advertisers';
+      protected static ?string $modelLabel = 'Advertiser';
 
     public static function form(Form $form): Form
     {
@@ -128,7 +131,8 @@ class CampaignerResource extends Resource
 
     protected static function approveCampaigner(Campaigner $campaigner): void
     {
-        $campaigner->approve(auth()->user());
+        $user = Auth::user();
+        $campaigner->approve($user);
 
         $campaigner->user->notify(
             new CampaignerApprovedNotification()

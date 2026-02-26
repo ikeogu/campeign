@@ -30,7 +30,8 @@ class User extends Authenticatable implements FilamentUser
         'role',
         'password',
         'onboarded',
-        'accepted_terms'
+        'accepted_terms',
+        'referral_code'
     ];
 
     /**

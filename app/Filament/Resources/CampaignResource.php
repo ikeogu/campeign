@@ -89,11 +89,21 @@ class CampaignResource extends Resource
                 Tables\Columns\TextColumn::make('shares_completed')
                     ->label('Shares Done')
                     ->state(fn(Campaign $record) => $record->shares_completed)
-                    ->sortable(),
+                    ->sortable(
+                        query: function ($query, string $direction) {
+                            $query->withCount([
+                                'submissions as shares_completed' => function ($q) {
+                                    $q->whereHas('verification', function ($q) {
+                                        $q->where('status', 'verified');
+                                    });
+                                },
+                            ])->orderBy('shares_completed', $direction);
+                        }
+                    ),
 
-                Tables\Columns\TextColumn::make('shares_left')
+                Tables\Columns\TextColumn::make('available_slots')
                     ->label('Shares Left')
-                    ->state(fn(Campaign $record) => $record->shares_left)
+                    ->state(fn(Campaign $record) => $record->available_slots)
                     ->sortable(),
 
 
@@ -131,8 +141,9 @@ class CampaignResource extends Resource
                     ->label('View Shares')
                     ->icon('heroicon-o-eye')
                     ->color('primary')
-                    ->url(fn ($record) =>
-                       CampaignResource::getUrl('submissions', ['record' => $record])
+                    ->url(
+                        fn($record) =>
+                        CampaignResource::getUrl('submissions', ['record' => $record])
                     ),
 
 

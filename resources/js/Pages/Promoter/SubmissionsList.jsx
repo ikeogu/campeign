@@ -74,7 +74,7 @@ const getPlatformBadge = (platform) => {
     return platforms[platform?.toLowerCase()] || 'bg-gray-600';
 };
 
-export default function SubmissionsIndex({ auth, submissions }) {
+export default function SubmissionsIndex({ auth, submissions, total_verified_earnings }) {
     return (
         <AuthenticatedLayout user={auth.user}>
             <Head title="My Submissions" />
@@ -82,16 +82,61 @@ export default function SubmissionsIndex({ auth, submissions }) {
             <div className="py-12 bg-gray-50 min-h-screen">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-                    <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                        <div>
-                            <h1 className="text-3xl font-black text-gray-900 tracking-tight leading-none">Earning History</h1>
-                            <p className="text-gray-500 font-medium mt-2">Track your proof of work and payment status.</p>
-                        </div>
-                        <div className="bg-white p-4 rounded-3xl shadow-sm border border-gray-100 px-8">
-                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Submissions</p>
-                            <p className="text-2xl font-black text-gray-900">{submissions.length}</p>
+                <div className="mb-10 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
+
+                 {/* Title Section with Accent */}
+                <div className="relative pl-6 sm:pl-0">
+                    <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-pink-600 rounded-full sm:hidden"></div>
+                    <h1 className="text-4xl sm:text-5xl font-black text-gray-900 tracking-tighter uppercase leading-[0.85]">
+                        Earning <br className="hidden sm:block" />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-rose-400">
+                            History
+                        </span>
+                    </h1>
+                    <p className="text-[10px] sm:text-xs font-black text-gray-400 uppercase tracking-[0.3em] mt-4 flex items-center gap-2">
+                        <span className="w-8 h-[1px] bg-gray-200 hidden sm:block"></span>
+                        Track work & payment status
+                    </p>
+                </div>
+
+                {/* Modern Stats Bento Grid */}
+                <div className="flex flex-row gap-3 w-full lg:w-auto">
+
+                    {/* Submissions Card */}
+                    <div className="flex-1 lg:flex-none lg:w-44 bg-white p-6 rounded-[2.5rem] shadow-sm border border-gray-100 relative overflow-hidden group hover:border-pink-200 transition-all duration-500">
+                        <div className="absolute -right-2 -top-2 w-12 h-12 bg-gray-50 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-700"></div>
+
+                        <p className="relative z-10 text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">
+                            Submissions
+                        </p>
+                        <div className="relative z-10 flex items-baseline gap-1">
+                            <span className="text-3xl font-black text-gray-900 tracking-tighter">
+                                {submissions.length}
+                            </span>
+                            <span className="text-[10px] font-bold text-gray-300 uppercase">Total</span>
                         </div>
                     </div>
+
+                    {/* Earned Card */}
+                    <div className="flex-1 lg:flex-none lg:w-56 bg-gray-900 p-6 rounded-[2.5rem] shadow-2xl shadow-gray-200 relative overflow-hidden group">
+                        {/* Subtle glow effect */}
+                        <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-green-500/10 rounded-full blur-3xl"></div>
+
+                        <p className="text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] mb-1">
+                            Verified Profit
+                        </p>
+                        <div className="flex items-center gap-2">
+                            <span className="text-3xl font-black text-white tracking-tighter">
+                                ₦{Number(total_verified_earnings).toLocaleString()}
+                            </span>
+                            <div className="bg-green-500/20 p-1 rounded-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
 
                     <div className="bg-white rounded-[2.5rem] shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
                         <div className="overflow-x-auto">
@@ -135,11 +180,11 @@ export default function SubmissionsIndex({ auth, submissions }) {
                                                     </span>
                                                 </td>
 
-                                                { <td className="px-6 py-5 text-center">
+                                                <td className="px-6 py-5 text-center">
                                                     <p className="text-sm font-bold text-gray-900">
-                                                        ₦{sub.shareLogs?.earned_amount || '0'}
+                                                        ₦{sub.share_log?.earned_amount || '0'}
                                                     </p>
-                                                </td> }
+                                                </td>
 
                                                 <td className="px-6 py-5 text-right">
                                                     <p className="text-xs font-black text-gray-900">

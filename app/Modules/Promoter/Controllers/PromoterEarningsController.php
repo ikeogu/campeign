@@ -73,13 +73,23 @@ class PromoterEarningsController extends ApiController
         $user = Auth::user();
         $userId = $user->id;
 
-        $submissions = PromoterSubmission::with(['campaign:id,title', 'shareLogs:id,campaign_id,promoter_submission_id,user_id,action,earned_amount'])
+        $submissions = PromoterSubmission::with(['campaign:id,title',
+            'shareLog:id,campaign_id,promoter_submission_id,user_id,action,earned_amount'
+            ])
             ->where('user_id', $userId)
             ->orderBy('created_at', 'desc')
+            ->latest()
             ->get();
+
+        $totalVerifiedEarnings = $submissions->sum(function ($submission) {
+            return $submission->shareLog && $submission->shareLog->action === 'verified'
+                ? $submission->shareLog->earned_amount
+                : 0;
+        });
 
         return inertia('Promoter/SubmissionsList', [
             'submissions' => $submissions,
+            'total_verified_earnings' => $totalVerifiedEarnings,
         ]);
     }
 }

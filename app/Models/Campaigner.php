@@ -35,7 +35,7 @@ class Campaigner extends Model
         return $this->belongsTo(User::class, 'approved_by');
     }
 
-    public function approve(AdminUser $admin): void
+    public function approve(User $admin): void
     {
         $this->update([
             'is_approved' => true,

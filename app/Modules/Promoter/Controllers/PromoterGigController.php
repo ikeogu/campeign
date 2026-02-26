@@ -94,6 +94,9 @@ class PromoterGigController extends ApiController
 
     public function submitPage($id)
     {
+        /** @var User $user */
+        $user = Auth::user();
+
         $gig = Campaign::findOrFail($id);
 
         return Inertia::render('Promoter/Gigs/Submit', [
@@ -101,7 +104,8 @@ class PromoterGigController extends ApiController
                 'id' => $gig->id,
                 'title' => $gig->title,
                 'platforms' => $gig->platforms,
-                'payout' => $gig->payout
+                'payout' => $gig->payout,
+                'promoter_social_handles' => $user->promoter->social_handles,
             ]
         ]);
     }

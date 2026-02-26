@@ -2,9 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AdminUsers;
-use App\Models\LogActivity;
-use App\Modules\BackOffice\AdminUsers\Enums\AdminActivityEnum;
+
 use App\Traits\LogActivityHelper;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;

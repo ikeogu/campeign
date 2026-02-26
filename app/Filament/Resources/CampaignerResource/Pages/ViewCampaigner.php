@@ -8,5 +8,5 @@ use Filament\Resources\Pages\ViewRecord;
 
 class ViewCampaigner extends ViewRecord
 {
-    protected static string $resource = CampaignerResource::class;
+    protected static string $resource = CampaignerResource::class; 
 }

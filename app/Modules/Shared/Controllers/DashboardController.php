@@ -200,7 +200,7 @@ class DashboardController extends ApiController
                 'title' => $campaign->title,
                 'platform' => $campaign->platform,
                 'payout' => $campaign->payout_per_share,
-                'slots_left' => $campaign->target_shares - $campaign->shares_completed,
+                'slots_left' => $campaign->available_slots,
                 'ends_at' => $campaign->ends_at?->diffForHumans(),
             ]);
 

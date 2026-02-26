@@ -94,7 +94,7 @@ class Campaign extends Model
     {
         return max(
             0,
-            $this->target_shares - $this->shares_completed
+            $this->target_shares - $this->available_slots
         );
     }
 
