@@ -31,7 +31,11 @@ class User extends Authenticatable implements FilamentUser
         'password',
         'onboarded',
         'accepted_terms',
-        'referral_code'
+        'referral_code',
+        'referred_by',
+        'first_name',
+        'last_name',
+        'company_name'
     ];
 
     /**
@@ -94,8 +98,24 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(PostVerification::class);
     }
 
-    public function promoterSubmission(): HasOne
+    public function promoterSubmission(): HasMany
     {
-        return $this->hasOne(PromoterSubmission::class);
+        return $this->hasMany(PromoterSubmission::class);
+    }
+
+    public function referrals()
+    {
+        // Assuming you added 'referred_by' column to the users table
+        return $this->hasMany(User::class, 'referred_by');
+    }
+
+    public function getNameAttribute()
+    {
+        if ($this->promoter) {
+            return $this->promoter->first_name . ' ' . $this->promoter->last_name;
+        } elseif ($this->campaigner) {
+            return $this->campaigner->company_name;
+        }
+        return null;
     }
 }

@@ -46,6 +46,7 @@ export default function AuthenticatedLayout({ header, children }) {
                             <ThemedNavLink href={route('promoter.analytics')} active={route().current('promoter.analytics')} icon="⚡">Analytics</ThemedNavLink>
                             <ThemedNavLink href={route('promoter.submissions')} active={route().current('promoter.submissions')} icon="📸">My Shares</ThemedNavLink>
                             <ThemedNavLink href={route('wallet.index')} active={route().current('wallet.index')} icon="💰">Wallet</ThemedNavLink>
+                             <ThemedNavLink href={route('referrals.index')} active={route().current('referrals.index')} icon="👥">Referrals</ThemedNavLink>
                         </div>
                     )}
 
@@ -54,6 +55,7 @@ export default function AuthenticatedLayout({ header, children }) {
                             <p className="px-4 text-[10px] font-black uppercase text-green-500 tracking-[0.2em] mb-4">Advertiser Hub</p>
                             <ThemedNavLink href={route('campaigns.index')} active={route().current('campaigns.index')} icon="🚀">Campaigns</ThemedNavLink>
                             <ThemedNavLink href={route('wallet.index')} active={route().current('wallet.index')} icon="💳">Wallet</ThemedNavLink>
+                            <ThemedNavLink href={route('referrals.index')} active={route().current('referrals.index')} icon="👥">Referrals</ThemedNavLink>
                         </div>
                     )}
 

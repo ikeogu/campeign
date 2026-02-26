@@ -42,7 +42,7 @@ Route::middleware(['web', 'auth:web'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
+    Route::post('update-social-handles', [ProfileController::class, 'updateUserSocialHandles'])->name('profile.socials.update');
     Route::get('/user-onboarding',  function () {
         return Inertia::render('Onboarding/SelectUserType');
     })->name('onboardingUser');
@@ -107,8 +107,8 @@ Route::middleware(['web', 'auth:web'])->group(function () {
     Route::post('payout', [WalletController::class, 'payout'])->name('withdraw.store');
     Route::get('/promoter-analysis', [DashboardController::class, 'promoterAnalysis'])->name('promoter.analytics');
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->middleware(['auth', 'verified', 'onboarded'])->name('dashboard');
+    Route::get('/referrals', [\App\Modules\User\Controllers\ReferralController::class, 'index'])->name('referrals.index');
 });
 
 
 require __DIR__ . '/auth.php';
-

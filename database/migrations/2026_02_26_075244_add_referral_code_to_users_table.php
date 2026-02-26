@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->string('referral_code')->nullable()->unique()->after('email');
             $table->foreignUlid('referred_by')->nullable()->constrained('users', 'id')->onDelete('set null');
+
         });
     }
 
@@ -26,6 +27,7 @@ return new class extends Migration
             $table->dropColumn('referral_code');
             $table->dropForeign(['referred_by']);
             $table->dropColumn('referred_by');
+    
         });
     }
 };
