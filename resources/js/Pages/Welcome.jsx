@@ -1,5 +1,5 @@
 import { Link } from "@inertiajs/react";
-//import Navbar from "@/Components/Navbar";
+import Navbar from "@/Components/Navbar";
 import Footer from "@/Components/Footer";
 
 export default function Landing({ liveGigs = [], brandLogos = [] }) {
@@ -29,6 +29,8 @@ export default function Landing({ liveGigs = [], brandLogos = [] }) {
 
     const displayGigs = liveGigs.length > 0 ? liveGigs : staticGigs;
     return (
+
+        
         <div className="bg-white min-h-screen font-sans selection:bg-pink-100 selection:text-pink-900">
 
             {/* 1. LIVE GIGS TEASER */}

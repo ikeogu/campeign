@@ -116,6 +116,6 @@ class User extends Authenticatable implements FilamentUser
         } elseif ($this->campaigner) {
             return $this->campaigner->company_name;
         }
-        return null;
+        return "Superstar Admin";
     }
 }
