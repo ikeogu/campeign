@@ -46,7 +46,7 @@ class PromoterResource extends Resource
                 Tables\Columns\TextColumn::make('follower_count')
                     ->numeric()
                     ->sortable(),
-
+/*
                 Tables\Columns\TextColumn::make('platforms')
                     ->label('Platforms')
                     ->formatStateUsing(
@@ -57,7 +57,7 @@ class PromoterResource extends Resource
                             return implode(', ', $state);
                         }
                     )
-                    ->wrap(),
+                    ->wrap(), */
 
                 Tables\Columns\TextColumn::make('social_handles')
                     ->label('Social Handles')
