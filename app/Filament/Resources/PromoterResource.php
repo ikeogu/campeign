@@ -62,27 +62,32 @@ class PromoterResource extends Resource
                 Tables\Columns\TextColumn::make('social_handles')
                     ->label('Social Handles')
                     ->formatStateUsing(function ($state) {
-                        if (!is_array($state)) {
-                            $state = json_decode($state, true);
 
-                            return collect($state)
-                            ->map(
-                                fn($handle, $platform) =>
-                                ucfirst($platform) . ': ' . $handle
-                            )
-                            ->implode(' | ');
-
+                        if (empty($state)) {
+                            return '-';
                         }
 
+                        // Decode JSON if needed
+                        if (is_string($state)) {
+                            $state = json_decode($state, true);
+                        }
+
+                        if (!is_array($state)) {
+                            return '-';
+                        }
 
                         return collect($state)
-                            ->map(
-                                fn($handle, $platform) =>
-                                ucfirst($platform) . ': ' . $handle
-                            )
+                            ->map(function ($item) {
+                                if (!isset($item['platform'], $item['handle'])) {
+                                    return null;
+                                }
+
+                                return ucfirst($item['platform']) . ': ' . $item['handle'];
+                            })
+                            ->filter() // remove nulls
                             ->implode(' | ');
                     })
-                    ->wrap(),
+                    ->wrap()
 
 
 
