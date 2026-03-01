@@ -67,19 +67,20 @@ class PromoterResource extends Resource
                         return '-';
                     }
 
-                    // Handle if it's already an array
-                    $handles = is_array($state) ? $state : json_decode($state, true);
+                    // Decode JSON if needed
+                    if (is_string($state)) {
+                        $state = json_decode($state, true);
+                    }
 
-                    if (!$handles || !is_array($handles)) {
+                    if (!is_array($state)) {
                         return '-';
                     }
 
-                    return collect($handles)
-                        ->map(
-                            fn($item) => (isset($item['platform']) && isset($item['handle']))
-                                ? ucfirst($item['platform']) . ': ' . $item['handle']
-                                : null
-                        )
+                    // Handle the format: {"facebook": "Victory Erazua", "tiktok": "techativeDera"}
+                    return collect($state)
+                        ->map(function ($handle, $platform) {
+                            return ucfirst($platform) . ': ' . $handle;
+                        })
                         ->filter()
                         ->implode(' | ') ?: '-';
                 })
