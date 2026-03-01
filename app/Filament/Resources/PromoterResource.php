@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Log;
 
 class PromoterResource extends Resource
 {
@@ -46,7 +47,7 @@ class PromoterResource extends Resource
                 Tables\Columns\TextColumn::make('follower_count')
                     ->numeric()
                     ->sortable(),
-/*
+            /*
                 Tables\Columns\TextColumn::make('platforms')
                     ->label('Platforms')
                     ->formatStateUsing(
@@ -59,35 +60,45 @@ class PromoterResource extends Resource
                     )
                     ->wrap(), */
 
-                Tables\Columns\TextColumn::make('social_handles')
-                    ->label('Social Handles')
-                    ->formatStateUsing(function ($state) {
+            Tables\Columns\TextColumn::make('social_handles')
+                ->label('Social Handles')
+                ->formatStateUsing(function ($state) {
+                    // Debug: Log the raw state
+                    Log::info('Raw state:', ['state' => $state]);
 
-                        if (empty($state)) {
-                            return '-';
-                        }
+                    if (empty($state)) {
+                        return '-';
+                    }
 
-                        // Decode JSON if needed
-                        if (is_string($state)) {
-                            $state = json_decode($state, true);
-                        }
+                    // Decode JSON if needed
+                    if (is_string($state)) {
+                        $state = json_decode($state, true);
+                        Log::info('Decoded state:', ['state' => $state]);
+                    }
 
-                        if (!is_array($state)) {
-                            return '-';
-                        }
+                    if (!is_array($state)) {
+                        return '-';
+                    }
 
-                        return collect($state)
-                            ->map(function ($item) {
-                                if (!isset($item['platform'], $item['handle'])) {
-                                    return null;
-                                }
+                    $result = collect($state)
+                        ->map(function ($item) {
+                            Log::info('Processing item:', ['item' => $item]);
 
-                                return ucfirst($item['platform']) . ': ' . $item['handle'];
-                            })
-                            ->filter() // remove nulls
-                            ->implode(' | ');
-                    })
-                    ->wrap()
+                            if (!isset($item['platform'], $item['handle'])) {
+                                Log::warning('Missing keys in item:', ['item' => $item]);
+                                return null;
+                            }
+
+                            return ucfirst($item['platform']) . ': ' . $item['handle'];
+                        })
+                        ->filter()
+                        ->implode(' | ');
+
+                    Log::info('Final result:', ['result' => $result]);
+
+                    return $result ?: '-';
+                })
+                ->wrap()
 
 
 
