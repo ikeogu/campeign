@@ -78,14 +78,30 @@ class ProofResource extends Resource
                                 number_format($record?->user?->promoter?->follower_count ?? 0)
                             ),
 
-                        Forms\Components\Placeholder::make('social_handles')
-                            ->label('Social Handles')
-                            ->content(
-                                fn($record) =>
-                                is_array($record?->user?->promoter?->social_handles)
-                                    ? implode(', ', $record->user->promoter->social_handles)
-                                    : ($record?->user?->promoter?->social_handles ?? '-')
-                            ),
+                       Forms\Components\Placeholder::make('social_handles')
+                        ->label('Social Handles')
+                        ->content(function ($record) {
+                            $handles = $record?->user?->promoter?->social_handles;
+
+                            if (empty($handles)) {
+                                return '-';
+                            }
+
+                            // If stored as JSON string, decode it
+                            if (is_string($handles)) {
+                                $handles = json_decode($handles, true);
+                            }
+
+                            if (!is_array($handles)) {
+                                return '-';
+                            }
+
+                            return collect($handles)
+                                ->map(fn ($item) =>
+                                    ucfirst($item['platform']) . ': ' . $item['handle']
+                                )
+                                ->implode(', ');
+                        })
                     ])->columns(2),
             ]);
     }
