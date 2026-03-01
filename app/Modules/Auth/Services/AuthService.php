@@ -16,7 +16,7 @@ class AuthService
             $role = '';
             if ($data['user_type'] === 'promoter') {
 
-                $user->update(['first_name' => $data['first_name'], 'last_name' => $data['last_name']]);
+               // $user->update(['first_name' => $data['first_name'], 'last_name' => $data['last_name']]);
                 $user->promoter()->create([
                     'first_name'     => $data['first_name'],
                     'last_name'      => $data['last_name'],
@@ -27,7 +27,7 @@ class AuthService
                 $role = 'promoter';
             } else {
 
-                $user->update(['company_name' => $data['company_name']]);
+                //$user->update(['company_name' => $data['company_name']]);
                 $user->campaigner()->create([
                     'company_name' => $data['company_name'],
                     'industry'     => $data['industry'],
