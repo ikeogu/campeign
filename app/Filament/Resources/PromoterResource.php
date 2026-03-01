@@ -63,43 +63,27 @@ class PromoterResource extends Resource
             Tables\Columns\TextColumn::make('social_handles')
                 ->label('Social Handles')
                 ->formatStateUsing(function ($state) {
-                    // Debug: Log the raw state
-                    Log::info('Raw state:', ['state' => $state]);
-
                     if (empty($state)) {
                         return '-';
                     }
 
-                    // Decode JSON if needed
-                    if (is_string($state)) {
-                        $state = json_decode($state, true);
-                        Log::info('Decoded state:', ['state' => $state]);
-                    }
+                    // Handle if it's already an array
+                    $handles = is_array($state) ? $state : json_decode($state, true);
 
-                    if (!is_array($state)) {
+                    if (!$handles || !is_array($handles)) {
                         return '-';
                     }
 
-                    $result = collect($state)
-                        ->map(function ($item) {
-                            Log::info('Processing item:', ['item' => $item]);
-
-                            if (!isset($item['platform'], $item['handle'])) {
-                                Log::warning('Missing keys in item:', ['item' => $item]);
-                                return null;
-                            }
-
-                            return ucfirst($item['platform']) . ': ' . $item['handle'];
-                        })
+                    return collect($handles)
+                        ->map(
+                            fn($item) => (isset($item['platform']) && isset($item['handle']))
+                                ? ucfirst($item['platform']) . ': ' . $item['handle']
+                                : null
+                        )
                         ->filter()
-                        ->implode(' | ');
-
-                    Log::info('Final result:', ['result' => $result]);
-
-                    return $result ?: '-';
+                        ->implode(' | ') ?: '-';
                 })
                 ->wrap()
-
 
 
                 /* Tables\Columns\IconColumn::make('is_approved')
