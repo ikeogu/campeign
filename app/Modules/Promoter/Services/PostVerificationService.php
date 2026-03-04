@@ -173,7 +173,7 @@ class PostVerificationService
                 ]);
 
             $submission->user->wallet->increment('balance', $campaign->payout * 100);
-            $campaign->user->notify(new CampaignProcessCompletedNotification($campaign));
+            //$campaign->user->notify(new CampaignProcessCompletedNotification($campaign));
         });
     }
 
