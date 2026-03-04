@@ -75,8 +75,8 @@ class VerifyPostRecheckJob implements ShouldQueue
 
             // Mark as verified if 48 hours passed
             if ($hoursSincePost >= 48) {
-                $this->markAsVerified($submission);
-                $service->rewardPromoter($this->verification);
+                $this->markAsVerified($submission, $service);
+
                 return;
             }
 
@@ -107,7 +107,7 @@ class VerifyPostRecheckJob implements ShouldQueue
         $this->notifyUserOfPostStatus($submission, 'failed');
     }
 
-    private function markAsVerified(PromoterSubmission $submission): void
+    private function markAsVerified(PromoterSubmission $submission, PostVerificationService $service ): void
     {
         $this->verification->update([
             'status' => 'verified',
@@ -116,6 +116,8 @@ class VerifyPostRecheckJob implements ShouldQueue
 
         $submission->update(['status' => 'approved']);
         $submission->shareLogs()->update(['action' => 'verified']);
+
+        $service->rewardPromoter($this->verification);
 
         $this->notifyUserOfPostStatus($submission, 'verified');
     }

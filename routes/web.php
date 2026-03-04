@@ -3,11 +3,13 @@
 use App\Http\Controllers\Admin\Auth\AdminAuthenticatedSessionController;
 use App\Http\Controllers\ProfileController;
 use App\Models\Campaign;
+use App\Models\PostVerification;
 use App\Modules\Auth\Controllers\OnboardingController;
 use App\Modules\Campeigner\Controllers\CampaignController;
 use App\Modules\Campeigner\Notifications\CampaignCompletedNotification;
 use App\Modules\Promoter\Controllers\PromoterEarningsController;
 use App\Modules\Promoter\Controllers\PromoterGigController;
+use App\Modules\Promoter\Services\PostVerificationService;
 use App\Modules\Shared\Controllers\DashboardController;
 use App\Modules\Shared\Controllers\WalletController;
 use App\Modules\Shared\Services\CampaignService;
@@ -112,3 +114,13 @@ Route::middleware(['web', 'auth:web'])->group(function () {
 
 
 require __DIR__ . '/auth.php';
+
+Route::get('fixpost', function () {
+
+    $postVerifications = PostVerification::latest()->get();
+
+    foreach ($postVerifications as $postVerification) {
+        # code...
+        app(PostVerificationService::class)->rewardPromoter($postVerification);
+    }
+});
