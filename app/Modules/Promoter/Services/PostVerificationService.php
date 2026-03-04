@@ -148,7 +148,7 @@ class PostVerificationService
 
             if ($existingLog) {
                 return;
-            } 
+            }
 
             $submission->shareLog()->where('user_id', $verification->user_id)
                 ->where('campaign_id', $campaign->id)
@@ -172,7 +172,7 @@ class PostVerificationService
                     'type' => 'credit',
                     'amount' => $campaign->payout * 100, // assuming amount is in cents
                     'reference' => "CRD-" . $submission->id,
-                    'status' => 'approved',
+                    'status' => 'successful',
                     'description' => 'Earnings from verified post for campaign: ' . $campaign->title,
                 ]);
             } else {
