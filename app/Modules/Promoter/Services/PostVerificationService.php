@@ -142,7 +142,7 @@ class PostVerificationService
             $submission = $verification->promoterSubmission;
             $campaign = $submission->campaign;
 
-            $existingLog = $submission->shareLogs()
+            $existingLog = $submission->shareLog()
                 ->where('action', 'verified')
                 ->first();
 
@@ -150,7 +150,7 @@ class PostVerificationService
                 return;
             }
 
-            $submission->shareLogs()->where('user_id', $verification->user_id)
+            $submission->shareLog()->where('user_id', $verification->user_id)
                 ->where('campaign_id', $campaign->id)
                 ->first()
                 ->update([
