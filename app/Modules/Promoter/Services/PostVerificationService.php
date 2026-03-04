@@ -165,15 +165,26 @@ class PostVerificationService
                 $campaign->save();
             }
 
-
-            $submission->user->wallet->transactions()->where('reference', 'CRD-' . $submission->id)
-                ->where('status', 'pending')
-                ->update([
-                    'status' => 'successful',
-                ]);
-
             $submission->user->wallet->increment('balance', $campaign->payout * 100);
-            //$campaign->user->notify(new CampaignProcessCompletedNotification($campaign));
+
+            if (!Transaction::where('reference', 'CRD-' . $submission->id)->exits()) {
+                $submission->user->wallet->transactions()->create([
+                    'type' => 'credit',
+                    'amount' => $campaign->payout * 100, // assuming amount is in cents
+                    'reference' => "CRD-" . $submission->id,
+                    'status' => 'approved',
+                    'description' => 'Earnings from verified post for campaign: ' . $campaign->title,
+                ]);
+            } else {
+                Transaction::where('reference', 'CRD-' . $submission->id)
+                    ->where('status', 'pending')
+                    ->update([
+                        'status' => 'successful',
+                    ]);
+            }
+
+
+            $campaign->user->notify(new CampaignProcessCompletedNotification($campaign));
         });
     }
 
