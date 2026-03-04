@@ -167,7 +167,7 @@ class PostVerificationService
 
             $submission->user->wallet->increment('balance', $campaign->payout * 100);
 
-            if (!Transaction::where('reference', 'CRD-' . $submission->id)->exits()) {
+            if (!Transaction::where('reference', 'CRD-' . $submission->id)->exists()) {
                 $submission->user->wallet->transactions()->create([
                     'type' => 'credit',
                     'amount' => $campaign->payout * 100, // assuming amount is in cents
