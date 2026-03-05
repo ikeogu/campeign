@@ -54,7 +54,7 @@ export default function Create({ auth }) {
         const payout = Number(data.payout) || 0;
         const shares = Number(data.target_shares) || 0;
         const baseCost = payout * shares;
-        const fee = baseCost * 0.03;
+        const fee = baseCost * 0.1;
         const total = baseCost + fee;
 
         setData((prevData) => ({
@@ -285,7 +285,7 @@ export default function Create({ auth }) {
                                         <span>₦{data.base_budget.toLocaleString()}</span>
                                     </div>
                                     <div className="flex justify-between">
-                                        <span className="text-gray-400">Platform Fee (3%)</span>
+                                        <span className="text-gray-400">Platform Fee (10%)</span>
                                         <span className="text-pink-500">+₦{data.management_fee.toLocaleString()}</span>
                                     </div>
                                 </div>
