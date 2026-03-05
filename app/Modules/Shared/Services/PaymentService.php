@@ -50,7 +50,7 @@ class PaymentService
                 ]);
 
                 if ($payment->type === 'credit') {
-                    $payment->wallet->increment('balance', $payment->amount * 100);
+                    $payment->wallet->increment('balance', $payment->amount);
 
                     Log::info('Payment verified successfully', [
                         'payment_id' => $payment->id,
