@@ -3,10 +3,11 @@
 namespace App\Modules\Promoter\Jobs;
 
 use App\Models\PostVerification;
+use App\Modules\Promoter\Services\PostVerificationService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 
-class DispatchPostVerificationRechecksJob implements ShouldQueue
+class BatchVerifyPostsJob implements ShouldQueue
 {
     use Queueable;
 
@@ -21,17 +22,17 @@ class DispatchPostVerificationRechecksJob implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(): void
+    public function handle(PostVerificationService $service)
     {
-
         PostVerification::query()
             ->where('status', 'pending')
-            ->where(function ($q) {
-                $q->whereNull('last_checked_at')
-                  ->orWhere('last_checked_at', '<=', now()->subHours(6));
-            })
-            ->each(function (PostVerification $verification) {
-                dispatch(new VerifyPostRecheckJob($verification));
+            ->whereNotNull('next_check_at')
+            ->where('next_check_at', '<=', now())
+            ->limit(200)
+            ->get()
+            ->each(function ($verification) use ($service) {
+
+                VerifyPostFinalJob::dispatch($verification);
             });
     }
 }

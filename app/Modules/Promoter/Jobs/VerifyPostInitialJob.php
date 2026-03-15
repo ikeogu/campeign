@@ -44,7 +44,7 @@ class VerifyPostInitialJob implements ShouldQueue
         }
 
         if (!$service->isAccessible($this->verification->promoterSubmission->link)) {
-            
+
             $this->verification->update(['status' => 'failed']);
             return;
         }
@@ -55,5 +55,8 @@ class VerifyPostInitialJob implements ShouldQueue
             'checks' => 1,
             'status' => 'pending',
         ]);
+
+        VerifyPostFinalJob::dispatch($this->verification)
+            ->delay(now()->addHours(48));
     }
 }
