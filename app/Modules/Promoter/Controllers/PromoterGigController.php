@@ -11,6 +11,7 @@ use App\Modules\Promoter\Requests\SubmitPostRequest;
 use App\Modules\Shared\Services\CampaignService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
@@ -18,8 +19,8 @@ class PromoterGigController extends ApiController
 {
     public function index()
     {
-        $gigs = Campaign::with('images')
-            ->where('status', 'live')
+        $gigs = Campaign::with(['images'])
+            ->whereIn('status', ['live', 'completed'])
             ->latest()
             ->get()
             ->map(function ($gig) {
@@ -32,6 +33,7 @@ class PromoterGigController extends ApiController
                     'target_shares' => $gig->target_shares,
                     'target_followers' => $gig->target_followers,
                     'available_slots' => $gig->available_slots,
+                    'completion_percentage' => $gig->completion_percentage,
                     'image_urls' => $gig->images->map(fn($i) => [
                         'id' => $i->id,
                         'url' => asset('storage/' . $i->file_path),
@@ -39,6 +41,9 @@ class PromoterGigController extends ApiController
                 ];
             });
 
+        Log::debug([
+            'gigs' => $gigs
+        ]);
         return Inertia::render('Promoter/Gigs/Index', [
             'gigs' => $gigs,
         ]);

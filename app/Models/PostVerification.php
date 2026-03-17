@@ -47,8 +47,8 @@ class PostVerification extends Model
 
         // Use 'updated' for after-save logic
         static::updated(function ($verification) {
-            if ($verification->status === 'verified') {
-                
+            if ($verification->status === 'rejected') {
+
             }
         });
     }

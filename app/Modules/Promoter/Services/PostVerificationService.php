@@ -4,9 +4,11 @@ namespace App\Modules\Promoter\Services;
 
 use App\Models\PostVerification;
 use App\Models\PromoterEarning;
+use App\Models\PromoterSubmission;
 use App\Models\Transaction;
 use App\Modules\Campeigner\Notifications\CampaignProcessCompletedNotification;
 use App\Modules\Promoter\Jobs\VerifyPostInitialJob;
+use App\Notifications\CampaignProofFailedNotification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -161,8 +163,7 @@ class PostVerificationService
 
             $campaign->refresh();
             if ($campaign->available_slots < 1) {
-                $campaign->status = 'completed';
-                $campaign->save();
+                $campaign->update(['status' => 'completed']);
             }
 
             $submission->user->wallet->increment('balance', $campaign->payout * 100);
@@ -218,6 +219,8 @@ class PostVerificationService
         $submission = $verification->promoterSubmission;
         $campaign = $submission->campaign;
 
+
+
         $submission->user->wallet->transactions()->where('reference', 'CRD-' . $submission->id)
             ->where('status', 'pending')
             ->update([
@@ -225,5 +228,40 @@ class PostVerificationService
             ]);
 
         $submission->user->notify(new CampaignProcessCompletedNotification($campaign, 'failed'));
+    }
+
+
+    public function rejectPost(PromoterSubmission $promoterSubmission): void
+    {
+        DB::transaction(function () use ($promoterSubmission) {
+
+            $promoterSubmission->update([
+                'status' => 'rejected',
+            ]);
+
+            $verification = $promoterSubmission->verification;
+
+            $verification->update(['status' => 'failed']);
+            $promoterSubmission->shareLog->update(['action' => 'rejected']);
+
+            $promoterSubmission->user->wallet->transactions()
+                ->where('reference', 'CRD-' . $promoterSubmission->id)
+                ->where('status', 'pending')
+                ->update([
+                    'status' => 'failed',
+                ]);
+
+            Log::info('Post verification rejected', [
+                'verification_id' => $verification->id,
+                'submission_id' => $promoterSubmission->id,
+            ]);
+        });
+
+        // outside transaction (important)
+        $promoterSubmission->user
+            ->notify(new CampaignProofFailedNotification(
+                $promoterSubmission->campaign,
+                'rejected'
+            ));
     }
 }

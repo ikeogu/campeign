@@ -82,7 +82,7 @@ class Campaign extends Model
                 'verification',
                 fn($q) =>
                 $q->where('status', 'verified')
-            );
+            )->where('status', 'approved');
     }
 
     public function getSharesCompletedAttribute(): int
@@ -94,10 +94,25 @@ class Campaign extends Model
     {
         return max(
             0,
-            $this->target_shares - $this->available_slots
+            $this->target_shares - $this->shares_completed
         );
     }
 
+    public function getCompletionPercentageAttribute(): float
+    {
+        if ($this->target_shares <= 0) {
+            return 0;
+        }
+
+        return round(
+            ($this->shares_completed / $this->target_shares) * 100,
+            2
+        );
+    }
+    public function getSlotsFilledAttribute(): int
+    {
+        return $this->target_shares - $this->available_slots;
+    }
 
     public function promoterSubmissions()
     {

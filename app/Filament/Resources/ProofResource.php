@@ -11,6 +11,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use App\Modules\Promoter\Services\PostVerificationService;
 
 class ProofResource extends Resource
 {
@@ -59,7 +60,7 @@ class ProofResource extends Resource
                             ->content(
                                 fn($record) =>
                                 trim(($record?->user?->promoter?->first_name ?? '') . ' ' .
-                                 ($record?->user?->promoter?->last_name ?? '')) ?: '-'
+                                    ($record?->user?->promoter?->last_name ?? '')) ?: '-'
                             ),
 
                         Forms\Components\Placeholder::make('platforms')
@@ -78,30 +79,31 @@ class ProofResource extends Resource
                                 number_format($record?->user?->promoter?->follower_count ?? 0)
                             ),
 
-                       Forms\Components\Placeholder::make('social_handles')
-                        ->label('Social Handles')
-                        ->content(function ($record) {
-                            $handles = $record?->user?->promoter?->social_handles;
+                        Forms\Components\Placeholder::make('social_handles')
+                            ->label('Social Handles')
+                            ->content(function ($record) {
+                                $handles = $record?->user?->promoter?->social_handles;
 
-                            if (empty($handles)) {
-                                return '-';
-                            }
+                                if (empty($handles)) {
+                                    return '-';
+                                }
 
-                            // If stored as JSON string, decode it
-                            if (is_string($handles)) {
-                                $handles = json_decode($handles, true);
-                            }
+                                // If stored as JSON string, decode it
+                                if (is_string($handles)) {
+                                    $handles = json_decode($handles, true);
+                                }
 
-                            if (!is_array($handles)) {
-                                return '-';
-                            }
+                                if (!is_array($handles)) {
+                                    return '-';
+                                }
 
-                            return collect($handles)
-                                ->map(fn ($item) =>
-                                    ucfirst($item['platform']) . ': ' . $item['handle']
-                                )
-                                ->implode(', ');
-                        })
+                                return collect($handles)
+                                    ->map(
+                                        fn($item) =>
+                                        ucfirst($item['platform']) . ': ' . $item['handle']
+                                    )
+                                    ->implode(', ');
+                            })
                     ])->columns(2),
             ]);
     }
@@ -213,7 +215,9 @@ class ProofResource extends Resource
                     ->color('danger')
                     ->visible(fn($record) => $record->status === 'pending')
                     ->requiresConfirmation()
-                    ->action(fn($record) => $record->update(['status' => 'rejected'])),
+                    ->action(function ($record, PostVerificationService $service) {
+                        $service->rejectPost($record);
+                    }),
 
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\ViewAction::make(),
@@ -232,7 +236,11 @@ class ProofResource extends Resource
                         ->icon('heroicon-o-x-circle')
                         ->color('danger')
                         ->requiresConfirmation()
-                        ->action(fn($records) => $records->each->update(['status' => 'rejected'])),
+                        ->action(function ($records, PostVerificationService $service) {
+                            $records->each(function ($record) use ($service) {
+                                dispatch(fn() => $service->rejectPost($record));
+                            });
+                        }),
 
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),

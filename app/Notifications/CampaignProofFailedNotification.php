@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Campeigner\Notifications;
+namespace App\Notifications;
 
 use App\Models\Campaign;
 use Illuminate\Bus\Queueable;
@@ -8,7 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class CampaignProcessCompletedNotification extends Notification implements ShouldQueue
+class CampaignProofFailedNotification extends Notification
 {
     use Queueable;
 
@@ -17,8 +17,8 @@ class CampaignProcessCompletedNotification extends Notification implements Shoul
      */
     public function __construct(
         private readonly Campaign $campaign,
-    )
-    {
+        private string $status
+    ) {
         //
     }
 
@@ -38,8 +38,8 @@ class CampaignProcessCompletedNotification extends Notification implements Shoul
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('A Submission Has Been Received: ' . $this->campaign->title)
-            ->view('mails.campaigns.submission-received', [
+            ->subject('Submission Rejected : ' . $this->campaign->title)
+            ->view('mails.campaigns.submission-failed', [
                 'campaign' => $this->campaign,
             ]);
     }
