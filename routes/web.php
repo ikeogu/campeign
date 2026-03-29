@@ -117,7 +117,7 @@ require __DIR__ . '/auth.php';
 
 Route::get('fixpost', function () {
 
-    $postVerifications = PostVerification::whereNull('first_verified_at')->latest()->get();
+    $postVerifications = PostVerification::whereDate('created_at', "2026-03-28")->latest()->get();
 
     foreach ($postVerifications as $postVerification) {
         # code...
