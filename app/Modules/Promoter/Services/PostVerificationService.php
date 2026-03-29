@@ -209,9 +209,18 @@ class PostVerificationService
         $platform = $this->detect($postUrl);
         info("initiated post verification");
         if (!$platform) {
-            throw new \InvalidArgumentException('Unsupported platform');
+            Log::warning('Unable to detect platform from URL', [
+                'verification_id' => $verification->id,
+                'url' => $postUrl,
+            ]);
+
+            $verification->update([
+                'status' => 'failed',
+            ]);
+
+            return $verification;
         }
-        info("initiated post verificatio VerifyPostInitialJob dispatched");
+        info("initiated post verification - platform detected: $platform");
         VerifyPostInitialJob::dispatch($verification);
 
         return $verification;
