@@ -30,7 +30,7 @@ class VerifyPostInitialJob implements ShouldQueue
 
         $submission = $this->verification->promoterSubmission;
 
-        if (!$submission || empty($submission->link)) {
+        if (!$submission || empty($submission->link) || !$service->isAccessible($submission->link)) {
             Log::warning('Post verification aborted: missing link', [
                 'verification_id' => $this->verification->id,
                 'submission_id' => $submission?->id,
@@ -43,11 +43,6 @@ class VerifyPostInitialJob implements ShouldQueue
             return;
         }
 
-        if (!$service->isAccessible($this->verification->promoterSubmission->link)) {
-
-            $this->verification->update(['status' => 'failed']);
-            return;
-        }
 
         $this->verification->update([
             'first_verified_at' => now(),
