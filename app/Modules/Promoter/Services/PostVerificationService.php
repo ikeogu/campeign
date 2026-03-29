@@ -109,6 +109,7 @@ class PostVerificationService
 
     public function detect(string $url): ?string
     {
+        Log::info('Detecting platform from URL', ['url' => $url]);
         return match (true) {
             str_contains($url, 'twitter.com'),
             str_contains($url, 'x.com') => 'twitter',
