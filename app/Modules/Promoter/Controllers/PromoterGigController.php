@@ -45,9 +45,7 @@ class PromoterGigController extends ApiController
                 ];
             });
 
-        Log::debug([
-            'gigs' => $gigs
-        ]);
+     
         return Inertia::render('Promoter/Gigs/Index', [
             'gigs' => $gigs,
         ]);
