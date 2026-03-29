@@ -20,7 +20,11 @@ class PromoterGigController extends ApiController
     public function index()
     {
         $gigs = Campaign::with(['images'])
-            ->whereIn('status', ['live', 'completed'])
+            ->whereIn('status', ['live'])
+            ->where(function ($query) {
+                $query->whereNull('available_slots')
+                    ->orWhere('available_slots', '>', 0);
+            })
             ->latest()
             ->get()
             ->map(function ($gig) {

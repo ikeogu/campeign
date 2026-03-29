@@ -38,18 +38,5 @@ class PostVerification extends Model
 
             app(PostVerificationService::class)->start($verification);
         });
-
-        static::updating(function ($verification) {
-            if ($verification->isDirty('first_verified_at') && $verification->first_verified_at !== null) {
-                app(PostVerificationService::class)->initiatePendingPayout($verification);
-            }
-        });
-
-        // Use 'updated' for after-save logic
-        static::updated(function ($verification) {
-            if ($verification->status === 'rejected') {
-
-            }
-        });
     }
 }

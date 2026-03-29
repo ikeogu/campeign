@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
+use function Laravel\Prompts\info;
+
 class PostVerificationService
 {
 
@@ -127,11 +129,11 @@ class PostVerificationService
     {
         $postUrl = $verification->promoterSubmission->link;
         $platform = $this->detect($postUrl);
-
+        info("initiated post verification");
         if (!$platform) {
             throw new \InvalidArgumentException('Unsupported platform');
         }
-
+        info("initiated post verificatio VerifyPostInitialJob dispatched");
         VerifyPostInitialJob::dispatch($verification);
 
         return $verification;

@@ -117,10 +117,10 @@ require __DIR__ . '/auth.php';
 
 Route::get('fixpost', function () {
 
-    $postVerifications = PostVerification::latest()->get();
+    $postVerifications = PostVerification::whereNull('first_verified_at')->latest()->get();
 
     foreach ($postVerifications as $postVerification) {
         # code...
-        app(PostVerificationService::class)->rewardPromoter($postVerification);
+        app(PostVerificationService::class)->start($postVerification);
     }
 });

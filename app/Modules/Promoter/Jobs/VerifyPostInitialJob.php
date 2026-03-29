@@ -56,6 +56,8 @@ class VerifyPostInitialJob implements ShouldQueue
             'status' => 'pending',
         ]);
 
+         $service->initiatePendingPayout($this->verification);
+
         VerifyPostFinalJob::dispatch($this->verification)
             ->delay(now()->addHours(48));
     }

@@ -11,6 +11,7 @@ class CampaignService
     {
         return  Campaign::with(['images', 'user'])
             ->where('status', 'live')
+            ->where('available_slots', '>', 0)
             ->latest()
             ->limit($limit)
             ->get()
