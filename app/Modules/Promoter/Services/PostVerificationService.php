@@ -78,23 +78,100 @@ class PostVerificationService
     private function validateSocialMediaUrl(string $url): bool
     {
         $patterns = [
-            // Twitter/X: https://x.com/user/status/123456789
-            '#(twitter\.com|x\.com)/.+/status/\d{18,20}#i',
 
-            // Instagram: https://instagram.com/p/ABC123 or /reel/ABC123
-            '#instagram\.com/(p|reel)/[A-Za-z0-9_-]{10,12}#i',
+            // ── Twitter / X ──────────────────────────────────────────────────────
 
-            // TikTok: https://tiktok.com/@user/video/1234567890
-            '#tiktok\.com/@[\w.-]+/video/\d{18,20}#i',
+            // Standard tweet/post: https://x.com/user/status/123456789012345678
+            '#(twitter\.com|x\.com)/\w+/status/\d{10,20}#i',
 
-            // Facebook: https://facebook.com/user/posts/123 or /videos/123
-            '#facebook\.com/.+/(posts|videos)/\d+#i',
+            // Twitter Spaces: https://x.com/i/spaces/1YqGoAwQePAbc
+            '#(twitter\.com|x\.com)/i/spaces/[A-Za-z0-9]{12,20}#i',
 
-            // YouTube: https://youtube.com/watch?v=ABC or https://youtu.be/ABC
-            '#(youtube\.com/watch\?v=|youtu\.be/)[A-Za-z0-9_-]{11}#i',
+            // ── Instagram ────────────────────────────────────────────────────────
 
-            // LinkedIn: https://linkedin.com/posts/...
-            '#linkedin\.com/posts/.+#i',
+            // Photo post: https://instagram.com/p/ABC123def45
+            '#instagram\.com/p/[A-Za-z0-9_-]{10,12}#i',
+
+            // Reel: https://instagram.com/reel/ABC123def45
+            '#instagram\.com/reel/[A-Za-z0-9_-]{10,12}#i',
+
+            // IGTV: https://instagram.com/tv/ABC123def45
+            '#instagram\.com/tv/[A-Za-z0-9_-]{10,12}#i',
+
+            // Highlight: https://instagram.com/highlight/17876498347553908
+            '#instagram\.com/highlight/\d{10,20}#i',
+
+            // ── TikTok ───────────────────────────────────────────────────────────
+
+            // Standard video: https://tiktok.com/@username/video/1234567890123456789
+            '#tiktok\.com/@[\w.-]+/video/\d{15,25}#i',
+
+            // Short share link: https://vm.tiktok.com/ZMrABCDEF/
+            '#vm\.tiktok\.com/[A-Za-z0-9]+#i',
+
+            // Web short link: https://www.tiktok.com/t/ZTRqPPcXy/
+            '#tiktok\.com/t/[A-Za-z0-9]+#i',
+
+            // ── Facebook ─────────────────────────────────────────────────────────
+
+            // Standard post: https://facebook.com/username/posts/123456789
+            '#facebook\.com/[^/]+/posts/\d+#i',
+
+            // Video (legacy): https://facebook.com/username/videos/123456789
+            '#facebook\.com/[^/]+/videos/\d+#i',
+
+            // Reel (since June 2025 all videos are reels):
+            // https://facebook.com/reel/1234567890123456
+            '#facebook\.com/reel/\d+#i',
+
+            // Share link: https://facebook.com/share/1L5tN7BNxU/
+            '#facebook\.com/share/[A-Za-z0-9_-]+/?#i',
+
+            // Share reel: https://facebook.com/share/r/1L5tN7BNxU/
+            '#facebook\.com/share/r/[A-Za-z0-9_-]+/?#i',
+
+            // Share video: https://facebook.com/share/v/1L5tN7BNxU/
+            '#facebook\.com/share/v/[A-Za-z0-9_-]+/?#i',
+
+            // Photo: https://facebook.com/photo?fbid=123456789
+            '#facebook\.com/photo\?fbid=\d+#i',
+
+            // Photo permalink: https://facebook.com/photo.php?fbid=123456789
+            '#facebook\.com/photo\.php\?fbid=\d+#i',
+
+            // Watch video: https://facebook.com/watch?v=123456789
+            '#facebook\.com/watch\?v=\d+#i',
+
+            // Story: https://facebook.com/stories/username/12345678901234567
+            '#facebook\.com/stories/[^/]+/\d+#i',
+
+            // Group post: https://facebook.com/groups/groupname/posts/123456789
+            '#facebook\.com/groups/[^/]+/posts/\d+#i',
+
+            // ── YouTube ──────────────────────────────────────────────────────────
+
+            // Standard watch: https://youtube.com/watch?v=dQw4w9WgXcQ
+            '#youtube\.com/watch\?v=[A-Za-z0-9_-]{11}#i',
+
+            // Short URL: https://youtu.be/dQw4w9WgXcQ
+            '#youtu\.be/[A-Za-z0-9_-]{11}#i',
+
+            // YouTube Shorts: https://youtube.com/shorts/dQw4w9WgXcQ
+            '#youtube\.com/shorts/[A-Za-z0-9_-]{11}#i',
+
+            // YouTube Live: https://youtube.com/live/dQw4w9WgXcQ
+            '#youtube\.com/live/[A-Za-z0-9_-]{11}#i',
+
+            // ── LinkedIn ─────────────────────────────────────────────────────────
+
+            // Standard post: https://linkedin.com/posts/username_activity-123456-text
+            '#linkedin\.com/posts/[A-Za-z0-9_-]+#i',
+
+            // Feed update URN: https://linkedin.com/feed/update/urn:li:activity:123456
+            '#linkedin\.com/feed/update/urn:li:[a-z]+:\d+#i',
+
+            // Video post: https://linkedin.com/video/live/urn:li:ugcPost:123456
+            '#linkedin\.com/video/[A-Za-z0-9_/-]+#i',
         ];
 
         foreach ($patterns as $pattern) {
