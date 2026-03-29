@@ -285,10 +285,11 @@ class PostVerificationService
         $submission = $verification->promoterSubmission;
         $campaign = $submission->campaign;
 
-        $submission->user->wallet->transactions()->create([
+        $submission->user->wallet->transactions()->updateOrCreate([
+            'reference' => "CRD-" . $submission->id,
+        ], [
             'type' => 'credit',
             'amount' => $campaign->payout * 100, // assuming amount is in cents
-            'reference' => "CRD-" . $submission->id,
             'status' => 'pending',
             'description' => 'Earnings from verified post for campaign: ' . $campaign->title,
         ]);
