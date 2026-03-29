@@ -24,11 +24,11 @@ export default function Referrals({ referrals, totalEarnings }) {
                         {/* Referral Link Box */}
                         <div className="bg-white border border-gray-100 p-2 rounded-2xl flex items-center gap-3 shadow-sm">
                             <code className="text-[10px] font-bold text-purple-600 px-3 uppercase">
-                                {window.location.origin}/register?ref={auth.user.referral_id}
+                                {window.location.origin}/register?ref={auth.user.referral_code}
                             </code>
                             <button
                                 onClick={() => {
-                                    navigator.clipboard.writeText(`${window.location.origin}/register?ref=${auth.user.referral_id}`);
+                                    navigator.clipboard.writeText(`${window.location.origin}/register?ref=${auth.user.referral_code}`);
                                     alert('Link Copied!');
                                 }}
                                 className="bg-gray-900 text-white text-[10px] font-black uppercase px-4 py-2 rounded-xl hover:bg-purple-600 transition-all"
