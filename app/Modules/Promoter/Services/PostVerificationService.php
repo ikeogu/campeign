@@ -229,6 +229,7 @@ class PostVerificationService
 
     public function rewardPromoter(PostVerification $verification): void
     {
+        info("Rewarding promoter for verified post");
         DB::transaction(function () use ($verification) {
             $submission = $verification->promoterSubmission;
             $campaign = $submission->campaign;
@@ -241,9 +242,8 @@ class PostVerificationService
                 return;
             }
 
-            $submission->shareLog()->where('user_id', $verification->user_id)
+            $submission->shareLog->where('user_id', $verification->user_id)
                 ->where('campaign_id', $campaign->id)
-                ->first()
                 ->update([
                     'action' => 'verified',
                 ]);

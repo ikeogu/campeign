@@ -11,6 +11,8 @@ use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
+use function Laravel\Prompts\info;
+
 class VerifyPostFinalJob implements ShouldQueue
 {
     use Queueable, SerializesModels;
@@ -50,6 +52,7 @@ class VerifyPostFinalJob implements ShouldQueue
 
     private function markAsFailed(PromoterSubmission $submission, string $reason = 'Verification failed'): void
     {
+        info("Post verification failed for submission ID {$submission->id}: $reason");
         $this->verification->update([
             'status' => 'failed',
             'last_checked_at' => now(),
@@ -63,6 +66,7 @@ class VerifyPostFinalJob implements ShouldQueue
 
     private function markAsVerified(PromoterSubmission $submission, PostVerificationService $service): void
     {
+        info("Post verification succeeded for submission ID {$submission->id}");
         $this->verification->update([
             'status' => 'verified',
             'last_checked_at' => now(),
