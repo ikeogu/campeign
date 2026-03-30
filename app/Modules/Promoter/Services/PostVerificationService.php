@@ -230,7 +230,7 @@ class PostVerificationService
     public function rewardPromoter(PostVerification $verification): void
     {
         info("Rewarding promoter for verified post");
-        DB::transaction(function () use ($verification) {
+       // DB::transaction(function () use ($verification) {
             $submission = $verification->promoterSubmission;
             $campaign = $submission->campaign;
 
@@ -275,7 +275,7 @@ class PostVerificationService
 
 
             $campaign->user->notify(new CampaignProcessCompletedNotification($campaign));
-        });
+       // });
     }
 
 
