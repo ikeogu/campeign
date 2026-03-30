@@ -234,14 +234,6 @@ class PostVerificationService
             $submission = $verification->promoterSubmission;
             $campaign = $submission->campaign;
 
-            $existingLog = $submission->shareLog()
-                ->where('action', 'verified')
-                ->first();
-
-            if ($existingLog) {
-                return;
-            }
-
             $campaign->decrement('available_slots', 1);
 
             $campaign->refresh();
