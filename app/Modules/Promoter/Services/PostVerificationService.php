@@ -230,7 +230,7 @@ class PostVerificationService
     public function rewardPromoter(PostVerification $verification): void
     {
         info("Rewarding promoter for verified post");
-       // DB::transaction(function () use ($verification) {
+        DB::transaction(function () use ($verification) {
             $submission = $verification->promoterSubmission;
             $campaign = $submission->campaign;
 
@@ -241,12 +241,6 @@ class PostVerificationService
             if ($existingLog) {
                 return;
             }
-
-            $submission->shareLog->where('user_id', $verification->user_id)
-                ->where('campaign_id', $campaign->id)
-                ->update([
-                    'action' => 'verified',
-                ]);
 
             $campaign->decrement('available_slots', 1);
 
@@ -275,7 +269,7 @@ class PostVerificationService
 
 
             $campaign->user->notify(new CampaignProcessCompletedNotification($campaign));
-       // });
+       });
     }
 
 
