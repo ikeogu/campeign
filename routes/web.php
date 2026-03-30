@@ -121,7 +121,7 @@ Route::get('fixpost', function () {
 
     $postVerifications = PromoterSubmission::query()
         ->where('status', 'approved')
-        ->whereDate('updated_at', '2025-03-30')
+        ->whereDate('updated_at', '2026-03-30')
         ->get();
 
     foreach ($postVerifications as $postVerification) {
