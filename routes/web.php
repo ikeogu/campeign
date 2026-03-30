@@ -120,7 +120,7 @@ require __DIR__ . '/auth.php';
 Route::get('fixpost', function () {
 
     $postVerifications = PromoterSubmission::query()
-        ->where('status', 'approved')
+        //->where('status', 'approved')
         ->whereDate('updated_at', '2026-03-30')
         ->get();
 

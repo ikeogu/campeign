@@ -40,6 +40,7 @@ class VerifyPostFinalJob implements ShouldQueue
             return;
         }
 
+        info('Starting final verification for submission ID ' . $submission->id);
         if (!$service->isAccessible($submission->link)) {
 
             $this->markAsFailed($submission, "Platform was inaccessible");
