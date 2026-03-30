@@ -22,11 +22,11 @@ class VerifyPostFinalJob implements ShouldQueue
     public function handle(PostVerificationService $service): void
     {
         $verification = $this->verification->fresh();
-
+/*
         if (!$verification || $verification->status !== 'pending') {
             return;
         }
-
+ */
         $submission = $verification->promoterSubmission;
 
         if (!$submission) {
@@ -69,7 +69,7 @@ class VerifyPostFinalJob implements ShouldQueue
         ]);
 
         $submission->update(['status' => 'approved']);
-        $submission->shareLogs()->update(['action' => 'verified']);
+        $submission->shareLog()->update(['action' => 'verified']);
 
         $service->rewardPromoter($this->verification);
 

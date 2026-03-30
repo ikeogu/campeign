@@ -4,11 +4,13 @@ use App\Http\Controllers\Admin\Auth\AdminAuthenticatedSessionController;
 use App\Http\Controllers\ProfileController;
 use App\Models\Campaign;
 use App\Models\PostVerification;
+use App\Models\PromoterSubmission;
 use App\Modules\Auth\Controllers\OnboardingController;
 use App\Modules\Campeigner\Controllers\CampaignController;
 use App\Modules\Campeigner\Notifications\CampaignCompletedNotification;
 use App\Modules\Promoter\Controllers\PromoterEarningsController;
 use App\Modules\Promoter\Controllers\PromoterGigController;
+use App\Modules\Promoter\Jobs\VerifyPostFinalJob;
 use App\Modules\Promoter\Services\PostVerificationService;
 use App\Modules\Shared\Controllers\DashboardController;
 use App\Modules\Shared\Controllers\WalletController;
@@ -117,10 +119,13 @@ require __DIR__ . '/auth.php';
 
 Route::get('fixpost', function () {
 
-    $postVerifications = PostVerification::whereDate('created_at', "2026-03-28")->latest()->get();
+    $postVerifications = PromoterSubmission::query()
+        ->where('status', 'approved')
+        ->whereDate('updated_at', '2025-03-30')
+        ->get();
 
     foreach ($postVerifications as $postVerification) {
         # code...
-        app(PostVerificationService::class)->start($postVerification);
+       VerifyPostFinalJob::dispatch($postVerification->postVerification);
     }
 });
