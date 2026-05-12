@@ -233,6 +233,16 @@ export default function Create({ auth }) {
                                 className="block w-full text-xs text-gray-400 file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 file:bg-gray-900 file:text-white file:text-[10px] file:font-black file:uppercase cursor-pointer"
                             />
 
+                            {errors.files && (
+                                <p className="mt-2 text-xs text-pink-600 font-bold">{errors.files}</p>
+                            )}
+                            {Object.keys(errors)
+                                .filter((key) => key.startsWith('files.'))
+                                .map((key) => (
+                                    <p key={key} className="mt-2 text-xs text-pink-600 font-bold">{errors[key]}</p>
+                                ))
+                            }
+
                             {previews.length > 0 && (
                                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-4 mt-6">
                                     {previews.map((src, index) => (
