@@ -60,7 +60,7 @@ class VerifyPostFinalJob implements ShouldQueue
         ]);
 
         $submission->update(['status' => 'rejected']);
-        $submission->shareLogs()->update(['action' => 'failed']);
+        $submission->shareLog()->update(['action' => 'failed']);
 
         $this->notifyUserOfPostStatus($submission, 'failed');
     }

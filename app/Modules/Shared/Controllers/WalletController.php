@@ -92,13 +92,13 @@ class WalletController extends ApiController
         $percentage = config('app.transfer_fee');
         $grossAmount = $request->amount; // e.g., 1000
 
-        // Check balance: In the inclusive model, total deduction is just the grossAmount
-        if ($user->wallet->balance < $grossAmount) {
-            return back()->withErrors(['amount' => 'Insufficient wallet balance.']);
-        }
-
         // Calculations in Kobo for Paystack accuracy
         $grossKobo = $grossAmount * 100;
+
+        // Compare in the same unit (kobo vs kobo)
+        if ($user->wallet->balance < $grossKobo) {
+            return back()->withErrors(['amount' => 'Insufficient wallet balance.']);
+        }
         $feeKobo = (int) round(($grossKobo * $percentage) / 100);
         $netPayoutKobo = $grossKobo - $feeKobo; // What actually goes to their bank
 

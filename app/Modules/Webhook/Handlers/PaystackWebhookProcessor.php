@@ -3,29 +3,21 @@
 
 namespace App\Modules\Webhook\Handlers;
 
-use App\Modules\Driver\Services\PayoutService;
 use App\Modules\Shared\Services\PaymentService;
 use Illuminate\Support\Facades\Log;
 use Spatie\WebhookClient\Jobs\ProcessWebhookJob;
-
-use function Laravel\Prompts\info;
 
 class PaystackWebhookProcessor extends ProcessWebhookJob
 {
 
     public function handle(PaymentService $paymentService)
     {
-
         $data = $this->webhookCall->payload;
         Log::info('Paystack Webhook Received', $data);
 
-
-        return match ($data['event']) {
+        match ($data['event']) {
             'charge.success' => $paymentService->handleChargeSuccess($data),
-            default =>  $paymentService->verifyPayment(
-                $data['data']['reference'], null),
+            default => $paymentService->verifyPayment($data['data']['reference'], null),
         };
-
-        info("Received Paystack Webhook: {$data['event']} with reference: {$data['data']['reference']}");
     }
 }

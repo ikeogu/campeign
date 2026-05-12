@@ -124,7 +124,7 @@ class Campaign extends Model
             $campaign->available_slots = $campaign->target_shares;
             $campaign->save();
 
-            if ($campaign->user->wallet->balance < $campaign->total_budget) {
+            if ($campaign->user->wallet->balance < $campaign->total_budget * 100) {
                 $campaign->user->notify(new FundWalletNotification($campaign->user, $campaign));
             }
         });

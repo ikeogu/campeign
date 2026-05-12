@@ -2,22 +2,14 @@
 
 use App\Http\Controllers\Admin\Auth\AdminAuthenticatedSessionController;
 use App\Http\Controllers\ProfileController;
-use App\Models\Campaign;
-use App\Models\PostVerification;
-use App\Models\PromoterSubmission;
 use App\Modules\Auth\Controllers\OnboardingController;
 use App\Modules\Campeigner\Controllers\CampaignController;
-use App\Modules\Campeigner\Notifications\CampaignCompletedNotification;
 use App\Modules\Promoter\Controllers\PromoterEarningsController;
 use App\Modules\Promoter\Controllers\PromoterGigController;
-use App\Modules\Promoter\Jobs\VerifyPostFinalJob;
-use App\Modules\Promoter\Services\PostVerificationService;
 use App\Modules\Shared\Controllers\DashboardController;
 use App\Modules\Shared\Controllers\WalletController;
 use App\Modules\Shared\Services\CampaignService;
-use App\Modules\Shared\Services\PaymentService;
 use Illuminate\Foundation\Application;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -117,15 +109,3 @@ Route::middleware(['web', 'auth:web'])->group(function () {
 
 require __DIR__ . '/auth.php';
 
-Route::get('fixpost', function () {
-
-    $postVerifications = PromoterSubmission::query()
-        //->where('status', 'approved')
-        ->whereDate('updated_at', '2026-03-30')
-        ->get();
-
-    foreach ($postVerifications as $postVerification) {
-        # code...
-       VerifyPostFinalJob::dispatch($postVerification->postVerification);
-    }
-});

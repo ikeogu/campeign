@@ -123,7 +123,7 @@ class CampaignController extends ApiController
 
     public function edit(Campaign $campaign)
     {
-        // $this->authorize('update', $campaign);
+        abort_if($campaign->user_id !== Auth::id(), 403);
         $campaign->load('images');
 
         $campaign->image_urls = $campaign->images->map(function ($image) {
@@ -141,7 +141,7 @@ class CampaignController extends ApiController
 
     public function update(Request $request, Campaign $campaign)
     {
-        // $this->authorize('update', $campaign);
+        abort_if($campaign->user_id !== Auth::id(), 403);
 
         $validated = $request->validate([
             'title'         => 'required|string|max:255',
@@ -211,12 +211,13 @@ class CampaignController extends ApiController
 
     public function destroy(Campaign $campaign)
     {
-        // $this->authorize('delete', $campaign);
+        abort_if($campaign->user_id !== Auth::id(), 403);
         //$Total Funded - (Approved Payouts + Pending Payouts)
 
         $totalFunded = $campaign->total_budget - $campaign->completedPayouts()->sum('amount');
 
-        $campaign->user->wallet->increment('balance', $totalFunded);
+        // total_budget and payout amounts are in naira; wallet balance is in kobo
+        $campaign->user->wallet->increment('balance', $totalFunded * 100);
 
         $campaign->delete();
 
@@ -355,6 +356,7 @@ class CampaignController extends ApiController
 
     public function promoterSubmissions(Campaign $campaign)
     {
+        abort_if($campaign->user_id !== Auth::id(), 403);
 
         $submissions = $campaign->submissions()
             ->with('user:id,email')
@@ -388,6 +390,7 @@ class CampaignController extends ApiController
 
     public function updateStatus(Request $request, Campaign $campaign)
     {
+        abort_if($campaign->user_id !== Auth::id(), 403);
 
         $campaign->update(['status' => $request->status]);
 

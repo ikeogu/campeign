@@ -81,10 +81,10 @@ class ProfileController extends Controller
         $user->wallet()->delete();
         $user->campaigns()->delete();
         $user->promoterSubmission()->delete();
-        $user->promoter()->delete();
         $user->shareLogs()->delete();
         $user->postVerifications()->delete();
         $user->promoter()->delete();
+        $user->campaigner()->delete();
         $user->delete();
         return Redirect::to('/');
     }

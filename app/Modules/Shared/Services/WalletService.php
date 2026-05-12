@@ -17,7 +17,7 @@ class WalletService
         public readonly PaymentGateWayInterface $paystackGatewayInterface
     ) {}
 
-    public function getWallet($userId)
+    public static function getWallet($userId)
     {
         return Wallet::firstOrCreate(['user_id' => $userId]);
     }

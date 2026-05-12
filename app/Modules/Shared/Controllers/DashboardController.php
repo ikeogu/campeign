@@ -198,10 +198,9 @@ class DashboardController extends ApiController
             ->map(fn($campaign) => [
                 'id' => $campaign->id,
                 'title' => $campaign->title,
-                'platform' => $campaign->platform,
-                'payout' => $campaign->payout_per_share,
+                'platforms' => $campaign->platforms,
+                'payout' => $campaign->payout,
                 'slots_left' => $campaign->available_slots,
-                'ends_at' => $campaign->ends_at?->diffForHumans(),
             ]);
 
         $data = [

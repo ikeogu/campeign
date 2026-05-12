@@ -17,7 +17,9 @@ class PromoterEarningsController extends ApiController
     {
         /** @var User $user */
         $user = Auth::user();
-        //$user->load('promoter');
+
+        abort_if(!$user->promoter, 403, 'Only promoters can access this page.');
+
         $userId = $user->promoter->id;
         // Summary Stats
         $totalEarnings = PromoterEarning::where('promoter_id', $userId)
@@ -77,7 +79,6 @@ class PromoterEarningsController extends ApiController
             'shareLog:id,campaign_id,promoter_submission_id,user_id,action,earned_amount'
             ])
             ->where('user_id', $userId)
-            ->orderBy('created_at', 'desc')
             ->latest()
             ->get();
 
