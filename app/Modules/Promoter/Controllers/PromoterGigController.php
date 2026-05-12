@@ -20,11 +20,12 @@ class PromoterGigController extends ApiController
     public function index()
     {
         $gigs = Campaign::with(['images'])
-            ->whereIn('status', ['live'])
-            ->where(function ($query) {
-                $query->whereNull('available_slots')
-                    ->orWhere('available_slots', '>', 0);
-            })
+            ->where('status', 'live')
+            ->where('available_slots', '>', 0)
+            ->whereRaw(
+                '(SELECT COUNT(*) FROM promoter_submissions WHERE campaign_id = campaigns.id AND status != ?) < campaigns.target_shares',
+                ['rejected']
+            )
             ->latest()
             ->get()
             ->map(function ($gig) {
@@ -119,6 +120,13 @@ class PromoterGigController extends ApiController
 
     public function storeSubmission(SubmitPostRequest $request, $id)
     {
+        $campaign = Campaign::findOrFail($id);
+
+        $activeSubmissions = $campaign->submissions()->where('status', '!=', 'rejected')->count();
+
+        if ($activeSubmissions >= $campaign->target_shares) {
+            return back()->withErrors(['submission' => 'This campaign is no longer accepting submissions.']);
+        }
 
         foreach ($request->submissions as $platform => $data) {
 

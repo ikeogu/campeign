@@ -9,22 +9,26 @@ class CampaignService
 
     public function fetchLiveCampaigns(int $limit = 20)
     {
-        return  Campaign::with(['images', 'user'])
+        return  Campaign::with(['images', 'user', 'submissions' => fn($q) => $q->where('status', '!=', 'rejected')])
             ->where('status', 'live')
             ->where('available_slots', '>', 0)
+            // Exclude campaigns whose non-rejected submission count already fills all target shares.
+            // available_slots is only decremented after 48-hour verification, so without this check
+            // fully "booked" campaigns would still appear available.
+            ->whereRaw(
+                '(SELECT COUNT(*) FROM promoter_submissions WHERE campaign_id = campaigns.id AND status != ?) < campaigns.target_shares',
+                ['rejected']
+            )
             ->latest()
             ->limit($limit)
             ->get()
             ->map(function ($gig) {
 
-                // Calculate percentage
-                $total = $gig->target_shares > 0 ? $gig->target_shares : 1; // Prevent division by zero
-                $reached = $gig->submissions->count(); // Number of approved/received shares
+                // Count only non-rejected submissions for an accurate completion percentage
+                $total = $gig->target_shares > 0 ? $gig->target_shares : 1;
+                $reached = $gig->submissions->count();
 
-                $percentage = ($reached / $total) * 100;
-
-                // Ensure it doesn't exceed 100%
-                $completion_percentage = min(100, round($percentage));
+                $completion_percentage = min(100, round(($reached / $total) * 100));
                 return [
                     'id' => $gig->id,
                     'title' => $gig->title,

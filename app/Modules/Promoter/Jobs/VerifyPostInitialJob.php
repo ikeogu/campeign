@@ -59,7 +59,7 @@ class VerifyPostInitialJob implements ShouldQueue
 
         $delay = $now->lt($fortyEightHoursAfterCreation)
             ? $now->diffInSeconds($fortyEightHoursAfterCreation) // time remaining until 48hrs from creation
-            : now()->addHours(48);                                // already past 48hrs — delay a fresh 48hrs
+            : now()->addHours(1);                                // already past 48hrs — delay a fresh 48hrs
 
         VerifyPostFinalJob::dispatch($this->verification)
             ->delay($delay);

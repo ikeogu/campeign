@@ -49,8 +49,8 @@ export default function Footer() {
                     <div>
                         <h4 className="font-black text-gray-900 uppercase text-[11px] tracking-[0.2em] mb-6">Connect</h4>
                         <p className="text-xs text-gray-400 font-bold uppercase tracking-tight mb-4">Support Inquiries:</p>
-                        <a href="mailto:hello@gigscampaigns.com" className="text-sm font-black text-gray-900 hover:text-pink-600 underline decoration-pink-200 underline-offset-4">
-                            hello@gigscampaigns.com
+                        <a href="mailto:info@gigsandcampaigns.com" className="text-sm font-black text-gray-900 hover:text-pink-600 underline decoration-pink-200 underline-offset-4">
+                            info@gigsandcampaigns.com
                         </a>
                         <div className="flex gap-4 mt-8">
                             {/* Social Icons Placeholders */}
