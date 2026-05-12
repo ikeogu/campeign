@@ -41,8 +41,6 @@ class RegisteredUserController extends Controller
             'referral_code' => ['nullable', 'string', 'max:8']
         ]);
 
-        Log::info('Register data received:', $request->all());
-
         $refferedBy = User::where('referral_code', $request->referral_code)->first();
         $user = User::create([
             'email' => $request->email,

@@ -58,27 +58,46 @@ class CampaignController extends ApiController
 
     public function store(Request $request)
     {
-
+        // Detect PHP-level upload errors before validation runs.
+        // These happen when the server rejects the file (e.g. upload_max_filesize in php.ini),
+        // which Laravel's 'file' rule can only report as "failed to upload" without context.
+        foreach ($request->file('files', []) as $index => $file) {
+            if ($file && $file->getError() !== UPLOAD_ERR_OK) {
+                $hint = match ($file->getError()) {
+                    UPLOAD_ERR_INI_SIZE   => 'The file exceeds the server\'s upload_max_filesize limit (~' . ini_get('upload_max_filesize') . ').',
+                    UPLOAD_ERR_FORM_SIZE  => 'The file exceeds the MAX_FILE_SIZE set in the form.',
+                    UPLOAD_ERR_PARTIAL    => 'The file was only partially uploaded. Please try again.',
+                    UPLOAD_ERR_NO_FILE    => 'No file was received by the server. Ensure the form is submitted as multipart/form-data.',
+                    UPLOAD_ERR_NO_TMP_DIR => 'Server misconfiguration: no temporary upload directory.',
+                    UPLOAD_ERR_CANT_WRITE => 'Server failed to write the file to disk.',
+                    default               => 'File upload failed (PHP error code ' . $file->getError() . ').',
+                };
+                return back()->withErrors(["files.{$index}" => $hint])->withInput();
+            }
+        }
 
         $validated = $request->validate([
             'title'         => 'required|string|max:255',
             'description'   => 'nullable|string',
-            'category'   => 'nullable|string',
-            'platforms'      => 'required|array',
+            'category'      => 'nullable|string',
+            'platforms'     => 'required|array',
             'platforms.*'   => 'string',
             'payout'        => 'required|numeric|min:1',
             'target_shares' => 'required|integer|min:1',
-            'files'   => 'required|array',
-            'files.*' => [
-                'required',
+            'files'         => 'required|array',
+            'files.*'       => [
                 'file',
-                'mimes:jpg,jpeg,png,mp4,mov,avi,webm', // Explicitly allow video and image extensions
-                'max:51200', // Increased to 50MB to accommodate videos
+                'mimes:jpg,jpeg,png,mp4,mov,avi,webm',
+                'max:51200',
             ],
-            'total_budget' => ['required', 'numeric', 'min:0'],
-            'management_fee'  => ['nullable', 'numeric', 'min:0'],
-            'base_budget'  => ['nullable', 'numeric', 'min:0'],
+            'total_budget'   => ['required', 'numeric', 'min:0'],
+            'management_fee' => ['nullable', 'numeric', 'min:0'],
+            'base_budget'    => ['nullable', 'numeric', 'min:0'],
             'min_followers'  => ['required', 'string'],
+        ], [
+            'files.*.file'  => 'Each upload must be a valid file.',
+            'files.*.mimes' => 'Allowed formats: jpg, jpeg, png, mp4, mov, avi, webm.',
+            'files.*.max'   => 'Each file must be 50 MB or smaller.',
         ]);
 
         /** @var User $user */
@@ -143,29 +162,46 @@ class CampaignController extends ApiController
     {
         abort_if($campaign->user_id !== Auth::id(), 403);
 
+        foreach ($request->file('new_files', []) as $index => $file) {
+            if ($file && $file->getError() !== UPLOAD_ERR_OK) {
+                $hint = match ($file->getError()) {
+                    UPLOAD_ERR_INI_SIZE   => 'The file exceeds the server\'s upload_max_filesize limit (~' . ini_get('upload_max_filesize') . ').',
+                    UPLOAD_ERR_FORM_SIZE  => 'The file exceeds the MAX_FILE_SIZE set in the form.',
+                    UPLOAD_ERR_PARTIAL    => 'The file was only partially uploaded. Please try again.',
+                    UPLOAD_ERR_NO_FILE    => 'No file was received by the server. Ensure the form is submitted as multipart/form-data.',
+                    UPLOAD_ERR_NO_TMP_DIR => 'Server misconfiguration: no temporary upload directory.',
+                    UPLOAD_ERR_CANT_WRITE => 'Server failed to write the file to disk.',
+                    default               => 'File upload failed (PHP error code ' . $file->getError() . ').',
+                };
+                return back()->withErrors(["new_files.{$index}" => $hint])->withInput();
+            }
+        }
+
         $validated = $request->validate([
             'title'         => 'required|string|max:255',
             'description'   => 'nullable|string',
-            'platforms'      => 'required|array',
+            'platforms'     => 'required|array',
             'category'      => 'nullable|string',
             'platforms.*'   => 'string',
             'payout'        => 'required|numeric|min:1',
             'target_shares' => 'required|integer|min:1',
             'status'        => 'nullable|string',
-            'new_files'         => 'nullable|array',
-            //'target_budget' => ['required', 'numeric', 'min:0'],
-            'new_files.*'       => [
-                'required',
+            'new_files'     => 'nullable|array',
+            'new_files.*'   => [
                 'file',
-                'mimes:jpg,jpeg,png,mp4,mov,avi,webm', // Explicitly allow video and image extensions
-                'max:51200', // Increased to 50MB to accommodate videos
+                'mimes:jpg,jpeg,png,mp4,mov,avi,webm',
+                'max:51200',
             ],
-            'remove_files'  => 'nullable|array',
+            'remove_files'   => 'nullable|array',
             'remove_files.*' => 'integer|exists:campaign_images,id',
-            'total_budget' => ['required', 'numeric', 'min:0'],
-            'management_fee'  => ['nullable', 'numeric', 'min:0'],
-            'base_budget'  => ['nullable', 'numeric', 'min:0'],
+            'total_budget'   => ['required', 'numeric', 'min:0'],
+            'management_fee' => ['nullable', 'numeric', 'min:0'],
+            'base_budget'    => ['nullable', 'numeric', 'min:0'],
             'min_followers'  => ['required', 'string'],
+        ], [
+            'new_files.*.file'  => 'Each upload must be a valid file.',
+            'new_files.*.mimes' => 'Allowed formats: jpg, jpeg, png, mp4, mov, avi, webm.',
+            'new_files.*.max'   => 'Each file must be 50 MB or smaller.',
         ]);
 
         $campaign->update([
