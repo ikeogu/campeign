@@ -54,7 +54,7 @@ class VerifyPostInitialJob implements ShouldQueue
          $service->initiatePendingPayout($this->verification);
 
         $createdAt    = $this->verification->created_at;
-        $fortyEightHoursAfterCreation = $createdAt->copy()->addHours(48);
+        $fortyEightHoursAfterCreation = $createdAt->copy()->addHours(1);
         $now          = now();
 
         $delay = $now->lt($fortyEightHoursAfterCreation)
