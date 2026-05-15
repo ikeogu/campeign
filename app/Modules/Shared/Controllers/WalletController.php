@@ -4,8 +4,10 @@ namespace App\Modules\Shared\Controllers;
 
 use App\Http\Controllers\ApiController;
 use App\Interfaces\PaymentGateWayInterface;
+use App\Models\User;
 use App\Modules\Shared\Services\PaymentService;
 use App\Modules\Shared\Services\WalletService;
+use App\Notifications\NotifyAnythingNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -101,6 +103,39 @@ class WalletController extends ApiController
         }
         $feeKobo = (int) round(($grossKobo * $percentage) / 100);
         $netPayoutKobo = $grossKobo - $feeKobo; // What actually goes to their bank
+
+        // Check platform Paystack balance before touching the user's wallet.
+        try {
+            $paystackBalances = $this->paystackGatewayInterface->checkBalance();
+            $platformBalance  = collect($paystackBalances)->firstWhere('currency', 'NGN')['balance'] ?? 0;
+        } catch (\Throwable $e) {
+            Log::error('Paystack balance check failed', ['error' => $e->getMessage()]);
+            $platformBalance = null;
+        }
+
+        if ($platformBalance !== null && $platformBalance < $netPayoutKobo) {
+            $amountNaira   = number_format($netPayoutKobo / 100, 2);
+            $currentNaira  = number_format($platformBalance / 100, 2);
+
+            User::where('role', 'admin')->each(fn($admin) =>
+                $admin->notify(new NotifyAnythingNotification(
+                    'Low Paystack Balance — Withdrawal Blocked',
+                    "A withdrawal of ₦{$amountNaira} requested by {$user->email} could not be processed.\n\n" .
+                    "Platform Paystack NGN balance: ₦{$currentNaira}.\n\n" .
+                    "Please top up the platform Paystack account to resume payouts."
+                ))
+            );
+
+            Log::warning('Payout blocked: insufficient Paystack balance', [
+                'user'              => $user->email,
+                'requested_kobo'    => $netPayoutKobo,
+                'platform_balance'  => $platformBalance,
+            ]);
+
+            return back()->withErrors([
+                'amount' => "We can't process your withdrawal at the moment. Please try again later or contact support.",
+            ]);
+        }
 
         try {
             DB::transaction(function () use ($user, $grossKobo, $feeKobo, $netPayoutKobo, $request) {

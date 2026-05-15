@@ -207,7 +207,10 @@ export default function PromoterCampaignShow() {
                                 </div>
                                 <div className="flex gap-4 items-start">
                                     <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-black text-[10px]">3</div>
-                                    <p className="text-gray-600 text-[11px] font-bold leading-snug">Ensure you have the <span className="text-blue-600">Post Link</span> and a <span className="text-blue-600">Screenshot</span>.</p>
+                                    <p className="text-gray-600 text-[11px] font-bold leading-snug">
+                                        Paste your <span className="text-blue-600">Post Link</span> and upload a <span className="text-blue-600">Screenshot</span> of the submitted ad.{' '}
+                                        <span className="text-gray-400 font-medium">Or tap <span className="text-pink-600 font-black">✨ Profile</span> to auto-fill your profile link — to enable this, save your social handle in your <span className="text-pink-600">Profile Settings</span>.</span>
+                                    </p>
                                 </div>
 
                                 <div className="flex flex-col gap-3 pt-2">

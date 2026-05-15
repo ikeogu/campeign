@@ -30,30 +30,29 @@ class PaystackClient extends PendingRequest implements PaymentGateWayInterface
 
   public function payout(array $data)
   {
+    $recipient = $this->createRecipient($data);
 
-    $recipant = $this->createRecipient($data);
-
-    if (!$recipant['recipient_code']) {
-      return false;
+    if (empty($recipient['recipient_code'])) {
+      throw new \RuntimeException('Could not create transfer recipient: ' . ($recipient['message'] ?? 'unknown error'));
     }
-    $data = [
-      'source' => 'balance',
-      'amount' => $data['amount'],
-      'recipient' => $recipant['recipient_code'],
-      'reason' => $data['narration'],
-      'currency' => 'NGN',
+
+    $payload = [
+      'source'    => 'balance',
+      'amount'    => $data['amount'],
+      'recipient' => $recipient['recipient_code'],
+      'reason'    => $data['narration'],
+      'currency'  => 'NGN',
       'reference' => $data['reference'],
-     // 'callback_url' => route('paystack.callback'),
-      'metadata' => [
-        'reference' => $data['reference']
-      ]
+      'metadata'  => ['reference' => $data['reference']],
     ];
 
-    $response =  $this->post('transfer', $data);
+    $response = $this->post('transfer', $payload);
 
-    // I stopped here!
-    if ($response->json('status') == true)
-      return PaystackPayoutDto::fromArray($response->json('data'));
+    if (!$response->json('status')) {
+      throw new \RuntimeException('Paystack transfer failed: ' . ($response->json('message') ?? 'unknown error'));
+    }
+
+    return PaystackPayoutDto::fromArray($response->json('data'));
   }
 
   public function payin(array $data)
