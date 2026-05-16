@@ -11,7 +11,6 @@ use App\Modules\Shared\Services\PaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -142,7 +141,10 @@ class CampaignController extends ApiController
 
     public function edit(Campaign $campaign)
     {
-        abort_if($campaign->user_id !== Auth::id(), 403);
+        if ($campaign->user_id !== Auth::id()) {
+            return redirect()->route('campaigns.index')
+                ->with('error', 'You are not allowed to edit this campaign.');
+        }
         $campaign->load('images');
 
         $campaign->image_urls = $campaign->images->map(function ($image) {
@@ -160,7 +162,10 @@ class CampaignController extends ApiController
 
     public function update(Request $request, Campaign $campaign)
     {
-        abort_if($campaign->user_id !== Auth::id(), 403);
+        if ($campaign->user_id !== Auth::id()) {
+            return redirect()->route('campaigns.index')
+                ->with('error', 'You are not allowed to update this campaign.');
+        }
 
         foreach ($request->file('new_files', []) as $index => $file) {
             if ($file && $file->getError() !== UPLOAD_ERR_OK) {
@@ -247,7 +252,10 @@ class CampaignController extends ApiController
 
     public function destroy(Campaign $campaign)
     {
-        abort_if($campaign->user_id !== Auth::id(), 403);
+        if ($campaign->user_id !== Auth::id()) {
+            return redirect()->route('campaigns.index')
+                ->with('error', 'You are not allowed to delete this campaign.');
+        }
         //$Total Funded - (Approved Payouts + Pending Payouts)
 
         $totalFunded = $campaign->total_budget - $campaign->completedPayouts()->sum('amount');
@@ -263,6 +271,10 @@ class CampaignController extends ApiController
 
     public function fundCampaign(Campaign $campaign)
     {
+        if ($campaign->user_id !== Auth::id()) {
+            return redirect()->route('campaigns.index')
+                ->with('error', 'You are not allowed to fund this campaign.');
+        }
 
         $userBalance = Auth::user()->wallet->balance ?? 0.00;
         return Inertia::render('Advertiser/Campaigns/FundCampaign', [
@@ -273,6 +285,11 @@ class CampaignController extends ApiController
 
     public function processFunding(Request $request, Campaign $campaign)
     {
+        if ($campaign->user_id !== Auth::id()) {
+            return redirect()->route('campaigns.index')
+                ->with('error', 'You are not allowed to fund this campaign.');
+        }
+
         $validated = $request->validate([
             'amount' => ['required', 'numeric', 'min:1'],
         ]);
@@ -292,10 +309,9 @@ class CampaignController extends ApiController
         if ($wallet->balance >= $amountInCents) {
             $this->fundFromWallet($user, $campaign, $amountInCents);
 
-            // IMPORTANT: Return a redirect so Inertia knows the request is finished
-            return redirect()
-                ->route('campaigns.index')
-                ->with('success', 'Campaign funded successfully from wallet.');
+            return Inertia::render('Advertiser/Campaigns/FundSuccess', [
+                'campaign' => $campaign->fresh(),
+            ]);
         }
 
         $response = $this->initiateGatewayPayment($user, $campaign, $amountInCents);
@@ -392,7 +408,10 @@ class CampaignController extends ApiController
 
     public function promoterSubmissions(Campaign $campaign)
     {
-        abort_if($campaign->user_id !== Auth::id(), 403);
+        if ($campaign->user_id !== Auth::id()) {
+            return redirect()->route('campaigns.index')
+                ->with('error', 'You are not allowed to view these submissions.');
+        }
 
         $submissions = $campaign->submissions()
             ->with('user:id,email')
@@ -426,7 +445,14 @@ class CampaignController extends ApiController
 
     public function updateStatus(Request $request, Campaign $campaign)
     {
-        abort_if($campaign->user_id !== Auth::id(), 403);
+        if ($campaign->user_id !== Auth::id()) {
+            return redirect()->route('campaigns.index')
+                ->with('error', 'You are not allowed to update this campaign.');
+        }
+
+        $request->validate([
+            'status' => ['required', 'string', 'in:pending,paused,cancelled'],
+        ]);
 
         $campaign->update(['status' => $request->status]);
 

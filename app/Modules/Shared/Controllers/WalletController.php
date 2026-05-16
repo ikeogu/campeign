@@ -81,6 +81,7 @@ class WalletController extends ApiController
 
     public function payout(Request $request)
     {
+        /** @var User $user */
         $user = Auth::user();
 
         $request->validate([
@@ -139,13 +140,21 @@ class WalletController extends ApiController
 
         try {
             DB::transaction(function () use ($user, $grossKobo, $feeKobo, $netPayoutKobo, $request) {
-                $reference = 'WD-' . strtoupper(Str::random(10));
+                $reference = 'WD-' . now()->format('YmdHisv') . random_int(100, 999);
+
+                // Lock the wallet row for the duration of this transaction to prevent
+                // concurrent requests from passing the balance check simultaneously (TOCTOU).
+                $wallet = $user->wallet()->lockForUpdate()->firstOrFail();
+
+                if ($wallet->balance < $grossKobo) {
+                    throw new \RuntimeException('Insufficient wallet balance.');
+                }
 
                 // 1. Deduct the FULL amount from user wallet
-                $user->wallet->decrement('balance', $grossKobo);
+                $wallet->decrement('balance', $grossKobo);
 
                 // 2. Record the transaction
-                $user->wallet->transactions()->create([
+                $wallet->transactions()->create([
                     'type' => 'debit',
                     'amount' => $grossKobo , // Total deducted in wallet
                     'description' => $request->narration ?? "Withdrawal to {$request->account_number}",

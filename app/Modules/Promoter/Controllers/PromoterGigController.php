@@ -9,10 +9,7 @@ use App\Models\PromoterSubmission;
 use App\Models\ShareLog;
 use App\Modules\Promoter\Requests\SubmitPostRequest;
 use App\Modules\Shared\Services\CampaignService;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class PromoterGigController extends ApiController
@@ -121,6 +118,10 @@ class PromoterGigController extends ApiController
     public function storeSubmission(SubmitPostRequest $request, $id)
     {
         $campaign = Campaign::findOrFail($id);
+
+        if ($campaign->status !== 'live') {
+            return back()->withErrors(['submission' => 'This campaign is not currently accepting submissions.']);
+        }
 
         $activeSubmissions = $campaign->submissions()->where('status', '!=', 'rejected')->count();
 

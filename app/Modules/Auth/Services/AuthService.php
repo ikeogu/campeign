@@ -4,7 +4,6 @@ namespace App\Modules\Auth\Services;
 
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\ValidationException;
 
 class AuthService
 {
@@ -39,7 +38,7 @@ class AuthService
 
             $user->update(['onboarded' => true, 'role' => $role]);
 
-            $user->wallet()->create(['balance' => 0]);
+            $user->wallet()->firstOrCreate(['user_id' => $user->id], ['balance' => 0]);
 
             return [
                 'user'  => $user->fresh(['promoter', 'campaigner']),

@@ -60,7 +60,7 @@ class WalletService
         /** @var User $user */
         $user = Auth::user();
         // 1. Create unique reference
-        $reference = 'WAL-' . strtoupper(Str::random(10));
+        $reference = 'WAL-'. now()->format('YmdHisv') . random_int(100, 999);
 
         // 2. Save PENDING transaction in your DB
         Transaction::create([
