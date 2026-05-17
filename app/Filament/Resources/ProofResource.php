@@ -168,21 +168,22 @@ class ProofResource extends Resource
                     ->openUrlInNewTab()
                     ->limit(30),
 
-                Tables\Columns\BadgeColumn::make('status')
-                    ->colors([
-                        'warning' => 'pending',
-                        'success' => 'approved',
-                        'danger'  => 'rejected',
-                    ]),
+                Tables\Columns\TextColumn::make('status')
+                    ->badge()
+                    ->color(fn(string $state) => match ($state) {
+                        'approved' => 'success',
+                        'rejected' => 'danger',
+                        default    => 'warning',
+                    }),
 
                 Tables\Columns\TextColumn::make('verification.status')
                     ->label('Verification')
                     ->badge()
-                    ->colors([
-                        'warning' => 'pending',
-                        'success' => 'verified',
-                        'danger'  => 'failed',
-                    ]),
+                    ->color(fn(?string $state) => match ($state) {
+                        'verified' => 'success',
+                        'failed'   => 'danger',
+                        default    => 'warning',
+                    }),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Submitted')
@@ -207,7 +208,9 @@ class ProofResource extends Resource
                     ->color('success')
                     ->visible(fn($record) => $record->status === 'pending')
                     ->requiresConfirmation()
-                    ->action(fn($record) => $record->update(['status' => 'approved'])),
+                    ->action(function ($record, PostVerificationService $service) {
+                        $service->approvePost($record);
+                    }),
 
                 Tables\Actions\Action::make('reject')
                     ->label('Reject')
@@ -229,7 +232,9 @@ class ProofResource extends Resource
                         ->icon('heroicon-o-check-circle')
                         ->color('success')
                         ->requiresConfirmation()
-                        ->action(fn($records) => $records->each->update(['status' => 'approved'])),
+                        ->action(function ($records, PostVerificationService $service) {
+                            $records->each(fn($record) => $service->approvePost($record));
+                        }),
 
                     Tables\Actions\BulkAction::make('reject_all')
                         ->label('Reject Selected')

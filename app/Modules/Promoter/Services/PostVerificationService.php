@@ -9,13 +9,10 @@ use App\Models\Transaction;
 use App\Modules\Campeigner\Notifications\CampaignProcessCompletedNotification;
 use App\Modules\Promoter\Jobs\VerifyPostInitialJob;
 use App\Notifications\CampaignProofFailedNotification;
-use Illuminate\Support\Facades\Auth;
+use App\Notifications\NotifyAnythingNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Symfony\Component\HttpFoundation\Response;
-
-use function Laravel\Prompts\info;
 
 class PostVerificationService
 {
@@ -229,13 +226,13 @@ class PostVerificationService
 
     public function rewardPromoter(PostVerification $verification): void
     {
-        info("Rewarding promoter for verified post");
         DB::transaction(function () use ($verification) {
             $submission = $verification->promoterSubmission;
             $campaign = $submission->campaign;
 
-            $campaign->decrement('available_slots', 1);
+            $submission->update(['status' => 'approved']);
 
+            $campaign->decrement('available_slots', 1);
             $campaign->refresh();
             if ($campaign->available_slots < 1) {
                 $campaign->update(['status' => 'completed']);
@@ -245,23 +242,63 @@ class PostVerificationService
 
             if (!Transaction::where('reference', 'CRD-' . $submission->id)->exists()) {
                 $submission->user->wallet->transactions()->create([
-                    'type' => 'credit',
-                    'amount' => $campaign->payout * 100, // assuming amount is in cents
-                    'reference' => "CRD-" . $submission->id,
-                    'status' => 'successful',
+                    'type'        => 'credit',
+                    'amount'      => $campaign->payout * 100,
+                    'reference'   => 'CRD-' . $submission->id,
+                    'status'      => 'successful',
                     'description' => 'Earnings from verified post for campaign: ' . $campaign->title,
                 ]);
             } else {
                 Transaction::where('reference', 'CRD-' . $submission->id)
                     ->where('status', 'pending')
-                    ->update([
-                        'status' => 'successful',
-                    ]);
+                    ->update(['status' => 'successful']);
             }
 
-
             $campaign->user->notify(new CampaignProcessCompletedNotification($campaign));
-       });
+        });
+    }
+
+    public function approvePost(PromoterSubmission $submission): void
+    {
+        DB::transaction(function () use ($submission) {
+            $submission->update(['status' => 'approved']);
+
+            if ($submission->verification) {
+                $submission->verification->update(['status' => 'verified']);
+            }
+
+            $campaign = $submission->campaign;
+
+            $campaign->decrement('available_slots', 1);
+            $campaign->refresh();
+            if ($campaign->available_slots < 1) {
+                $campaign->update(['status' => 'completed']);
+            }
+
+            $submission->user->wallet->increment('balance', $campaign->payout * 100);
+
+            if (!Transaction::where('reference', 'CRD-' . $submission->id)->exists()) {
+                $submission->user->wallet->transactions()->create([
+                    'type'        => 'credit',
+                    'amount'      => $campaign->payout * 100,
+                    'reference'   => 'CRD-' . $submission->id,
+                    'status'      => 'successful',
+                    'description' => 'Earnings from approved post for campaign: ' . $campaign->title,
+                ]);
+            } else {
+                Transaction::where('reference', 'CRD-' . $submission->id)
+                    ->where('status', 'pending')
+                    ->update(['status' => 'successful']);
+            }
+        });
+
+        $submission->user->notify(new NotifyAnythingNotification(
+            'Your Post Was Approved — You\'ve Been Paid!',
+            "Hi {$submission->user->email},\n\n" .
+            "Your submission for \"{$submission->campaign->title}\" has been approved.\n\n" .
+            "₦" . number_format($submission->campaign->payout, 2) . " has been credited to your wallet.\n\n" .
+            "Keep sharing to earn more!"
+        ));
     }
 
 

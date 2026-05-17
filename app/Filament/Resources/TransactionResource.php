@@ -66,12 +66,13 @@ class TransactionResource extends Resource
                     ->limit(40)
                     ->tooltip(fn($record) => $record->description),
 
-                Tables\Columns\BadgeColumn::make('status')
-                    ->colors([
-                        'warning' => 'pending',
-                        'success' => 'successful',
-                        'danger'  => ['failed', 'reversed'],
-                    ]),
+                Tables\Columns\TextColumn::make('status')
+                    ->badge()
+                    ->color(fn(string $state) => match ($state) {
+                        'successful' => 'success',
+                        'failed', 'reversed' => 'danger',
+                        default => 'warning',
+                    }),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Requested At')
