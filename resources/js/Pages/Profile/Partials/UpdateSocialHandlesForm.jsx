@@ -56,7 +56,7 @@ export default function UpdateSocialHandlesForm() {
                         {/* PLATFORM SELECT DROPDOWN */}
                         <div className="flex-1">
                             <select
-                                className="w-full bg-gray-50 border-gray-100 rounded-2xl px-5 py-4 font-bold text-sm focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all appearance-none cursor-pointer"
+                                className="w-full bg-gray-50 border-gray-100 rounded-2xl px-5 py-4 font-bold text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all appearance-none cursor-pointer"
                                 value={item.platform}
                                 onChange={(e) => {
                                     const value = e.target.value.toLowerCase();
@@ -80,7 +80,7 @@ export default function UpdateSocialHandlesForm() {
                         <div className="flex-[2] relative">
                             <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 font-black">@</span>
                             <input
-                                className="w-full bg-gray-50 border-gray-100 rounded-2xl pl-10 pr-5 py-4 font-bold text-sm focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all"
+                                className="w-full bg-gray-50 border-gray-100 rounded-2xl pl-10 pr-5 py-4 font-bold text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
                                 placeholder="username"
                                 value={item.handle}
                                 onChange={(e) => {
@@ -110,7 +110,7 @@ export default function UpdateSocialHandlesForm() {
                     <button
                         type="button"
                         onClick={() => setData('social_handles', [...data.social_handles, { platform: PLATFORMS[0], handle: '' }])}
-                        className="w-full sm:w-auto px-6 py-4 border-2 border-dashed border-gray-200 text-gray-400 font-black rounded-2xl hover:border-pink-200 hover:text-pink-500 transition-all uppercase text-[10px] tracking-widest"
+                        className="w-full sm:w-auto px-6 py-4 border-2 border-dashed border-gray-200 text-gray-400 font-black rounded-2xl hover:border-brand-200 hover:text-brand-500 transition-all uppercase text-[10px] tracking-widest"
                     >
                         + Add Another
                     </button>
@@ -118,7 +118,7 @@ export default function UpdateSocialHandlesForm() {
                     <button
                         type="submit"
                         disabled={processing}
-                        className="w-full sm:w-auto px-10 py-4 bg-gray-900 text-white font-black rounded-2xl hover:bg-pink-600 transition-all active:scale-95 disabled:opacity-50 uppercase text-[10px] tracking-widest shadow-xl shadow-gray-100"
+                        className="w-full sm:w-auto px-10 py-4 bg-gray-900 text-white font-black rounded-2xl hover:bg-brand-600 transition-all active:scale-95 disabled:opacity-50 uppercase text-[10px] tracking-widest shadow-xl shadow-gray-100"
                     >
                         {processing ? 'Saving...' : 'Save Hub'}
                     </button>

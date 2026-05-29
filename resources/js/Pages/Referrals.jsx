@@ -23,7 +23,7 @@ export default function Referrals({ referrals, totalEarnings }) {
 
                         {/* Referral Link Box */}
                         <div className="bg-white border border-gray-100 p-2 rounded-2xl flex items-center gap-3 shadow-sm">
-                            <code className="text-[10px] font-bold text-purple-600 px-3 uppercase">
+                            <code className="text-[10px] font-bold text-brand-600 px-3 uppercase">
                                 {window.location.origin}/register?ref={auth.user.referral_code}
                             </code>
                             <button
@@ -31,7 +31,7 @@ export default function Referrals({ referrals, totalEarnings }) {
                                     navigator.clipboard.writeText(`${window.location.origin}/register?ref=${auth.user.referral_code}`);
                                     alert('Link Copied!');
                                 }}
-                                className="bg-gray-900 text-white text-[10px] font-black uppercase px-4 py-2 rounded-xl hover:bg-purple-600 transition-all"
+                                className="bg-gray-900 text-white text-[10px] font-black uppercase px-4 py-2 rounded-xl hover:bg-brand-600 transition-all"
                             >
                                 Copy Link
                             </button>
@@ -44,8 +44,8 @@ export default function Referrals({ referrals, totalEarnings }) {
                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Network Size</p>
                             <h3 className="text-3xl font-black text-gray-900">{totalReferred} Users</h3>
                         </div>
-                        <div className="bg-purple-600 p-8 rounded-[2.5rem] shadow-xl shadow-purple-100">
-                            <p className="text-[10px] font-black text-purple-200 uppercase tracking-widest mb-1">Total Commission</p>
+                        <div className="bg-brand-600 p-8 rounded-[2.5rem] shadow-xl shadow-brand-100">
+                            <p className="text-[10px] font-black text-brand-200 uppercase tracking-widest mb-1">Total Commission</p>
                             <h3 className="text-3xl font-black text-white">${totalEarnings.toFixed(2)}</h3>
                         </div>
                         <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm">
@@ -82,7 +82,7 @@ export default function Referrals({ referrals, totalEarnings }) {
                                                 {referral.completed_posts_count || 0}
                                             </td>
                                             <td className="px-8 py-6">
-                                                <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-[10px] font-black uppercase">
+                                                <span className="bg-brand-100 text-brand-700 px-3 py-1 rounded-full text-[10px] font-black uppercase">
                                                     + ${((referral.total_spent || 0) * 0.10).toFixed(2)}
                                                 </span>
                                             </td>

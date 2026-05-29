@@ -78,16 +78,16 @@ export default function PromoterOnboard() {
                     backgroundImage: `url('https://images.unsplash.com/photo-1622566694128-5737e2356bb3?q=80&w=2000&auto=format&fit=crop')`
                 }}
             >
-                <div className="absolute inset-0 bg-indigo-950/70 backdrop-blur-[3px]"></div>
+                <div className="absolute inset-0 bg-gray-900/70 backdrop-blur-[3px]"></div>
 
                 <div className="relative max-w-2xl mx-auto w-full">
 
                     {/* Header Section */}
                     <div className="text-center mb-6 md:mb-8">
                         <h1 className="text-3xl md:text-5xl font-black text-white tracking-tighter uppercase italic drop-shadow-lg">
-                            Join the <span className="text-indigo-400">Elite</span>
+                            Join the <span className="text-brand-400">Elite</span>
                         </h1>
-                        <p className="text-indigo-100 font-bold text-xs md:text-sm uppercase tracking-[0.2em] mt-2 px-4">
+                        <p className="text-brand-100 font-bold text-xs md:text-sm uppercase tracking-[0.2em] mt-2 px-4">
                             Verify your influence to start earning
                         </p>
                     </div>
@@ -101,7 +101,7 @@ export default function PromoterOnboard() {
                                     <label className="block text-[10px] font-black uppercase text-gray-400 tracking-widest mb-2 ml-1">First Name</label>
                                     <input
                                         type="text"
-                                        className="w-full bg-gray-50 border-none rounded-xl md:rounded-2xl py-3 md:py-4 px-6 focus:ring-4 focus:ring-indigo-500/10 focus:bg-white transition-all font-bold text-gray-700"
+                                        className="w-full bg-gray-50 border-none rounded-xl md:rounded-2xl py-3 md:py-4 px-6 focus:ring-4 focus:ring-brand-500/10 focus:bg-white transition-all font-bold text-gray-700"
                                         value={data.first_name}
                                         onChange={(e) => setData('first_name', e.target.value)}
                                         required
@@ -112,7 +112,7 @@ export default function PromoterOnboard() {
                                     <label className="block text-[10px] font-black uppercase text-gray-400 tracking-widest mb-2 ml-1">Last Name</label>
                                     <input
                                         type="text"
-                                        className="w-full bg-gray-50 border-none rounded-xl md:rounded-2xl py-3 md:py-4 px-6 focus:ring-4 focus:ring-indigo-500/10 focus:bg-white transition-all font-bold text-gray-700"
+                                        className="w-full bg-gray-50 border-none rounded-xl md:rounded-2xl py-3 md:py-4 px-6 focus:ring-4 focus:ring-brand-500/10 focus:bg-white transition-all font-bold text-gray-700"
                                         value={data.last_name}
                                         onChange={(e) => setData('last_name', e.target.value)}
                                         required
@@ -123,7 +123,7 @@ export default function PromoterOnboard() {
 
                             {/* Platform Selection - Responsive 2-column on mobile */}
                             <div>
-                                <h3 className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-4 text-center md:text-left">Choose Your Platforms</h3>
+                                <h3 className="text-[10px] font-black text-brand-600 uppercase tracking-widest mb-4 text-center md:text-left">Choose Your Platforms</h3>
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                     {PLATFORMS.map((platform) => {
                                         const isSelected = data.social_handles.hasOwnProperty(platform.key);
@@ -134,14 +134,14 @@ export default function PromoterOnboard() {
                                                 onClick={() => handlePlatformToggle(platform.key)}
                                                 className={`flex flex-col items-center justify-center p-4 rounded-2xl md:rounded-3xl border-2 transition-all duration-300 active:scale-90 ${
                                                     isSelected
-                                                    ? 'border-indigo-600 bg-indigo-50 shadow-inner'
-                                                    : 'border-gray-50 bg-white hover:border-indigo-100'
+                                                    ? 'border-brand-600 bg-brand-50 shadow-inner'
+                                                    : 'border-gray-50 bg-white hover:border-brand-100'
                                                 }`}
                                             >
                                                 <div className={`${platform.color} w-10 h-10 flex items-center justify-center rounded-xl text-xl shadow-lg mb-2`}>
                                                     {platform.icon}
                                                 </div>
-                                                <span className={`text-[10px] font-black uppercase ${isSelected ? 'text-indigo-600' : 'text-gray-400'}`}>
+                                                <span className={`text-[10px] font-black uppercase ${isSelected ? 'text-brand-600' : 'text-gray-400'}`}>
                                                     {platform.label}
                                                 </span>
                                             </button>
@@ -164,7 +164,7 @@ export default function PromoterOnboard() {
                                                 <input
                                                     type="text"
                                                     placeholder={`${platform?.label} @username`}
-                                                    className="w-full bg-gray-50 border-none rounded-xl md:rounded-2xl py-3 md:py-4 pl-12 pr-6 focus:ring-4 focus:ring-indigo-500/10 focus:bg-white transition-all font-bold text-gray-700 text-sm"
+                                                    className="w-full bg-gray-50 border-none rounded-xl md:rounded-2xl py-3 md:py-4 pl-12 pr-6 focus:ring-4 focus:ring-brand-500/10 focus:bg-white transition-all font-bold text-gray-700 text-sm"
                                                     value={data.social_handles[key]}
                                                     onChange={(e) => handleHandleChange(key, e.target.value)}
                                                     required
@@ -183,7 +183,7 @@ export default function PromoterOnboard() {
                                     <input
                                         type="number"
                                         placeholder="e.g. 25000"
-                                        className="w-full bg-indigo-50/50 border-none rounded-xl md:rounded-2xl py-4 md:py-5 pl-14 pr-6 focus:ring-4 focus:ring-indigo-500/10 focus:bg-white transition-all font-black text-xl md:text-2xl text-indigo-600 placeholder:text-indigo-200"
+                                        className="w-full bg-brand-50/50 border-none rounded-xl md:rounded-2xl py-4 md:py-5 pl-14 pr-6 focus:ring-4 focus:ring-brand-500/10 focus:bg-white transition-all font-black text-xl md:text-2xl text-brand-600 placeholder:text-brand-200"
                                         value={data.follower_count}
                                         onChange={(e) => setData('follower_count', e.target.value)}
                                         required
@@ -194,7 +194,7 @@ export default function PromoterOnboard() {
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-4 md:py-5 rounded-xl md:rounded-[2rem] shadow-xl md:shadow-2xl shadow-indigo-500/30 transition-all transform active:scale-[0.97] disabled:opacity-50 text-xs md:text-sm uppercase tracking-widest"
+                                className="w-full bg-brand-600 hover:bg-brand-700 text-white font-black py-4 md:py-5 rounded-xl md:rounded-[2rem] shadow-xl md:shadow-2xl shadow-brand-500/30 transition-all transform active:scale-[0.97] disabled:opacity-50 text-xs md:text-sm uppercase tracking-widest"
                             >
                                 {processing ? 'Verifying...' : 'Complete My Profile'}
                             </button>

@@ -11,8 +11,8 @@ export default function FundSuccess({ campaign }) {
 
                     {/* Celebration Icon */}
                     <div className="mb-8 relative">
-                        <div className="absolute inset-0 bg-green-100 scale-150 rounded-full blur-3xl opacity-50 animate-pulse"></div>
-                        <div className="relative inline-flex items-center justify-center w-24 h-24 bg-green-500 rounded-full shadow-2xl shadow-green-200">
+                        <div className="absolute inset-0 bg-brand-100 scale-150 rounded-full blur-3xl opacity-50 animate-pulse"></div>
+                        <div className="relative inline-flex items-center justify-center w-24 h-24 bg-brand-500 rounded-full shadow-2xl shadow-brand-200">
                             <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
                             </svg>
@@ -21,7 +21,7 @@ export default function FundSuccess({ campaign }) {
 
                     {/* Success Content */}
                     <h1 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight mb-4">
-                        Payment <span className="text-green-600">Confirmed!</span>
+                        Payment <span className="text-brand-600">Confirmed!</span>
                     </h1>
 
                     <p className="text-gray-500 font-medium leading-relaxed mb-8">
@@ -46,7 +46,7 @@ export default function FundSuccess({ campaign }) {
                     <div className="flex flex-col gap-4">
                         <Link
                             href={route('campaigns.index')}
-                            className="w-full bg-gray-900 hover:bg-pink-600 text-white font-black py-4 rounded-2xl shadow-xl transition-all uppercase tracking-widest text-sm"
+                            className="w-full bg-gray-900 hover:bg-brand-600 text-white font-black py-4 rounded-2xl shadow-xl transition-all uppercase tracking-widest text-sm"
                         >
                             Go to Dashboard
                         </Link>

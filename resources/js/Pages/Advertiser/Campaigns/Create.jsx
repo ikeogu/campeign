@@ -94,11 +94,11 @@ export default function Create({ auth }) {
             <div className="max-w-4xl mx-auto pb-20 px-4">
                 <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
                     <div>
-                        <Link href={route('campaigns.index')} className="text-pink-600 font-black text-[10px] uppercase tracking-[0.2em] flex items-center gap-2 mb-2">
+                        <Link href={route('campaigns.index')} className="text-brand-600 font-black text-[10px] uppercase tracking-[0.2em] flex items-center gap-2 mb-2">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg>
                             Cancel & Return
                         </Link>
-                        <h1 className="text-4xl font-black text-gray-900 tracking-tight">Launch <span className="text-pink-600">Gig</span></h1>
+                        <h1 className="text-4xl font-black text-gray-900 tracking-tight">Launch <span className="text-brand-600">Gig</span></h1>
                     </div>
                 </div>
 
@@ -106,30 +106,30 @@ export default function Create({ auth }) {
                     <div className="lg:col-span-2 space-y-6">
 
                         {/* Basic Info & Category */}
-                        <div className="bg-white p-6 sm:p-8 rounded-[2.5rem] border border-pink-50 shadow-sm space-y-8">
+                        <div className="bg-white p-6 sm:p-8 rounded-[2.5rem] border border-brand-50 shadow-sm space-y-8">
                             <div>
                                 <label className="block text-[10px] font-black uppercase text-gray-400 tracking-widest mb-2">Campaign Title</label>
                                 <input
                                     type="text"
                                     placeholder="e.g. Summer Sales Blast"
-                                    className="w-full bg-gray-50 border-none rounded-2xl py-4 px-6 focus:ring-2 focus:ring-pink-500 font-bold text-gray-700 placeholder:text-gray-300"
+                                    className="w-full bg-gray-50 border-none rounded-2xl py-4 px-6 focus:ring-2 focus:ring-brand-500 font-bold text-gray-700 placeholder:text-gray-300"
                                     value={data.title}
                                     onChange={(e) => setData('title', e.target.value)}
                                 />
-                                {errors.title && <p className="mt-2 text-xs text-pink-600 font-bold">{errors.title}</p>}
+                                {errors.title && <p className="mt-2 text-xs text-brand-600 font-bold">{errors.title}</p>}
                             </div>
 
                             {/* CATEGORY SELECTION */}
                             {/* CATEGORY SELECTION - COMPACT SEARCHABLE VERSION */}
                             <div>
-                                <label className="block text-[10px] font-black uppercase text-pink-600 tracking-widest mb-4">
+                                <label className="block text-[10px] font-black uppercase text-brand-600 tracking-widest mb-4">
                                     Campaign Category
                                 </label>
                                 <div className="relative group">
                                     <select
                                         value={data.category}
                                         onChange={(e) => setData('category', e.target.value)}
-                                        className="w-full bg-gray-50 border-none rounded-2xl py-4 px-6 focus:ring-2 focus:ring-pink-500 font-bold text-gray-700 appearance-none cursor-pointer"
+                                        className="w-full bg-gray-50 border-none rounded-2xl py-4 px-6 focus:ring-2 focus:ring-brand-500 font-bold text-gray-700 appearance-none cursor-pointer"
                                     >
                                         <option value="" className="text-gray-300">Select Industry...</option>
                                         {categories.map((cat) => (
@@ -140,7 +140,7 @@ export default function Create({ auth }) {
                                     </select>
 
                                     {/* Custom Chevron for the Select Box */}
-                                    <div className="absolute inset-y-0 right-0 flex items-center pr-6 pointer-events-none text-gray-400 group-hover:text-pink-500 transition-colors">
+                                    <div className="absolute inset-y-0 right-0 flex items-center pr-6 pointer-events-none text-gray-400 group-hover:text-brand-500 transition-colors">
                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M19 9l-7 7-7-7" />
                                         </svg>
@@ -156,15 +156,15 @@ export default function Create({ auth }) {
                                             onClick={() => setData('category', pop)}
                                             className={`px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-tight transition-all border ${
                                                 data.category === pop
-                                                ? 'bg-pink-600 border-pink-600 text-white'
-                                                : 'bg-white border-gray-100 text-gray-400 hover:border-pink-200'
+                                                ? 'bg-brand-600 border-brand-600 text-white'
+                                                : 'bg-white border-gray-100 text-gray-400 hover:border-brand-200'
                                             }`}
                                         >
                                             {pop}
                                         </button>
                                     ))}
                                 </div>
-                                {errors.category && <p className="mt-2 text-xs text-pink-600 font-bold">{errors.category}</p>}
+                                {errors.category && <p className="mt-2 text-xs text-brand-600 font-bold">{errors.category}</p>}
                             </div>
 
                             <div>
@@ -172,7 +172,7 @@ export default function Create({ auth }) {
                                 <textarea
                                     rows="4"
                                     placeholder="Tell promoters what to write and where to post..."
-                                    className="w-full bg-gray-50 border-none rounded-2xl py-4 px-6 focus:ring-2 focus:ring-pink-500 font-medium text-gray-700"
+                                    className="w-full bg-gray-50 border-none rounded-2xl py-4 px-6 focus:ring-2 focus:ring-brand-500 font-medium text-gray-700"
                                     value={data.description}
                                     onChange={(e) => setData('description', e.target.value)}
                                 />
@@ -180,11 +180,11 @@ export default function Create({ auth }) {
                         </div>
 
                         {/* Targeting Card */}
-                        <div className="bg-white p-6 sm:p-8 rounded-[2.5rem] border border-pink-50 shadow-sm space-y-8">
+                        <div className="bg-white p-6 sm:p-8 rounded-[2.5rem] border border-brand-50 shadow-sm space-y-8">
                             <h3 className="text-sm font-black text-gray-900 uppercase tracking-tight">Targeting & Reach</h3>
 
                             <div>
-                                <p className="text-[10px] font-black uppercase text-pink-600 tracking-widest mb-4">Select Platforms</p>
+                                <p className="text-[10px] font-black uppercase text-brand-600 tracking-widest mb-4">Select Platforms</p>
                                 <div className="flex flex-wrap gap-2">
                                     {['Facebook', 'YouTube', 'Instagram', 'WhatsApp', 'TikTok', 'Twitter'].map((p) => {
                                         const id = p.toLowerCase();
@@ -197,7 +197,7 @@ export default function Create({ auth }) {
                                                     const current = [...data.platforms];
                                                     setData('platforms', isChecked ? current.filter(x => x !== id) : [...current, id]);
                                                 }}
-                                                className={`px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border-2 ${isChecked ? 'bg-pink-600 border-pink-600 text-white shadow-lg' : 'bg-white border-gray-100 text-gray-400 hover:border-pink-200'}`}
+                                                className={`px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border-2 ${isChecked ? 'bg-brand-600 border-brand-600 text-white shadow-lg' : 'bg-white border-gray-100 text-gray-400 hover:border-brand-200'}`}
                                             >
                                                 {p}
                                             </button>
@@ -207,14 +207,14 @@ export default function Create({ auth }) {
                             </div>
 
                             <div>
-                                <p className="text-[10px] font-black uppercase text-pink-600 tracking-widest mb-4">Minimum Follower Requirement</p>
+                                <p className="text-[10px] font-black uppercase text-brand-600 tracking-widest mb-4">Minimum Follower Requirement</p>
                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                                     {followerRanges.map((range) => (
                                         <button
                                             key={range.value}
                                             type="button"
                                             onClick={() => setData('min_followers', range.value)}
-                                            className={`py-3 rounded-xl text-[10px] font-black uppercase transition-all border-2 ${data.min_followers === range.value ? 'bg-gray-900 border-gray-900 text-white' : 'bg-white border-gray-100 text-gray-400 hover:bg-pink-50'}`}
+                                            className={`py-3 rounded-xl text-[10px] font-black uppercase transition-all border-2 ${data.min_followers === range.value ? 'bg-gray-900 border-gray-900 text-white' : 'bg-white border-gray-100 text-gray-400 hover:bg-brand-50'}`}
                                         >
                                             {range.label}
                                         </button>
@@ -224,7 +224,7 @@ export default function Create({ auth }) {
                         </div>
 
                         {/* Visuals Card */}
-                        <div className="bg-white p-6 rounded-[2.5rem] border-2 border-dashed border-pink-100">
+                        <div className="bg-white p-6 rounded-[2.5rem] border-2 border-dashed border-brand-100">
                             <label className="block text-[10px] font-black uppercase text-gray-400 tracking-widest mb-4 text-center">Campaign Creative Assets</label>
                             <input
                                 type="file"
@@ -234,12 +234,12 @@ export default function Create({ auth }) {
                             />
 
                             {errors.files && (
-                                <p className="mt-2 text-xs text-pink-600 font-bold">{errors.files}</p>
+                                <p className="mt-2 text-xs text-brand-600 font-bold">{errors.files}</p>
                             )}
                             {Object.keys(errors)
                                 .filter((key) => key.startsWith('files.'))
                                 .map((key) => (
-                                    <p key={key} className="mt-2 text-xs text-pink-600 font-bold">{errors[key]}</p>
+                                    <p key={key} className="mt-2 text-xs text-brand-600 font-bold">{errors[key]}</p>
                                 ))
                             }
 
@@ -251,7 +251,7 @@ export default function Create({ auth }) {
                                             <button
                                                 type="button"
                                                 onClick={() => removeImage(index)}
-                                                className="absolute -top-2 -right-2 bg-rose-500 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform"
+                                                className="absolute -top-2 -right-2 bg-brand-500 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform"
                                             >
                                                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M6 18L18 6M6 6l12 12" /></svg>
                                             </button>
@@ -265,7 +265,7 @@ export default function Create({ auth }) {
                     {/* RIGHT COLUMN: Budget Summary */}
                     <div className="space-y-6">
                         <div className="bg-gray-900 rounded-[2.5rem] p-8 text-white shadow-2xl sticky top-8">
-                            <h3 className="text-xs font-black text-pink-500 uppercase tracking-[0.2em] mb-8">Budget Summary</h3>
+                            <h3 className="text-xs font-black text-brand-500 uppercase tracking-[0.2em] mb-8">Budget Summary</h3>
 
                             <div className="space-y-6">
                                 <div className="space-y-4">
@@ -273,7 +273,7 @@ export default function Create({ auth }) {
                                         <label className="block text-[10px] font-black text-gray-500 uppercase mb-2 tracking-widest">Payout Per Share (₦)</label>
                                         <input
                                             type="number"
-                                            className="w-full bg-white/5 border-white/10 rounded-xl py-3 px-4 text-xl font-black text-white focus:ring-pink-500"
+                                            className="w-full bg-white/5 border-white/10 rounded-xl py-3 px-4 text-xl font-black text-white focus:ring-brand-500"
                                             value={data.payout}
                                             onChange={(e) => setData('payout', e.target.value)}
                                         />
@@ -282,7 +282,7 @@ export default function Create({ auth }) {
                                         <label className="block text-[10px] font-black text-gray-500 uppercase mb-2 tracking-widest">Target Share Count</label>
                                         <input
                                             type="number"
-                                            className="w-full bg-white/5 border-white/10 rounded-xl py-3 px-4 text-xl font-black text-white focus:ring-pink-500"
+                                            className="w-full bg-white/5 border-white/10 rounded-xl py-3 px-4 text-xl font-black text-white focus:ring-brand-500"
                                             value={data.target_shares}
                                             onChange={(e) => setData('target_shares', e.target.value)}
                                         />
@@ -296,7 +296,7 @@ export default function Create({ auth }) {
                                     </div>
                                     <div className="flex justify-between">
                                         <span className="text-gray-400">Platform Fee (10%)</span>
-                                        <span className="text-pink-500">+₦{data.management_fee.toLocaleString()}</span>
+                                        <span className="text-brand-500">+₦{data.management_fee.toLocaleString()}</span>
                                     </div>
                                 </div>
 
@@ -308,7 +308,7 @@ export default function Create({ auth }) {
                                 <button
                                     type="submit"
                                     disabled={processing}
-                                    className="w-full bg-pink-600 hover:bg-pink-700 py-5 rounded-2xl font-black uppercase text-xs tracking-widest transition-all transform active:scale-95 disabled:opacity-50 shadow-xl shadow-pink-900/20"
+                                    className="w-full bg-brand-600 hover:bg-brand-700 py-5 rounded-2xl font-black uppercase text-xs tracking-widest transition-all transform active:scale-95 disabled:opacity-50 shadow-xl shadow-brand-900/20"
                                 >
                                     {processing ? 'Processing...' : 'Launch Campaign'}
                                 </button>

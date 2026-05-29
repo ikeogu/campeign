@@ -1,43 +1,67 @@
-export default function ApplicationLogo(props) {
+/**
+ * ApplicationLogo
+ *
+ * Props:
+ *   className  – Tailwind sizing classes (e.g. "h-12 w-auto")
+ *   inverse    – render in white (for use on brand-600 / dark backgrounds)
+ *   compact    – icon-mark only (48×48 square)
+ */
+export default function ApplicationLogo({ className = '', inverse = false, compact = false, ...props }) {
+    const orange  = inverse ? '#ffffff' : '#CC5500';
+    const navy    = inverse ? '#ffffff' : '#1a1a4e';
+    const iconBg  = inverse ? 'rgba(255,255,255,0.25)' : '#CC5500';
+    const iconFg  = inverse ? '#CC5500' : '#ffffff';
+
+    if (compact) {
+        return (
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+                <rect width="48" height="48" rx="12" fill={iconBg} />
+                <text x="24" y="34" fontFamily="'Arial Black',Arial,sans-serif" fontWeight="900" fontSize="22" fill={iconFg} textAnchor="middle">GC</text>
+            </svg>
+        );
+    }
+
     return (
         <svg
-            {...props}
-            viewBox="0 0 100 100"
+            viewBox="0 0 260 64"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
+            className={className}
+            {...props}
         >
-            {/* Gradient Definition */}
-            <defs>
-                <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#9c1b55ff" /> {/* pink-600 */}
-                    <stop offset="100%" stopColor="#2b24a3ff" /> {/* indigo-600 */}
-                </linearGradient>
-            </defs>
+            {/* Icon mark */}
+            <rect x="0" y="2" width="60" height="60" rx="14" fill={iconBg} />
+            <text
+                x="30" y="44"
+                fontFamily="'Arial Black', Arial, sans-serif"
+                fontWeight="900"
+                fontSize="28"
+                fill={iconFg}
+                textAnchor="middle"
+            >GC</text>
 
-            {/* Background Shape: Soft Rounded Square */}
-            <rect width="100" height="100" rx="30" fill="url(#logoGradient)" />
+            {/* Three dots */}
+            <circle cx="76"  cy="32" r="4.5" fill={orange} />
+            <circle cx="89"  cy="32" r="4.5" fill={orange} />
+            <circle cx="102" cy="32" r="4.5" fill={orange} />
 
-            {/* Icon: Modern Share Node */}
-            {/* Circle 1: The Payout Source */}
-            <circle cx="35" cy="50" r="8" fill="white" />
-
-            {/* Lines: The Distribution/Share paths */}
-            <path
-                d="M42 46L58 34M42 54L58 66"
-                stroke="white"
-                strokeWidth="6"
-                strokeLinecap="round"
-            />
-
-            {/* Circle 2 & 3: The Social Circles */}
-            <circle cx="65" cy="30" r="8" fill="white" fillOpacity="0.9" />
-            <circle cx="65" cy="70" r="8" fill="white" fillOpacity="0.9" />
- 
-            {/* Accent Sparkle: Representing Earnings */}
-            <path
-                d="M80 45L82 50L87 52L82 54L80 59L78 54L73 52L78 50L80 45Z"
-                fill="#FDE047"
-            />
+            {/* Wordmark */}
+            <text
+                x="114" y="24"
+                fontFamily="'Arial Black', Arial, sans-serif"
+                fontWeight="900"
+                fontSize="14"
+                fill={navy}
+                letterSpacing="2"
+            >GIGS &amp;</text>
+            <text
+                x="114" y="44"
+                fontFamily="'Arial Black', Arial, sans-serif"
+                fontWeight="900"
+                fontSize="14"
+                fill={orange}
+                letterSpacing="2"
+            >CAMPAIGNS</text>
         </svg>
     );
 }

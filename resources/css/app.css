@@ -1,3 +1,20 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    :root {
+        --brand: #CC5500;
+        --brand-light: #FF8C2E;
+        --brand-dark: #993F00;
+    }
+
+    ::selection {
+        background-color: #ffe4cc;
+        color: #993F00;
+    }
+
+    /* Scrollbar hide utility */
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+}

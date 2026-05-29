@@ -66,13 +66,13 @@ export default function Withdraw({ banks }) {
                     {/* Header: Available Balance */}
                     <div className="mb-8">
                         <h2 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Available Wallet Balance</h2>
-                        <p className="text-4xl font-black text-green-600 tracking-tighter">₦{wallet.toLocaleString()}</p>
+                        <p className="text-4xl font-black text-brand-600 tracking-tighter">₦{wallet.toLocaleString()}</p>
                     </div>
 
                     {flash?.error && <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-2xl font-bold text-sm">⚠️ {flash.error}</div>}
                     {flash?.message && (
-                        <div className="mb-6 p-4 bg-green-50 border border-green-200 text-green-700 rounded-2xl font-bold text-sm flex items-center gap-3">
-                            <div className="bg-green-500 text-white rounded-full p-1">
+                        <div className="mb-6 p-4 bg-brand-50 border border-brand-200 text-brand-700 rounded-2xl font-bold text-sm flex items-center gap-3">
+                            <div className="bg-brand-500 text-white rounded-full p-1">
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
                             </div>
                             {flash.message}
@@ -93,7 +93,7 @@ export default function Withdraw({ banks }) {
                                 <button
                                     type="button"
                                     onClick={() => setData('amount', Math.floor(wallet).toString())}
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-green-600 bg-green-50 px-3 py-1.5 rounded-xl hover:bg-green-100 transition-colors uppercase"
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-brand-600 bg-brand-50 px-3 py-1.5 rounded-xl hover:bg-brand-100 transition-colors uppercase"
                                 >
                                     Max
                                 </button>
@@ -115,7 +115,7 @@ export default function Withdraw({ banks }) {
                             <label className="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1">Account Number</label>
                             <input type="text" maxLength="10" className="w-full bg-gray-50 border-gray-100 rounded-2xl px-5 py-4 font-bold focus:ring-green-500" value={data.account_number} onChange={e => setData('account_number', e.target.value)} placeholder="10-digit account number" />
                             {isValidating && <p className="text-[10px] text-blue-500 font-bold mt-2 animate-pulse">Verifying...</p>}
-                            {accountName && <p className={`text-[10px] mt-2 font-black uppercase tracking-widest ${accountName.includes('Could not') ? 'text-red-500' : 'text-green-600'}`}>{accountName}</p>}
+                            {accountName && <p className={`text-[10px] mt-2 font-black uppercase tracking-widest ${accountName.includes('Could not') ? 'text-red-500' : 'text-brand-600'}`}>{accountName}</p>}
                         </div>
 
                         <div>
@@ -135,7 +135,7 @@ export default function Withdraw({ banks }) {
                                 </div>
                                 <div className="flex justify-between items-center pt-3 border-t border-gray-200">
                                     <span className="text-gray-900 font-black text-[11px] uppercase tracking-widest">Amount You Receive</span>
-                                    <span className={`font-black text-lg ${isOverBalance ? 'text-red-600' : 'text-green-600'}`}>
+                                    <span className={`font-black text-lg ${isOverBalance ? 'text-red-600' : 'text-brand-600'}`}>
                                         ₦{netPayout.toLocaleString(undefined, {minimumFractionDigits: 2})}
                                     </span>
                                 </div>
@@ -145,7 +145,7 @@ export default function Withdraw({ banks }) {
                         <button
                             type="submit"
                             disabled={processing || !accountName || accountName.includes('Could not') || isValidating || isOverBalance || inputAmount <= 0}
-                            className="w-full py-5 bg-green-600 text-white font-black rounded-2xl hover:bg-green-700 shadow-xl transition-all active:scale-95 disabled:opacity-50 uppercase text-[10px] tracking-widest"
+                            className="w-full py-5 bg-brand-600 text-white font-black rounded-2xl hover:bg-brand-700 shadow-xl transition-all active:scale-95 disabled:opacity-50 uppercase text-[10px] tracking-widest"
                         >
                             {processing ? 'Processing...' : 'Confirm Withdrawal'}
                         </button>

@@ -5,10 +5,10 @@ import { useState, useEffect } from 'react';
 const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
         case 'active':
-        case 'live': return 'bg-green-100 text-green-800 border-green-200';
+        case 'live': return 'bg-brand-100 text-green-800 border-brand-200';
         case 'pending': return 'bg-amber-100 text-amber-800 border-amber-200';
         case 'paused': return 'bg-gray-100 text-gray-500 border-gray-200';
-        default: return 'bg-pink-100 text-pink-800 border-pink-200';
+        default: return 'bg-brand-100 text-brand-800 border-brand-200';
     }
 };
 
@@ -18,8 +18,8 @@ const StatusBadge = ({ status }) => {
         <span className={`inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full text-[8px] font-black uppercase border ${getStatusColor(status)}`}>
             {isLive && (
                 <span className="relative flex h-1.5 w-1.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-600"></span>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-500 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-brand-600"></span>
                 </span>
             )}
             {status}
@@ -67,7 +67,7 @@ export default function CampaignIndex() {
             {showToast && (flash?.success || flash?.error) && (
                 <div className="fixed top-24 right-4 z-[200] animate-in slide-in-from-right duration-300 px-4 w-full max-w-sm">
                     <div className={`${toastType === 'error' ? 'bg-red-600' : 'bg-gray-900'} text-white px-6 py-4 rounded-2xl shadow-2xl border border-white/10 flex items-center gap-4`}>
-                        <div className={`shrink-0 w-8 h-8 ${toastType === 'error' ? 'bg-white/20' : 'bg-green-500'} rounded-full flex items-center justify-center`}>
+                        <div className={`shrink-0 w-8 h-8 ${toastType === 'error' ? 'bg-white/20' : 'bg-brand-500'} rounded-full flex items-center justify-center`}>
                             {toastType === 'error'
                                 ? <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
                                 : <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
@@ -87,10 +87,10 @@ export default function CampaignIndex() {
                     {/* HEADER */}
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-6 pb-6 border-b border-gray-100">
                         <div>
-                            <h1 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight leading-none">Your <span className="text-pink-600">Campaigns</span></h1>
+                            <h1 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight leading-none">Your <span className="text-brand-600">Campaigns</span></h1>
                             <p className="text-gray-500 mt-2 font-medium italic text-[11px]">Unused balances are refunded to your wallet upon deletion.</p>
                         </div>
-                        <Link href={route('campaigns.create')} className="w-full md:w-auto text-center bg-gray-900 hover:bg-pink-600 text-white font-black px-8 py-4 rounded-2xl shadow-xl transition-all active:scale-95 text-xs uppercase tracking-widest">
+                        <Link href={route('campaigns.create')} className="w-full md:w-auto text-center bg-gray-900 hover:bg-brand-600 text-white font-black px-8 py-4 rounded-2xl shadow-xl transition-all active:scale-95 text-xs uppercase tracking-widest">
                             Create Campaign
                         </Link>
                     </div>
@@ -110,7 +110,7 @@ export default function CampaignIndex() {
                                             <h3 className="text-sm font-black text-gray-900 uppercase leading-tight">{c.title}</h3>
                                             <StatusBadge status={c.status} />
                                         </div>
-                                        <p className="text-[10px] font-black text-pink-600 bg-pink-50 px-2 py-1 rounded-lg">
+                                        <p className="text-[10px] font-black text-brand-600 bg-brand-50 px-2 py-1 rounded-lg">
                                             {formatCurrency(c.payout)}/share
                                         </p>
                                     </div>
@@ -122,14 +122,14 @@ export default function CampaignIndex() {
                                             <span className="text-[9px] font-black text-gray-900 uppercase">{c.submissions_count} / {c.target_shares}</span>
                                         </div>
                                         <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                                            <div className={`h-full transition-all duration-700 ${isPaused ? 'bg-gray-300' : 'bg-pink-600'}`} style={{ width: `${progress}%` }} />
+                                            <div className={`h-full transition-all duration-700 ${isPaused ? 'bg-gray-300' : 'bg-brand-600'}`} style={{ width: `${progress}%` }} />
                                         </div>
                                     </div>
 
                                     {/* Actions */}
                                     <div className="grid grid-cols-2 gap-2">
                                         {(isPending || isPaused) && (
-                                            <Link href={route('campaigns.fund', c.id)} className="col-span-2 bg-green-600 text-white text-center py-3 rounded-xl text-[10px] font-black uppercase tracking-widest mb-1">
+                                            <Link href={route('campaigns.fund', c.id)} className="col-span-2 bg-brand-600 text-white text-center py-3 rounded-xl text-[10px] font-black uppercase tracking-widest mb-1">
                                                 Fund Campaign
                                             </Link>
                                         )}
@@ -178,7 +178,7 @@ export default function CampaignIndex() {
                                             </td>
                                             <td className="px-6 py-6">
                                                 <div className="w-48 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                                                    <div className={`h-full transition-all duration-500 ${isPaused ? 'bg-gray-300' : 'bg-pink-600'}`}
+                                                    <div className={`h-full transition-all duration-500 ${isPaused ? 'bg-gray-300' : 'bg-brand-600'}`}
                                                          style={{ width: `${Math.min(100, ((c.submissions_count || 0) / c.target_shares) * 100)}%` }} />
                                                 </div>
                                                 <p className="text-[9px] font-black mt-2 text-gray-400 uppercase">{c.submissions_count} / {c.target_shares} Shares</p>
@@ -186,15 +186,15 @@ export default function CampaignIndex() {
                                             <td className="px-6 py-6">
                                                 <div className="flex justify-center items-center gap-2">
                                                     {(isPending || isPaused) && (
-                                                        <Link href={route('campaigns.fund', c.id)} className="bg-green-600 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase hover:bg-green-700 shadow-sm transition-all">
+                                                        <Link href={route('campaigns.fund', c.id)} className="bg-brand-600 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase hover:bg-brand-700 shadow-sm transition-all">
                                                             Fund
                                                         </Link>
                                                     )}
-                                                    <Link href={route('campaigns.submissions.index', c.id)} className="bg-gray-900 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase hover:bg-pink-600 transition-all">
+                                                    <Link href={route('campaigns.submissions.index', c.id)} className="bg-gray-900 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase hover:bg-brand-600 transition-all">
                                                         Review
                                                     </Link>
                                                     {!isPending && (
-                                                        <button onClick={() => openModal(c.id, isPaused ? 'resume' : 'pause', c.title)} className={`p-2 rounded-xl border transition-all ${isPaused ? 'bg-white text-green-600 border-green-200' : 'bg-gray-50 text-gray-500 border-gray-100'}`}>
+                                                        <button onClick={() => openModal(c.id, isPaused ? 'resume' : 'pause', c.title)} className={`p-2 rounded-xl border transition-all ${isPaused ? 'bg-white text-brand-600 border-brand-200' : 'bg-gray-50 text-gray-500 border-gray-100'}`}>
                                                             {isPaused ? <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" /></svg> : <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" /></svg>}
                                                         </button>
                                                     )}
@@ -223,18 +223,43 @@ export default function CampaignIndex() {
                             </h3>
                         </div>
                         <div className="p-8 text-center">
-                            <p className="text-gray-900 font-black uppercase text-[10px] tracking-widest mb-2">{modal.title}</p>
-                            <p className="text-gray-500 text-[11px] font-bold leading-relaxed">
-                                {modal.type === 'delete'
-                                    ? "Ending this campaign will instantly refund the unused budget back to your wallet."
-                                    : `Are you sure you want to ${modal.type} this campaign?`}
-                            </p>
-                            <div className="mt-8 flex flex-col gap-2">
+                            <p className="text-gray-900 font-black uppercase text-[10px] tracking-widest mb-3">{modal.title}</p>
+
+                            {modal.type === 'delete' ? (
+                                <>
+                                    <p className="text-gray-500 text-[11px] font-bold leading-relaxed mb-4">
+                                        This campaign will be permanently deleted.
+                                    </p>
+                                    <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-left mb-2">
+                                        <p className="text-amber-800 font-black text-[10px] uppercase tracking-widest mb-2">Refund Policy</p>
+                                        <ul className="space-y-1.5">
+                                            <li className="text-amber-700 text-[11px] font-medium flex items-start gap-2">
+                                                <span className="mt-0.5">✓</span>
+                                                <span>Unused campaign balance will be refunded to your wallet</span>
+                                            </li>
+                                            <li className="text-amber-700 text-[11px] font-medium flex items-start gap-2">
+                                                <span className="mt-0.5">✗</span>
+                                                <span><strong>2% cancellation fee</strong> is deducted from the unused balance</span>
+                                            </li>
+                                            <li className="text-amber-700 text-[11px] font-medium flex items-start gap-2">
+                                                <span className="mt-0.5">✗</span>
+                                                <span>Payouts already made to promoters are not refundable</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </>
+                            ) : (
+                                <p className="text-gray-500 text-[11px] font-bold leading-relaxed">
+                                    Are you sure you want to {modal.type} this campaign?
+                                </p>
+                            )}
+
+                            <div className="mt-6 flex flex-col gap-2">
                                 <button onClick={handleConfirm} className={`w-full py-4 text-white rounded-2xl font-black text-xs uppercase tracking-widest ${modal.type === 'delete' ? 'bg-red-600 shadow-red-100' : 'bg-gray-900 shadow-gray-100'} shadow-xl transition-all active:scale-95`}>
-                                    Confirm & Proceed
+                                    {modal.type === 'delete' ? 'Delete & Refund' : 'Confirm & Proceed'}
                                 </button>
                                 <button onClick={closeModal} className="w-full py-2 text-gray-400 font-bold text-[10px] uppercase tracking-widest">
-                                    Cancel
+                                    Keep Campaign
                                 </button>
                             </div>
                         </div>

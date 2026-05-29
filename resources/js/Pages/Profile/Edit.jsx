@@ -37,14 +37,14 @@ export default function Edit({ mustVerifyEmail, status }) {
                 >
                     <div className="bg-gray-900 border border-white/10 shadow-2xl rounded-3xl p-4 pr-12 relative overflow-hidden group">
                         {/* Progress bar background */}
-                        <div className="absolute bottom-0 left-0 h-1 bg-pink-600 animate-progress" />
+                        <div className="absolute bottom-0 left-0 h-1 bg-brand-600 animate-progress" />
 
                         <div className="flex items-center gap-4">
-                            <div className="flex-shrink-0 w-10 h-10 bg-pink-600/10 rounded-2xl flex items-center justify-center">
+                            <div className="flex-shrink-0 w-10 h-10 bg-brand-600/10 rounded-2xl flex items-center justify-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#db2777" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                             </div>
                             <div>
-                                <p className="text-[10px] font-black text-pink-500 uppercase tracking-widest leading-none mb-1">Success</p>
+                                <p className="text-[10px] font-black text-brand-500 uppercase tracking-widest leading-none mb-1">Success</p>
                                 <p className="text-sm font-bold text-white tracking-tight">
                                     {flash?.message || flash?.success || status || "Changes saved successfully!"}
                                 </p>

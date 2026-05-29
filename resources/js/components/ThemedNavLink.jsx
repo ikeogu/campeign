@@ -6,8 +6,8 @@ const ThemedNavLink = ({ href, active, children, icon }) => {
             href={href}
             className={`flex items-center gap-3 px-4 py-3 rounded-2xl font-bold transition-all duration-300 ${
                 active
-                ? 'bg-pink-600 text-white shadow-lg shadow-pink-200 translate-x-1'
-                : 'text-gray-500 hover:bg-pink-50 hover:text-pink-600'
+                ? 'bg-brand-600 text-white shadow-lg shadow-brand-200 translate-x-1'
+                : 'text-gray-500 hover:bg-brand-50 hover:text-brand-600'
             }`}
         >
             <span className="text-xl">{icon}</span>

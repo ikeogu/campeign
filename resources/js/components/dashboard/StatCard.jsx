@@ -6,7 +6,7 @@ export default function StatCard({ icon: Icon, title, value, change, color }) {
           <Icon className="w-6 h-6 text-white" />
         </div>
         {change !== undefined && (
-          <span className={`text-sm font-semibold ${change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+          <span className={`text-sm font-semibold ${change >= 0 ? 'text-brand-600' : 'text-red-600'}`}>
             {change >= 0 ? '+' : ''}{change}%
           </span>
         )}

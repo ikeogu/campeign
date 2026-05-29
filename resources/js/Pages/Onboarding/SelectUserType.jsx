@@ -14,7 +14,7 @@ export default function SelectUserType() {
                 }}
             >
                 {/* Dark Gradient Overlay for high contrast */}
-                <div className="absolute inset-0 bg-gradient-to-br from-slate-900/90 via-slate-900/80 to-indigo-900/70 backdrop-blur-[2px]"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-gray-900/90 via-gray-900/80 to-brand-900/60 backdrop-blur-[2px]"></div>
 
                 <div className="relative flex flex-col items-center justify-center flex-1 px-4 py-16 z-10">
 
@@ -24,9 +24,9 @@ export default function SelectUserType() {
                             The Ecosystem
                         </span>
                         <h1 className="text-5xl md:text-6xl font-black text-white mb-6 tracking-tighter">
-                            Your Journey <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-300">Starts Here.</span>
+                            Your Journey <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-brand-300">Starts Here.</span>
                         </h1>
-                        <p className="text-indigo-100/80 text-lg max-w-2xl mx-auto leading-relaxed font-medium">
+                        <p className="text-brand-100/80 text-lg max-w-2xl mx-auto leading-relaxed font-medium">
                             Join the marketplace where brands meet influence. Choose your role to access your personalized dashboard.
                         </p>
                     </div>
@@ -48,7 +48,7 @@ export default function SelectUserType() {
                                 <p className="text-slate-300 leading-relaxed mb-8 text-lg">
                                     Monetize your social reach. Earn <span className="text-green-400 font-black italic">Unlimited</span> per task.
                                 </p>
-                                <div className="inline-flex items-center text-xs font-black uppercase tracking-widest text-white bg-green-600 px-8 py-4 rounded-2xl group-hover:bg-green-500 transition-all duration-300 shadow-xl shadow-green-900/20">
+                                <div className="inline-flex items-center text-xs font-black uppercase tracking-widest text-white bg-brand-600 px-8 py-4 rounded-2xl group-hover:bg-brand-500 transition-all duration-300 shadow-xl shadow-green-900/20">
                                     Open Wallet
                                     <svg className="w-4 h-4 ml-2 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" />
@@ -62,19 +62,19 @@ export default function SelectUserType() {
                         {/* ADVERTISER CARD */}
                         <Link
                             href={route('onboarding.advertiser')}
-                            className="group relative p-10 bg-white/5 backdrop-blur-xl rounded-[3rem] transition-all duration-500 hover:-translate-y-3 border border-white/10 hover:border-indigo-400/50 shadow-2xl overflow-hidden"
+                            className="group relative p-10 bg-white/5 backdrop-blur-xl rounded-[3rem] transition-all duration-500 hover:-translate-y-3 border border-white/10 hover:border-brand-400/50 shadow-2xl overflow-hidden"
                         >
                             <div className="relative z-10">
-                                <div className="w-20 h-20 bg-indigo-400/20 rounded-[2rem] flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-500 border border-indigo-400/30">
-                                    <svg className="w-10 h-10 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div className="w-20 h-20 bg-brand-400/20 rounded-[2rem] flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-500 border border-brand-400/30">
+                                    <svg className="w-10 h-10 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
                                     </svg>
                                 </div>
                                 <h2 className="text-3xl font-black text-white mb-3 tracking-tight">Advertiser</h2>
                                 <p className="text-slate-300 leading-relaxed mb-8 text-lg">
-                                    Scale your brand. Deploy campaigns to <span className="text-indigo-400 font-black italic">thousands</span> of users instantly.
+                                    Scale your brand. Deploy campaigns to <span className="text-brand-400 font-black italic">thousands</span> of users instantly.
                                 </p>
-                                <div className="inline-flex items-center text-xs font-black uppercase tracking-widest text-white bg-indigo-600 px-8 py-4 rounded-2xl group-hover:bg-indigo-500 transition-all duration-300 shadow-xl shadow-indigo-900/20">
+                                <div className="inline-flex items-center text-xs font-black uppercase tracking-widest text-white bg-brand-600 px-8 py-4 rounded-2xl group-hover:bg-brand-500 transition-all duration-300 shadow-xl shadow-brand-900/20">
                                     Launch Gigs
                                     <svg className="w-4 h-4 ml-2 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" />

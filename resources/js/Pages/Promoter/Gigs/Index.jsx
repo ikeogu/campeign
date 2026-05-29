@@ -7,9 +7,9 @@ const getPlatformStyle = (platform) => {
         case 'twitter': case 'x':
             return { name: 'X', classes: 'bg-blue-50 text-blue-600 border-blue-200' };
         case 'instagram':
-            return { name: 'Instagram', classes: 'bg-pink-50 text-pink-600 border-pink-200' };
+            return { name: 'Instagram', classes: 'bg-brand-50 text-brand-600 border-brand-200' };
         case 'facebook':
-            return { name: 'Facebook', icon: '👥', classes: 'bg-indigo-50 text-indigo-600 border-indigo-200' };
+            return { name: 'Facebook', icon: '👥', classes: 'bg-brand-50 text-brand-600 border-brand-200' };
         case 'tiktok':
             return { name: 'TikTok', icon: '🎵', classes: 'bg-slate-900 text-slate-100 border-slate-700' };
         case 'youtube':
@@ -50,7 +50,7 @@ export default function PromoterCampaignIndex() {
                                 ● Live Now
                             </span>
                             <h1 className="text-4xl font-black text-gray-900 tracking-tight">
-                                Trending <span className="text-pink-600">Active Gigs</span>
+                                Trending <span className="text-brand-600">Active Gigs</span>
                             </h1>
                             <p className="text-gray-500 mt-1 font-medium italic">
                                 Grab these opportunities before the budget runs out.
@@ -58,7 +58,7 @@ export default function PromoterCampaignIndex() {
                         </div>
                         <div className="bg-white px-6 py-4 rounded-[2rem] border border-gray-200 shadow-sm text-right">
                             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">Potential Total</p>
-                            <p className="text-2xl font-black text-green-600">
+                            <p className="text-2xl font-black text-brand-600">
                                 {formatCurrency(gigs.reduce((acc, gig) => acc + Number(gig.payout), 0))}
                             </p>
                         </div>
@@ -106,13 +106,13 @@ export default function PromoterCampaignIndex() {
                                                     </div>
                                                     <div>
                                                         <h4 className="font-black text-gray-900 uppercase text-[13px] tracking-tight">{brandName}</h4>
-                                                        <p className={`text-[10px] font-bold mt-1 ${isFinished ? 'text-gray-400' : 'text-pink-500'}`}>
+                                                        <p className={`text-[10px] font-bold mt-1 ${isFinished ? 'text-gray-400' : 'text-brand-500'}`}>
                                                             {isFinished ? 'Ended' : 'Active'}
                                                         </p>
                                                     </div>
                                                 </div>
                                                 <div className="text-right">
-                                                    <span className={`${isFinished ? 'text-gray-400' : 'text-green-600'} font-black text-xl block leading-none`}>
+                                                    <span className={`${isFinished ? 'text-gray-400' : 'text-brand-600'} font-black text-xl block leading-none`}>
                                                         {formatCurrency(gig.payout)}
                                                     </span>
                                                     <p className="text-[9px] text-gray-400 font-black uppercase tracking-widest mt-1">Per Task</p>
@@ -147,7 +147,7 @@ export default function PromoterCampaignIndex() {
                                                     </div>
                                                     <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden mb-6">
                                                         <div
-                                                            className={`h-full transition-all duration-1000 ${isFinished ? 'bg-gray-400' : 'bg-pink-500'}`}
+                                                            className={`h-full transition-all duration-1000 ${isFinished ? 'bg-gray-400' : 'bg-brand-500'}`}
                                                             style={{ width: `${Math.min(gig.completion_percentage || 0, 100)}%` }}
                                                         ></div>
                                                     </div>
@@ -159,7 +159,7 @@ export default function PromoterCampaignIndex() {
                                                     ) : (
                                                         <Link
                                                             href={route('promoter.gigs.show', gig.id)}
-                                                            className="block w-full py-4 bg-gray-900 text-white rounded-2xl text-center font-black text-[10px] uppercase tracking-[0.2em] shadow-xl hover:bg-pink-600 transition-all active:scale-95"
+                                                            className="block w-full py-4 bg-gray-900 text-white rounded-2xl text-center font-black text-[10px] uppercase tracking-[0.2em] shadow-xl hover:bg-brand-600 transition-all active:scale-95"
                                                         >
                                                             Start Earning
                                                         </Link>

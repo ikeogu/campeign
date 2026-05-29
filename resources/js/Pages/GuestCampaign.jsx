@@ -16,22 +16,22 @@ export default function Campaigns({ allGigs = [] }) {
         const styles = {
             twitter: 'bg-blue-50 text-blue-600 border-blue-100',
             x: 'bg-blue-50 text-blue-600 border-blue-100',
-            instagram: 'bg-pink-50 text-pink-600 border-pink-100',
+            instagram: 'bg-brand-50 text-brand-600 border-brand-100',
             tiktok: 'bg-slate-900 text-white border-slate-700',
-            whatsapp: 'bg-green-50 text-green-600 border-green-100',
-            facebook: 'bg-indigo-50 text-indigo-600 border-indigo-100',
+            whatsapp: 'bg-brand-50 text-brand-600 border-brand-100',
+            facebook: 'bg-brand-50 text-brand-600 border-brand-100',
         };
         return styles[platform?.toLowerCase()] || 'bg-gray-100 text-gray-700 border-gray-200';
     };
 
     return (
-        <div className="bg-gray-50 min-h-screen font-sans selection:bg-pink-100">
+        <div className="bg-gray-50 min-h-screen font-sans selection:bg-brand-100">
             <Head title="Browse Campaigns" />
 
             {/* Header with improved styling */}
             <div className="bg-white border-b border-gray-100 pt-12 pb-8">
                 <div className="max-w-7xl mx-auto px-6">
-                    <h1 className="text-3xl font-black text-gray-900 tracking-tight">Active <span className="text-pink-600">Gigs</span></h1>
+                    <h1 className="text-3xl font-black text-gray-900 tracking-tight">Active <span className="text-brand-600">Gigs</span></h1>
                     <p className="text-gray-500 text-sm font-medium mt-1">Select a brand asset to share and start earning.</p>
                 </div>
             </div>
@@ -88,7 +88,7 @@ export default function Campaigns({ allGigs = [] }) {
                                                     <h4 className="font-black text-gray-900 text-[11px] uppercase tracking-tight truncate w-24">
                                                         {brandName}
                                                     </h4>
-                                                    <p className="text-[9px] text-green-600 font-bold uppercase tracking-widest">
+                                                    <p className="text-[9px] text-brand-600 font-bold uppercase tracking-widest">
                                                         Paying ₦{Number(gig.payout).toLocaleString()}
                                                     </p>
                                                 </div>
@@ -119,7 +119,7 @@ export default function Campaigns({ allGigs = [] }) {
                                                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
 
                                                 {/* Category Label - Styled as a floating badge */}
-                                                <span className="absolute bottom-3 left-4 bg-pink-600 text-white font-black text-[8px] uppercase tracking-widest px-2 py-0.5 rounded shadow-lg">
+                                                <span className="absolute bottom-3 left-4 bg-brand-600 text-white font-black text-[8px] uppercase tracking-widest px-2 py-0.5 rounded shadow-lg">
                                                     {gig.category || 'General'}
                                                 </span>
                                             </div>
@@ -135,7 +135,7 @@ export default function Campaigns({ allGigs = [] }) {
                                             <div className="flex items-center gap-2 mb-4">
                                                 <div className="h-1 flex-grow bg-gray-100 rounded-full overflow-hidden">
                                                     <div
-                                                        className="h-full bg-pink-500 rounded-full transition-all"
+                                                        className="h-full bg-brand-500 rounded-full transition-all"
                                                         style={{ width: `${gig.completion_percentage || 0}%` }}
                                                     ></div>
                                                 </div>
@@ -144,7 +144,7 @@ export default function Campaigns({ allGigs = [] }) {
 
                                             <Link
                                                 href={route('login')}
-                                                className="block w-full py-3.5 bg-gray-900 text-white rounded-xl text-center font-black text-[10px] uppercase tracking-[0.15em] hover:bg-pink-600 transition-colors shadow-lg shadow-gray-200"
+                                                className="block w-full py-3.5 bg-gray-900 text-white rounded-xl text-center font-black text-[10px] uppercase tracking-[0.15em] hover:bg-brand-600 transition-colors shadow-lg shadow-gray-200"
                                             >
                                                 Start Earning
                                             </Link>

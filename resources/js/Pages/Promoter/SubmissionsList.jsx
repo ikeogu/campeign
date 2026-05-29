@@ -29,8 +29,8 @@ const CountdownTimer = ({ createdAt }) => {
 
     if (!timeLeft) {
         return (
-            <div className="flex items-center gap-1.5 text-green-600">
-                <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+            <div className="flex items-center gap-1.5 text-brand-600">
+                <div className="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse" />
                 <span className="text-[10px] font-black uppercase tracking-tight">Post Verified</span>
             </div>
         );
@@ -55,7 +55,7 @@ const CountdownTimer = ({ createdAt }) => {
 const getStatusStyle = (status) => {
     const styles = {
         pending: 'bg-yellow-50 text-yellow-700 border-yellow-200',
-        approved: 'bg-green-50 text-green-700 border-green-200',
+        approved: 'bg-brand-50 text-brand-700 border-brand-200',
         rejected: 'bg-red-50 text-red-700 border-red-200',
         disputed: 'bg-orange-50 text-orange-700 border-orange-200',
     };
@@ -65,9 +65,9 @@ const getStatusStyle = (status) => {
 const getPlatformBadge = (platform) => {
     const platforms = {
         twitter: 'bg-blue-600',
-        whatsapp: 'bg-green-500',
-        facebook: 'bg-indigo-600',
-        instagram: 'bg-pink-600',
+        whatsapp: 'bg-brand-500',
+        facebook: 'bg-brand-600',
+        instagram: 'bg-brand-600',
         tiktok: 'bg-black',
         youtube: 'bg-red-600',
     };
@@ -86,10 +86,10 @@ export default function SubmissionsIndex({ auth, submissions, total_verified_ear
 
                  {/* Title Section with Accent */}
                 <div className="relative pl-6 sm:pl-0">
-                    <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-pink-600 rounded-full sm:hidden"></div>
+                    <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-brand-600 rounded-full sm:hidden"></div>
                     <h1 className="text-4xl sm:text-5xl font-black text-gray-900 tracking-tighter uppercase leading-[0.85]">
                         Earning <br className="hidden sm:block" />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-rose-400">
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-brand-400">
                             History
                         </span>
                     </h1>
@@ -103,7 +103,7 @@ export default function SubmissionsIndex({ auth, submissions, total_verified_ear
                 <div className="flex flex-row gap-3 w-full lg:w-auto">
 
                     {/* Submissions Card */}
-                    <div className="flex-1 lg:flex-none lg:w-44 bg-white p-6 rounded-[2.5rem] shadow-sm border border-gray-100 relative overflow-hidden group hover:border-pink-200 transition-all duration-500">
+                    <div className="flex-1 lg:flex-none lg:w-44 bg-white p-6 rounded-[2.5rem] shadow-sm border border-gray-100 relative overflow-hidden group hover:border-brand-200 transition-all duration-500">
                         <div className="absolute -right-2 -top-2 w-12 h-12 bg-gray-50 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-700"></div>
 
                         <p className="relative z-10 text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">
@@ -120,7 +120,7 @@ export default function SubmissionsIndex({ auth, submissions, total_verified_ear
                     {/* Earned Card */}
                     <div className="flex-1 lg:flex-none lg:w-56 bg-gray-900 p-6 rounded-[2.5rem] shadow-2xl shadow-gray-200 relative overflow-hidden group">
                         {/* Subtle glow effect */}
-                        <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-green-500/10 rounded-full blur-3xl"></div>
+                        <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-brand-500/10 rounded-full blur-3xl"></div>
 
                         <p className="text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] mb-1">
                             Verified Profit
@@ -129,7 +129,7 @@ export default function SubmissionsIndex({ auth, submissions, total_verified_ear
                             <span className="text-3xl font-black text-white tracking-tighter">
                                 ₦{Number(total_verified_earnings).toLocaleString()}
                             </span>
-                            <div className="bg-green-500/20 p-1 rounded-full">
+                            <div className="bg-brand-500/20 p-1 rounded-full">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
                             </div>
                         </div>
@@ -161,7 +161,7 @@ export default function SubmissionsIndex({ auth, submissions, total_verified_ear
                                                             <p className="font-black text-gray-900 text-sm leading-tight uppercase">
                                                                 {sub.campaign?.title || 'General Campaign'}
                                                             </p>
-                                                            <a href={sub.link} target="_blank" className="text-[10px] font-bold text-pink-600 hover:underline flex items-center gap-1 mt-1">
+                                                            <a href={sub.link} target="_blank" className="text-[10px] font-bold text-brand-600 hover:underline flex items-center gap-1 mt-1">
                                                                 View Link
                                                                 <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg>
                                                             </a>
@@ -204,7 +204,7 @@ export default function SubmissionsIndex({ auth, submissions, total_verified_ear
                                                         <svg className="w-8 h-8 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                                                     </div>
                                                     <p className="text-gray-400 font-black uppercase text-xs tracking-widest">No shared posts yet</p>
-                                                    <Link href={route('promoter.gigs.index')} className="mt-4 px-6 py-3 bg-gray-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-pink-600 transition-colors">
+                                                    <Link href={route('promoter.gigs.index')} className="mt-4 px-6 py-3 bg-gray-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-brand-600 transition-colors">
                                                         Find a Gig
                                                     </Link>
                                                 </div>

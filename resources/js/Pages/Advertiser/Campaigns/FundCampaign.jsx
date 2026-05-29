@@ -25,7 +25,7 @@ export default function FundCampaign() {
     });
 
     // Determine the color of the balance display
-    const balanceColor = user_balance < 500 ? 'text-red-600' : 'text-green-600';
+    const balanceColor = user_balance < 500 ? 'text-red-600' : 'text-brand-600';
 
     function submit(e) {
         e.preventDefault();
@@ -63,7 +63,7 @@ export default function FundCampaign() {
                     <div className="flex items-center justify-between mb-8">
                         <Link
                             href={route('campaigns.index')}
-                            className="group flex items-center gap-2 text-pink-600 font-medium hover:text-pink-700 transition-colors"
+                            className="group flex items-center gap-2 text-brand-600 font-medium hover:text-brand-700 transition-colors"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:-translate-x-1 transition-transform">
                                 <path d="m12 19-7-7 7-7"/>
@@ -92,7 +92,7 @@ export default function FundCampaign() {
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-b pb-6 border-gray-100">
 
                                 {/* Current Balance */}
-                                <div className="bg-pink-50 p-4 rounded-xl shadow-sm text-center">
+                                <div className="bg-brand-50 p-4 rounded-xl shadow-sm text-center">
                                     <p className="text-sm font-semibold text-gray-500">Your Current Wallet</p>
                                     <p className={`text-2xl font-extrabold mt-1 ${balanceColor}`}>
                                         {formatCurrency(user_balance)}
@@ -132,19 +132,19 @@ export default function FundCampaign() {
                                             type="number"
                                             step="any"
                                             min="100" // Minimum transaction limit
-                                            className="w-full border-gray-300 rounded-lg shadow-sm focus:border-pink-500 focus:ring-pink-500 transition-all py-3 pl-8 pr-4 text-lg"
+                                            className="w-full border-gray-300 rounded-lg shadow-sm focus:border-brand-500 focus:ring-brand-500 transition-all py-3 pl-8 pr-4 text-lg"
                                             value={data.amount}
                                             onChange={(e) => setData('amount', e.target.value)}
                                         />
                                     </div>
-                                    {errors.amount && <p className="mt-1 text-sm text-pink-600 font-medium">{errors.amount}</p>}
+                                    {errors.amount && <p className="mt-1 text-sm text-brand-600 font-medium">{errors.amount}</p>}
                                     <p className="mt-2 text-xs text-gray-500">
                                         This amount will be added to your wallet and immediately allocated to this campaign.
                                     </p>
                                 </div>
 
                                 {/* Payout Confirmation */}
-                                <div className="bg-pink-50 p-4 rounded-lg border border-pink-200">
+                                <div className="bg-brand-50 p-4 rounded-lg border border-brand-200">
                                     <p className="text-sm text-gray-700">
                                         Your campaign requires **{formatCurrency(campaign.payout)}** payout for each of the **{campaign.target_shares}** target shares. Total estimated cost: **{formatCurrency(estimatedCost)}**.
                                     </p>
@@ -155,7 +155,7 @@ export default function FundCampaign() {
                                     <button
                                         type="submit"
                                         disabled={processing || data.amount <= 0}
-                                        className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2"
+                                        className="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2"
                                     >
                                         {processing ? (
                                             <>

@@ -48,7 +48,7 @@ export default function UpdateProfileInformation({
             >
                 <div className="bg-gray-900 border border-white/10 shadow-2xl rounded-2xl p-4 relative overflow-hidden">
                     <div className="flex items-center gap-3">
-                        <div className="flex-shrink-0 w-8 h-8 bg-green-500/20 rounded-xl flex items-center justify-center">
+                        <div className="flex-shrink-0 w-8 h-8 bg-brand-500/20 rounded-xl flex items-center justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                         </div>
                         <p className="text-[10px] font-black text-white uppercase tracking-widest">
@@ -56,7 +56,7 @@ export default function UpdateProfileInformation({
                         </p>
                     </div>
                     {/* Auto-hide progress bar */}
-                    <div className="absolute bottom-0 left-0 h-[3px] bg-green-500 transition-all duration-[4000ms] ease-linear w-full"
+                    <div className="absolute bottom-0 left-0 h-[3px] bg-brand-500 transition-all duration-[4000ms] ease-linear w-full"
                          style={{ width: showToast ? '0%' : '100%' }} />
                 </div>
             </Transition>
@@ -72,7 +72,7 @@ export default function UpdateProfileInformation({
                 <div>
                     <label className="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1 tracking-[0.2em]">Full Name</label>
                     <input
-                        className="w-full bg-gray-50 border-gray-100 rounded-2xl px-5 py-4 font-bold text-sm focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 outline-none transition-all"
+                        className="w-full bg-gray-50 border-gray-100 rounded-2xl px-5 py-4 font-bold text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all"
                         value={data.name}
                         onChange={(e) => setData('name', e.target.value)}
                         required
@@ -83,7 +83,7 @@ export default function UpdateProfileInformation({
                 <div>
                     <label className="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1 tracking-[0.2em]">Email Address</label>
                     <input
-                        className="w-full bg-gray-50 border-gray-100 rounded-2xl px-5 py-4 font-bold text-sm focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 outline-none transition-all"
+                        className="w-full bg-gray-50 border-gray-100 rounded-2xl px-5 py-4 font-bold text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all"
                         value={data.email}
                         onChange={(e) => setData('email', e.target.value)}
                         required
@@ -106,7 +106,7 @@ export default function UpdateProfileInformation({
             <div className="flex items-center gap-4 pt-4">
                 <button
                     disabled={processing}
-                    className="px-10 py-4 bg-gray-900 text-white font-black rounded-2xl hover:bg-pink-600 transition-all active:scale-95 disabled:opacity-50 uppercase text-[10px] tracking-widest shadow-xl shadow-gray-100"
+                    className="px-10 py-4 bg-gray-900 text-white font-black rounded-2xl hover:bg-brand-600 transition-all active:scale-95 disabled:opacity-50 uppercase text-[10px] tracking-widest shadow-xl shadow-gray-100"
                 >
                     {processing ? 'Saving...' : 'Save Changes'}
                 </button>

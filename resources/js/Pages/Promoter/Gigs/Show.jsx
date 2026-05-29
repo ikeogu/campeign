@@ -52,11 +52,11 @@ export default function PromoterCampaignShow() {
     };
 
     const PLATFORM_CONFIG = {
-        whatsapp: { label: 'WhatsApp', icon: '💬', className: 'bg-green-50 border-green-100 text-green-700' },
+        whatsapp: { label: 'WhatsApp', icon: '💬', className: 'bg-brand-50 border-brand-100 text-brand-700' },
         twitter: { label: 'X', icon: '𝕏', className: 'bg-blue-50 border-blue-100 text-blue-700' },
-        facebook: { label: 'Facebook', icon: '👥', className: 'bg-indigo-50 border-indigo-100 text-indigo-700' },
-        instagram: { label: 'Instagram', icon: '📸', className: 'bg-pink-50 border-pink-100 text-pink-700' },
-        tiktok: { label: 'TikTok', icon: '🎵', className: 'bg-purple-50 border-purple-100 text-purple-700' },
+        facebook: { label: 'Facebook', icon: '👥', className: 'bg-brand-50 border-brand-100 text-brand-700' },
+        instagram: { label: 'Instagram', icon: '📸', className: 'bg-brand-50 border-brand-100 text-brand-700' },
+        tiktok: { label: 'TikTok', icon: '🎵', className: 'bg-brand-50 border-brand-100 text-brand-700' },
         youtube: { label: 'YouTube', icon: '📺', className: 'bg-red-50 border-red-100 text-red-700' },
     };
 
@@ -87,7 +87,7 @@ export default function PromoterCampaignShow() {
                         <div className="absolute top-0 right-0 p-6 opacity-5 pointer-events-none select-none">
                             <span className="text-8xl font-black italic uppercase -rotate-12">{brandName}</span>
                         </div>
-                        <span className="inline-block px-4 py-1.5 bg-green-500/10 text-green-400 border border-green-500/20 rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-4">
+                        <span className="inline-block px-4 py-1.5 bg-brand-500/10 text-green-400 border border-green-500/20 rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-4">
                             Guaranteed Payout
                         </span>
                         <h1 className="text-5xl font-black text-white mb-2 tracking-tighter">
@@ -100,7 +100,7 @@ export default function PromoterCampaignShow() {
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                         <div className="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm">
                             <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Industry</p>
-                            <p className="text-sm font-black text-pink-600 uppercase truncate">{gig.category || 'General'}</p>
+                            <p className="text-sm font-black text-brand-600 uppercase truncate">{gig.category || 'General'}</p>
                         </div>
                         <div className="bg-white p-4 rounded-3xl border border-gray-100 shadow-sm">
                             <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Min. Followers</p>
@@ -120,7 +120,7 @@ export default function PromoterCampaignShow() {
                     <div className="bg-white rounded-[2.5rem] p-6 border border-gray-100 shadow-sm">
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="font-black text-gray-900 uppercase text-[10px] tracking-[0.2em]">Caption to Copy</h2>
-                            {copied && <span className="text-[10px] font-black text-green-600 uppercase animate-bounce">Copied!</span>}
+                            {copied && <span className="text-[10px] font-black text-brand-600 uppercase animate-bounce">Copied!</span>}
                         </div>
                         <div className="relative group">
                             <div className="w-full bg-gray-50 rounded-3xl p-5 text-gray-600 text-xs font-medium leading-relaxed border border-gray-100 min-h-[120px] whitespace-pre-wrap">
@@ -128,7 +128,7 @@ export default function PromoterCampaignShow() {
                             </div>
                             <button
                                 onClick={handleCopy}
-                                className="absolute top-3 right-3 flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:bg-pink-600 transition-all active:scale-90"
+                                className="absolute top-3 right-3 flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:bg-brand-600 transition-all active:scale-90"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
                                 {copied ? 'Done' : 'Copy Text'}
@@ -175,7 +175,7 @@ export default function PromoterCampaignShow() {
                 <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-xl border-t border-gray-100 z-50">
                     <div className="max-w-3xl mx-auto">
                         {!hasSubmitted ? (
-                            <button onClick={() => setShowReminder(true)} className="flex items-center justify-center gap-3 w-full py-4 bg-pink-600 text-white rounded-2xl font-black text-sm uppercase tracking-[0.2em] shadow-2xl shadow-pink-200 hover:bg-pink-700 transition-all active:scale-95">
+                            <button onClick={() => setShowReminder(true)} className="flex items-center justify-center gap-3 w-full py-4 bg-brand-600 text-white rounded-2xl font-black text-sm uppercase tracking-[0.2em] shadow-2xl shadow-brand-200 hover:bg-brand-700 transition-all active:scale-95">
                                 Submit Proof of Share
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
                             </button>
@@ -192,29 +192,29 @@ export default function PromoterCampaignShow() {
                     <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-4">
                         <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" onClick={() => setShowReminder(false)}></div>
                         <div className="relative w-full max-w-sm bg-white rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-8 duration-300">
-                            <div className="bg-pink-600 p-6 text-center text-white">
+                            <div className="bg-brand-600 p-6 text-center text-white">
                                 <h3 className="text-lg font-black uppercase tracking-tight leading-none">Final Check</h3>
-                                <p className="text-[10px] font-bold text-pink-200 uppercase mt-2 tracking-widest italic leading-none">Don't lose your ₦ payout!</p>
+                                <p className="text-[10px] font-bold text-brand-200 uppercase mt-2 tracking-widest italic leading-none">Don't lose your ₦ payout!</p>
                             </div>
                             <div className="p-7 space-y-5">
                                 <div className="flex gap-4 items-center">
-                                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-pink-100 flex items-center justify-center text-pink-600 font-black text-[10px]">1</div>
+                                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-brand-100 flex items-center justify-center text-brand-600 font-black text-[10px]">1</div>
                                     <p className="text-gray-600 text-[11px] font-bold">Keep post live for <span className="text-gray-900">48 hours</span>.</p>
                                 </div>
                                 <div className="flex gap-4 items-center">
-                                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-pink-100 flex items-center justify-center text-pink-600 font-black text-[10px]">2</div>
+                                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-brand-100 flex items-center justify-center text-brand-600 font-black text-[10px]">2</div>
                                     <p className="text-gray-600 text-[11px] font-bold">Must have <span className="text-gray-900">{gig.min_followers?.toLocaleString()} followers</span>.</p>
                                 </div>
                                 <div className="flex gap-4 items-start">
                                     <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-black text-[10px]">3</div>
                                     <p className="text-gray-600 text-[11px] font-bold leading-snug">
                                         Paste your <span className="text-blue-600">Post Link</span> and upload a <span className="text-blue-600">Screenshot</span> of the submitted ad.{' '}
-                                        <span className="text-gray-400 font-medium">Or tap <span className="text-pink-600 font-black">✨ Profile</span> to auto-fill your profile link — to enable this, save your social handle in your <span className="text-pink-600">Profile Settings</span>.</span>
+                                        <span className="text-gray-400 font-medium">Or tap <span className="text-brand-600 font-black">✨ Profile</span> to auto-fill your profile link — to enable this, save your social handle in your <span className="text-brand-600">Profile Settings</span>.</span>
                                     </p>
                                 </div>
 
                                 <div className="flex flex-col gap-3 pt-2">
-                                    <button onClick={confirmAndProceed} className="w-full py-4 bg-gray-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:bg-pink-600 transition-colors">
+                                    <button onClick={confirmAndProceed} className="w-full py-4 bg-gray-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:bg-brand-600 transition-colors">
                                         I'm Ready, Proceed
                                     </button>
                                     <button onClick={() => setShowReminder(false)} className="w-full py-2 bg-white text-gray-400 font-bold text-[10px] uppercase tracking-widest">

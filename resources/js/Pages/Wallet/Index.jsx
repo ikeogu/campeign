@@ -17,14 +17,14 @@ export default function WalletIndex() {
                     {/* --- WALLET HEADER CARD --- */}
                     <div className="relative overflow-hidden bg-white rounded-[2rem] md:rounded-[2.5rem] shadow-xl border border-gray-100 p-6 md:p-8 mb-6 md:mb-8">
                         {/* Decorative Background Shape - Hidden on very small screens to save space */}
-                        <div className={`hidden sm:block absolute top-0 right-0 w-32 h-32 opacity-10 rounded-bl-full ${isAdvertiser ? 'bg-purple-600' : 'bg-green-600'}`}></div>
+                        <div className={`hidden sm:block absolute top-0 right-0 w-32 h-32 opacity-10 rounded-bl-full ${isAdvertiser ? 'bg-brand-600' : 'bg-brand-600'}`}></div>
 
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
                             <div className="text-center md:text-left">
                                 <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-1">
                                     Available Balance
                                 </h2>
-                                <p className={`text-4xl md:text-5xl font-black tracking-tighter ${isAdvertiser ? 'text-purple-600' : 'text-green-600'}`}>
+                                <p className={`text-4xl md:text-5xl font-black tracking-tighter ${isAdvertiser ? 'text-brand-600' : 'text-brand-600'}`}>
                                     {formatAmount(wallet ?? 0)}
                                 </p>
                             </div>
@@ -34,7 +34,7 @@ export default function WalletIndex() {
                                 {isAdvertiser ? (
                                     <Link
                                         href={route('wallet-fund')}
-                                        className="flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 text-white font-black py-4 px-6 md:px-8 rounded-2xl shadow-lg shadow-purple-200 transition-all active:scale-95 uppercase text-[10px] md:text-xs tracking-widest w-full"
+                                        className="flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-black py-4 px-6 md:px-8 rounded-2xl shadow-lg shadow-brand-200 transition-all active:scale-95 uppercase text-[10px] md:text-xs tracking-widest w-full"
                                     >
                                         <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4" />
@@ -44,7 +44,7 @@ export default function WalletIndex() {
                                 ) : (
                                     <Link
                                         href={route('withdraw.create')}
-                                        className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-black py-4 px-6 md:px-8 rounded-2xl shadow-lg shadow-green-200 transition-all active:scale-95 uppercase text-[10px] md:text-xs tracking-widest w-full"
+                                        className="flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-black py-4 px-6 md:px-8 rounded-2xl shadow-lg shadow-brand-200 transition-all active:scale-95 uppercase text-[10px] md:text-xs tracking-widest w-full"
                                     >
                                         <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -81,7 +81,7 @@ export default function WalletIndex() {
                                         <div className="flex items-center gap-3 md:gap-4 overflow-hidden">
                                             {/* Icon - Smaller on Mobile */}
                                             <div className={`shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-xl flex items-center justify-center ${
-                                                t.type === 'credit' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
+                                                t.type === 'credit' ? 'bg-brand-100 text-brand-600' : 'bg-red-100 text-red-600'
                                             }`}>
                                                 <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     {t.type === 'credit'
@@ -107,7 +107,7 @@ export default function WalletIndex() {
                                         <div className="flex flex-col items-end shrink-0">
                                             <div className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase border mb-1 ${
                                                 t.status === 'successful'
-                                                    ? 'bg-green-50 text-green-600 border-green-100'
+                                                    ? 'bg-brand-50 text-brand-600 border-brand-100'
                                                     : t.status === 'pending'
                                                         ? 'bg-yellow-50 text-yellow-600 border-yellow-100'
                                                         : 'bg-red-50 text-red-600 border-red-100'
@@ -115,7 +115,7 @@ export default function WalletIndex() {
                                                 {t.status}
                                             </div>
                                             <div className={`text-sm md:text-lg font-black tracking-tighter ${
-                                                t.type === 'credit' ? 'text-green-600' : 'text-red-900'
+                                                t.type === 'credit' ? 'text-brand-600' : 'text-red-900'
                                             }`}>
                                                 {t.type === 'credit' ? '+' : '-'}{formatAmount(t.amount / 100)}
                                             </div>
@@ -135,7 +135,7 @@ export default function WalletIndex() {
                                         dangerouslySetInnerHTML={{ __html: link.label }}
                                         className={`shrink-0 px-3 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${
                                             link.active
-                                                ? 'bg-indigo-600 text-white shadow-md'
+                                                ? 'bg-brand-600 text-white shadow-md'
                                                 : 'bg-white text-gray-400 hover:bg-gray-100 border border-gray-100'
                                         } ${!link.url && 'opacity-30 cursor-not-allowed'}`}
                                     />

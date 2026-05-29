@@ -14,7 +14,7 @@ export default function Success() {
 
         <Link
           to="/dashboard"
-          className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition"
+          className="bg-brand-600 text-white px-6 py-3 rounded-lg hover:bg-brand-700 transition"
         >
           Go to Dashboard
         </Link>

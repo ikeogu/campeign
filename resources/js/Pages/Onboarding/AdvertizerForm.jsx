@@ -48,7 +48,7 @@ export default function AdvertiserOnboard() {
                             </svg>
                         </div>
                         <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight drop-shadow-md">Setup Brand Profile</h2>
-                        <p className="mt-2 text-purple-100 font-medium opacity-90 text-sm md:text-base">Tell us a bit about your company to get started.</p>
+                        <p className="mt-2 text-brand-100 font-medium opacity-90 text-sm md:text-base">Tell us a bit about your company to get started.</p>
                     </div>
 
                     {/* Form Container */}
@@ -61,7 +61,7 @@ export default function AdvertiserOnboard() {
                                 <input
                                     type="text"
                                     placeholder="e.g. Acme Corp"
-                                    className={`w-full border-gray-100 bg-gray-50 rounded-xl md:rounded-2xl px-5 py-3.5 md:py-4 focus:ring-4 focus:ring-purple-500/10 focus:border-purple-600 focus:bg-white transition-all outline-none font-bold text-gray-700 ${errors.company_name ? 'border-red-500' : ''}`}
+                                    className={`w-full border-gray-100 bg-gray-50 rounded-xl md:rounded-2xl px-5 py-3.5 md:py-4 focus:ring-4 focus:ring-brand-500/10 focus:border-brand-600 focus:bg-white transition-all outline-none font-bold text-gray-700 ${errors.company_name ? 'border-red-500' : ''}`}
                                     value={data.company_name}
                                     onChange={(e) => setData('company_name', e.target.value)}
                                     required
@@ -74,7 +74,7 @@ export default function AdvertiserOnboard() {
                                 <label className="block text-[10px] font-black uppercase tracking-[0.15em] text-gray-400 mb-2 ml-1">Industry</label>
                                 <div className="relative">
                                     <select
-                                        className={`w-full border-gray-100 rounded-xl md:rounded-2xl px-5 py-3.5 md:py-4 appearance-none bg-gray-50 focus:ring-4 focus:ring-purple-500/10 focus:border-purple-600 focus:bg-white transition-all outline-none font-bold text-gray-700 ${errors.industry ? 'border-red-500' : ''}`}
+                                        className={`w-full border-gray-100 rounded-xl md:rounded-2xl px-5 py-3.5 md:py-4 appearance-none bg-gray-50 focus:ring-4 focus:ring-brand-500/10 focus:border-brand-600 focus:bg-white transition-all outline-none font-bold text-gray-700 ${errors.industry ? 'border-red-500' : ''}`}
                                         value={data.industry}
                                         onChange={(e) => setData('industry', e.target.value)}
                                         required
@@ -102,7 +102,7 @@ export default function AdvertiserOnboard() {
                             </label>
                             <div className="relative group">
                                 <div className="absolute inset-y-0 left-0 flex items-center pl-5 pointer-events-none">
-                                    <span className="text-purple-400 font-bold text-sm md:text-base">
+                                    <span className="text-brand-400 font-bold text-sm md:text-base">
                                         https://
                                     </span>
                                 </div>
@@ -110,7 +110,7 @@ export default function AdvertiserOnboard() {
                                 <input
                                     type="text"
                                     placeholder="yourbrand.com"
-                                    className={`w-full border-gray-100 bg-gray-50 rounded-xl md:rounded-2xl py-3.5 md:py-4 pl-[4.5rem] md:pl-[5.2rem] pr-5 focus:ring-4 focus:ring-purple-500/10 focus:border-purple-600 focus:bg-white transition-all outline-none font-bold text-gray-700 ${
+                                    className={`w-full border-gray-100 bg-gray-50 rounded-xl md:rounded-2xl py-3.5 md:py-4 pl-[4.5rem] md:pl-[5.2rem] pr-5 focus:ring-4 focus:ring-brand-500/10 focus:border-brand-600 focus:bg-white transition-all outline-none font-bold text-gray-700 ${
                                         errors.website ? 'border-red-500' : ''
                                     }`}
                                     value={data.website}
@@ -138,7 +138,7 @@ export default function AdvertiserOnboard() {
                                 <textarea
                                     rows="3"
                                     placeholder="Describe your brand's mission..."
-                                    className="w-full border-gray-100 bg-gray-50 rounded-xl md:rounded-2xl px-5 py-3.5 md:py-4 focus:ring-4 focus:ring-purple-500/10 focus:border-purple-600 focus:bg-white transition-all outline-none font-medium text-gray-700"
+                                    className="w-full border-gray-100 bg-gray-50 rounded-xl md:rounded-2xl px-5 py-3.5 md:py-4 focus:ring-4 focus:ring-brand-500/10 focus:border-brand-600 focus:bg-white transition-all outline-none font-medium text-gray-700"
                                     value={data.bio}
                                     onChange={(e) => setData('bio', e.target.value)}
                                 />
@@ -147,7 +147,7 @@ export default function AdvertiserOnboard() {
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="w-full py-4 md:py-5 bg-purple-600 text-white font-black text-xs md:text-sm uppercase tracking-widest rounded-xl md:rounded-2xl hover:bg-purple-700 shadow-xl shadow-purple-500/30 transition-all transform active:scale-[0.96] disabled:opacity-50 mt-4"
+                                className="w-full py-4 md:py-5 bg-brand-600 text-white font-black text-xs md:text-sm uppercase tracking-widest rounded-xl md:rounded-2xl hover:bg-brand-700 shadow-xl shadow-brand-500/30 transition-all transform active:scale-[0.96] disabled:opacity-50 mt-4"
                             >
                                 {processing ? 'Launching Profile...' : 'Complete Profile & Launch'}
                             </button>

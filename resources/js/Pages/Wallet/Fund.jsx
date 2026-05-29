@@ -28,7 +28,7 @@ export default function FundWallet() {
                                 type="number"
                                 value={data.amount}
                                 onChange={(e) => setData('amount', e.target.value)}
-                                className="w-full bg-gray-50 border-gray-100 rounded-2xl px-5 py-4 focus:ring-4 focus:ring-purple-500/10 focus:border-purple-600 transition-all font-bold text-gray-700 shadow-sm"
+                                className="w-full bg-gray-50 border-gray-100 rounded-2xl px-5 py-4 focus:ring-4 focus:ring-brand-500/10 focus:border-brand-600 transition-all font-bold text-gray-700 shadow-sm"
                                 placeholder="Min: 1000"
                                 required
                             />
@@ -37,7 +37,7 @@ export default function FundWallet() {
 
                         <button
                             disabled={processing}
-                            className="w-full py-5 bg-purple-600 text-white font-black rounded-2xl hover:bg-purple-700 shadow-xl shadow-purple-200 transition-all active:scale-95 disabled:opacity-50"
+                            className="w-full py-5 bg-brand-600 text-white font-black rounded-2xl hover:bg-brand-700 shadow-xl shadow-brand-200 transition-all active:scale-95 disabled:opacity-50"
                         >
                             {processing ? 'Processing...' : 'Proceed to Payment'}
                         </button>

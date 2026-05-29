@@ -11,7 +11,7 @@ export default function Footer() {
                     {/* Brand Section */}
                     <div className="col-span-1 md:col-span-1">
                         <Link href="/" className="text-xl font-black tracking-tighter text-gray-900 uppercase">
-                            GIGS & <span className="text-pink-600">CAMPAIGNS</span>
+                            GIGS & <span className="text-brand-600">CAMPAIGNS</span>
                         </Link>
                         <p className="mt-4 text-sm text-gray-500 font-medium leading-relaxed">
                             The tech-enabled marketplace for authentic brand distribution. Reach real people through real promoters.
@@ -19,7 +19,7 @@ export default function Footer() {
                         <div className="mt-6 flex items-center gap-2">
                             <span className="relative flex h-2 w-2">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-500"></span>
                             </span>
                             <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">System Operational</span>
                         </div>
@@ -29,9 +29,9 @@ export default function Footer() {
                     <div>
                         <h4 className="font-black text-gray-900 uppercase text-[11px] tracking-[0.2em] mb-6">Marketplace</h4>
                         <ul className="space-y-4">
-                            <li><Link href={route('guest.gigs')} className="text-sm text-gray-500 hover:text-pink-600 font-bold transition-colors">Browse Gigs</Link></li>
-                            <li><Link href="/register" className="text-sm text-gray-500 hover:text-pink-600 font-bold transition-colors">Start Earning</Link></li>
-                            <li><Link href="/login" className="text-sm text-gray-500 hover:text-pink-600 font-bold transition-colors">Brand Login</Link></li>
+                            <li><Link href={route('guest.gigs')} className="text-sm text-gray-500 hover:text-brand-600 font-bold transition-colors">Browse Gigs</Link></li>
+                            <li><Link href="/register" className="text-sm text-gray-500 hover:text-brand-600 font-bold transition-colors">Start Earning</Link></li>
+                            <li><Link href="/login" className="text-sm text-gray-500 hover:text-brand-600 font-bold transition-colors">Brand Login</Link></li>
                         </ul>
                     </div>
 
@@ -39,9 +39,9 @@ export default function Footer() {
                     <div>
                         <h4 className="font-black text-gray-900 uppercase text-[11px] tracking-[0.2em] mb-6">Legal & Policy</h4>
                         <ul className="space-y-4">
-                            <li><Link href={route('terms')} className="text-sm text-gray-500 hover:text-pink-600 font-bold transition-colors">Terms of Service</Link></li>
-                            <li><Link href="#" className="text-sm text-gray-500 hover:text-pink-600 font-bold transition-colors">Privacy Policy</Link></li>
-                            <li><Link href="#" className="text-sm text-gray-500 hover:text-pink-600 font-bold transition-colors">Ad Guidelines</Link></li>
+                            <li><Link href={route('terms')} className="text-sm text-gray-500 hover:text-brand-600 font-bold transition-colors">Terms of Service</Link></li>
+                            <li><Link href="#" className="text-sm text-gray-500 hover:text-brand-600 font-bold transition-colors">Privacy Policy</Link></li>
+                            <li><Link href="#" className="text-sm text-gray-500 hover:text-brand-600 font-bold transition-colors">Ad Guidelines</Link></li>
                         </ul>
                     </div>
 
@@ -49,7 +49,7 @@ export default function Footer() {
                     <div>
                         <h4 className="font-black text-gray-900 uppercase text-[11px] tracking-[0.2em] mb-6">Connect</h4>
                         <p className="text-xs text-gray-400 font-bold uppercase tracking-tight mb-4">Support Inquiries:</p>
-                        <a href="mailto:info@gigsandcampaigns.com" className="text-sm font-black text-gray-900 hover:text-pink-600 underline decoration-pink-200 underline-offset-4">
+                        <a href="mailto:info@gigsandcampaigns.com" className="text-sm font-black text-gray-900 hover:text-brand-600 underline decoration-brand-200 underline-offset-4">
                             info@gigsandcampaigns.com
                         </a>
                         <div className="flex gap-4 mt-8">

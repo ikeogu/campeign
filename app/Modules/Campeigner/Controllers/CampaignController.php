@@ -256,17 +256,74 @@ class CampaignController extends ApiController
             return redirect()->route('campaigns.index')
                 ->with('error', 'You are not allowed to delete this campaign.');
         }
-        //$Total Funded - (Approved Payouts + Pending Payouts)
 
-        $totalFunded = $campaign->total_budget - $campaign->completedPayouts()->sum('amount');
+        $refundMessage = 'Campaign deleted successfully.';
 
-        // total_budget and payout amounts are in naira; wallet balance is in kobo
-        $campaign->user->wallet->increment('balance', $totalFunded * 100);
+        DB::transaction(function () use ($campaign, &$refundMessage) {
+            $user   = $campaign->user;
+            $wallet = $user->wallet;
 
-        $campaign->delete();
+            // Only attempt a refund if a successful payment exists.
+            $payment = $campaign->payment()->where('status', 'success')->first();
 
-        return redirect()->route('campaigns.index')
-            ->with('success', 'Campaign deleted successfully');
+            if ($payment) {
+                // Funded amount is stored in kobo in CampaignPayment.
+                $totalFundedKobo = (int) $payment->amount;
+
+                // PromoterEarning.amount is in naira — multiply to convert to kobo.
+                $paidOutNaira = (float) $campaign->completedPayouts()->sum('amount');
+                $paidOutKobo  = (int) round($paidOutNaira * 100);
+
+                // Unused balance after honouring all completed payouts.
+                $unusedKobo = max(0, $totalFundedKobo - $paidOutKobo);
+
+                if ($unusedKobo > 0) {
+                    // 2% cancellation fee applied to unused balance.
+                    $feeKobo    = (int) round($unusedKobo * 0.02);
+                    $refundKobo = $unusedKobo - $feeKobo;
+
+                    // Credit the refund.
+                    $wallet->increment('balance', $refundKobo);
+                    $wallet->transactions()->create([
+                        'type'        => 'credit',
+                        'amount'      => $refundKobo,
+                        'reference'   => 'REFUND_' . Str::uuid(),
+                        'description' => "Cancellation refund – {$campaign->title}",
+                        'status'      => 'successful',
+                        'metadata'    => [
+                            'campaign_id'        => $campaign->id,
+                            'total_funded_kobo'  => $totalFundedKobo,
+                            'paid_to_promoters'  => $paidOutKobo,
+                            'unused_kobo'        => $unusedKobo,
+                            'cancellation_fee'   => $feeKobo,
+                            'refund_kobo'        => $refundKobo,
+                        ],
+                    ]);
+
+                    // Record the 2% fee as a separate debit for audit trail.
+                    $wallet->transactions()->create([
+                        'type'        => 'debit',
+                        'amount'      => $feeKobo,
+                        'reference'   => 'FEE_' . Str::uuid(),
+                        'description' => "2% cancellation fee – {$campaign->title}",
+                        'status'      => 'successful',
+                        'metadata'    => [
+                            'campaign_id' => $campaign->id,
+                            'fee_rate'    => '2%',
+                            'unused_kobo' => $unusedKobo,
+                        ],
+                    ]);
+
+                    $refundNaira = number_format($refundKobo / 100, 2);
+                    $feeNaira    = number_format($feeKobo / 100, 2);
+                    $refundMessage = "Campaign deleted. ₦{$refundNaira} has been refunded to your wallet (₦{$feeNaira} cancellation fee deducted).";
+                }
+            }
+
+            $campaign->delete();
+        });
+
+        return redirect()->route('campaigns.index')->with('success', $refundMessage);
     }
 
     public function fundCampaign(Campaign $campaign)

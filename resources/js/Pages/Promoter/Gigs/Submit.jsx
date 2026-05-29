@@ -7,9 +7,9 @@ const getPlatformStyle = (platform) => {
     const styles = {
         'twitter': { name: 'X', icon: '𝕏', baseUrl: 'https://x.com/', classes: 'bg-blue-50 text-blue-600 border-blue-100' },
         'x (twitter)': { name: 'X', icon: '𝕏', baseUrl: 'https://x.com/', classes: 'bg-blue-50 text-blue-600 border-blue-100' },
-        'whatsapp': { name: 'WhatsApp', icon: '💬', baseUrl: 'https://wa.me/', classes: 'bg-green-50 text-green-600 border-green-100' },
-        'facebook': { name: 'Facebook', icon: '👥', baseUrl: 'https://facebook.com/', classes: 'bg-indigo-50 text-indigo-600 border-indigo-100' },
-        'instagram': { name: 'Instagram', icon: '📸', baseUrl: 'https://instagram.com/', classes: 'bg-pink-50 text-pink-600 border-pink-100' },
+        'whatsapp': { name: 'WhatsApp', icon: '💬', baseUrl: 'https://wa.me/', classes: 'bg-brand-50 text-brand-600 border-brand-100' },
+        'facebook': { name: 'Facebook', icon: '👥', baseUrl: 'https://facebook.com/', classes: 'bg-brand-50 text-brand-600 border-brand-100' },
+        'instagram': { name: 'Instagram', icon: '📸', baseUrl: 'https://instagram.com/', classes: 'bg-brand-50 text-brand-600 border-brand-100' },
         'tiktok': { name: 'TikTok', icon: '🎵', baseUrl: 'https://tiktok.com/@', classes: 'bg-slate-900 text-slate-100 border-slate-700' },
         'youtube': { name: 'YouTube', icon: '📺', baseUrl: 'https://youtube.com/@', classes: 'bg-red-50 text-red-600 border-red-100' },
         'threads': { name: 'Threads', icon: '🧵', baseUrl: 'https://threads.net/@', classes: 'bg-gray-50 text-gray-900 border-gray-200' },
@@ -113,7 +113,7 @@ export default function SubmitPage({ gig }) {
                         </div>
                         <div className="bg-white px-4 py-2 rounded-2xl border border-gray-100 shadow-sm text-right">
                             <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Payout</p>
-                            <p className="text-lg font-black text-green-600">₦{totalExpectedPayout.toLocaleString()}</p>
+                            <p className="text-lg font-black text-brand-600">₦{totalExpectedPayout.toLocaleString()}</p>
                         </div>
                     </div>
 
@@ -160,7 +160,7 @@ export default function SubmitPage({ gig }) {
                                                 <button
                                                     type="button"
                                                     onClick={() => useProfileLink(index, submission.platform)}
-                                                    className="text-[9px] font-black text-pink-600 bg-pink-50 px-3 py-2 rounded-xl hover:bg-pink-100 transition-all uppercase active:scale-95"
+                                                    className="text-[9px] font-black text-brand-600 bg-brand-50 px-3 py-2 rounded-xl hover:bg-brand-100 transition-all uppercase active:scale-95"
                                                 >
                                                     ✨ Profile
                                                 </button>
@@ -172,14 +172,14 @@ export default function SubmitPage({ gig }) {
                                         <input
                                             type="url"
                                             placeholder={`Paste ${style.name} link...`}
-                                            className="w-full bg-gray-50 border-gray-100 rounded-2xl px-5 py-4 font-bold text-sm focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500 transition-all"
+                                            className="w-full bg-gray-50 border-gray-100 rounded-2xl px-5 py-4 font-bold text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
                                             value={submission.link}
                                             onChange={e => handleUpdate(index, 'link', e.target.value)}
                                         />
                                     </div>
 
                                     {/* Media Upload */}
-                                    <div className="relative border-2 border-dashed border-gray-100 rounded-2xl p-4 text-center hover:border-pink-200 transition-colors bg-gray-50/30">
+                                    <div className="relative border-2 border-dashed border-gray-100 rounded-2xl p-4 text-center hover:border-brand-200 transition-colors bg-gray-50/30">
                                         <input type="file" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" onChange={e => handleUpdate(index, 'proof', e.target.files[0])} />
                                         <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest truncate">
                                             {submission.proof ? `✅ ${submission.proof.name}` : '📸 Upload Screenshot (Optional)'}
@@ -192,7 +192,7 @@ export default function SubmitPage({ gig }) {
                         <button
                             type="submit"
                             disabled={processing}
-                            className="w-full py-5 bg-gray-900 text-white font-black rounded-2xl hover:bg-pink-600 transition-all active:scale-95 uppercase text-xs tracking-widest shadow-xl shadow-gray-200"
+                            className="w-full py-5 bg-gray-900 text-white font-black rounded-2xl hover:bg-brand-600 transition-all active:scale-95 uppercase text-xs tracking-widest shadow-xl shadow-gray-200"
                         >
                             {processing ? 'Processing...' : 'Complete Submission'}
                         </button>

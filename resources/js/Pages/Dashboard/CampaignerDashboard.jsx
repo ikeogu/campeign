@@ -61,12 +61,12 @@ const campaignerCampaignPerformance = charts.campaignPerformance ??
             href={route('wallet.index')}
             className="flex items-center gap-2 bg-white border border-gray-200 px-5 py-3 rounded-2xl font-black text-xs uppercase tracking-widest text-gray-600 hover:bg-gray-50 transition-all shadow-sm"
           >
-            <Wallet className="w-4 h-4 text-purple-600" />
+            <Wallet className="w-4 h-4 text-brand-600" />
             Fund Wallet
           </Link>
           <Link
             href={route('campaigns.create')}
-            className="flex items-center gap-2 bg-purple-600 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest text-white hover:bg-purple-700 transition-all shadow-xl shadow-purple-200"
+            className="flex items-center gap-2 bg-brand-600 px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest text-white hover:bg-brand-700 transition-all shadow-xl shadow-brand-200"
           >
             <PlusCircle className="w-4 h-4" />
             New Campaign
@@ -81,28 +81,28 @@ const campaignerCampaignPerformance = charts.campaignPerformance ??
           title="Total Ad Spend"
           value={`₦${stats.totalSpend.toLocaleString()}`}
           change={12.5}
-          color="bg-purple-600"
+          color="bg-brand-600"
         />
        {/*  <StatCard
           icon={Eye}
           title="Total Reach"
           value={`${Math.round(stats.totalReach / 1000)}K`}
           change={18.2}
-          color="bg-indigo-500"
+          color="bg-brand-500"
         /> */}
         <StatCard
           icon={CheckCircle2}
           title="Verified Gigs"
           value={stats.verifiedGigs}
           change={24.8}
-          color="bg-emerald-500"
+          color="bg-brand-500"
         />
       {/*   <StatCard
           icon={Activity}
           title="Avg. Engagement"
           value={`${stats.avgEngagement}%`}
           change={2.1}
-          color="bg-pink-500"
+          color="bg-brand-500"
         /> */}
       </div>
 
@@ -114,7 +114,7 @@ const campaignerCampaignPerformance = charts.campaignPerformance ??
               <h2 className="text-xl font-black text-gray-900 uppercase tracking-tight">Growth Analytics</h2>
               <p className="text-sm text-gray-400 font-medium">Spend vs Reach across all campaigns</p>
             </div>
-            <select className="bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-500 px-4 focus:ring-purple-500">
+            <select className="bg-gray-50 border-none rounded-xl text-xs font-bold text-gray-500 px-4 focus:ring-brand-500">
                 <option>Last 6 Months</option>
                 <option>Last 30 Days</option>
             </select>
@@ -124,8 +124,8 @@ const campaignerCampaignPerformance = charts.campaignPerformance ??
             <AreaChart data={campaignerSpendData}>
               <defs>
                 <linearGradient id="colorSpend" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.1}/>
-                  <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#CC5500" stopOpacity={0.1}/>
+                  <stop offset="95%" stopColor="#CC5500" stopOpacity={0}/>
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
@@ -134,7 +134,7 @@ const campaignerCampaignPerformance = charts.campaignPerformance ??
               <Tooltip
                 contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'}}
               />
-              <Area type="monotone" dataKey="spend" stroke="#8b5cf6" strokeWidth={4} fillOpacity={1} fill="url(#colorSpend)" />
+              <Area type="monotone" dataKey="spend" stroke="#CC5500" strokeWidth={4} fillOpacity={1} fill="url(#colorSpend)" />
               <Area type="monotone" dataKey="reach" stroke="#3b82f6" strokeWidth={4} fillOpacity={0} />
             </AreaChart>
           </ResponsiveContainer>
@@ -149,11 +149,11 @@ const campaignerCampaignPerformance = charts.campaignPerformance ??
               <div key={campaign.name} className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="font-black text-gray-700">{campaign.name}</span>
-                  <span className="font-bold text-purple-600">{campaign.completion}%</span>
+                  <span className="font-bold text-brand-600">{campaign.completion}%</span>
                 </div>
                 <div className="w-full bg-gray-100 h-3 rounded-full overflow-hidden">
                   <div
-                    className={`h-full rounded-full ${campaign.completion === 100 ? 'bg-emerald-500' : 'bg-purple-600'}`}
+                    className={`h-full rounded-full ${campaign.completion === 100 ? 'bg-brand-600' : 'bg-brand-600'}`}
                     style={{ width: `${campaign.completion}%` }}
                   ></div>
                 </div>
@@ -164,7 +164,7 @@ const campaignerCampaignPerformance = charts.campaignPerformance ??
             ))}
           </div>
 
-          <Link href={route('campaigns.index')} className="mt-8 block text-center py-4 border-2 border-dashed border-gray-100 rounded-2xl text-xs font-black uppercase tracking-widest text-gray-400 hover:border-purple-200 hover:text-purple-600 transition-all">
+          <Link href={route('campaigns.index')} className="mt-8 block text-center py-4 border-2 border-dashed border-gray-100 rounded-2xl text-xs font-black uppercase tracking-widest text-gray-400 hover:border-brand-200 hover:text-brand-600 transition-all">
             View All Campaigns
           </Link>
         </div>
@@ -173,7 +173,7 @@ const campaignerCampaignPerformance = charts.campaignPerformance ??
       {/* --- BOTTOM SECTION: SUBMISSIONS TRACKING --- */}
       <div className="bg-white rounded-[2.5rem] shadow-sm p-8 border border-gray-100">
         <div className="flex items-center gap-2 mb-8">
-            <TrendingUp className="w-5 h-5 text-purple-600" />
+            <TrendingUp className="w-5 h-5 text-brand-600" />
             <h2 className="text-xl font-black text-gray-900 uppercase tracking-tight">Submission Volume</h2>
         </div>
 
@@ -183,7 +183,7 @@ const campaignerCampaignPerformance = charts.campaignPerformance ??
             <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fontSize: 12, fontWeight: 'bold', fill: '#9ca3af'}} />
             <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12, fontWeight: 'bold', fill: '#9ca3af'}} />
             <Tooltip cursor={{fill: '#f9fafb'}} contentStyle={{borderRadius: '16px', border: 'none'}} />
-            <Bar dataKey="submissions" fill="#8b5cf6" radius={[10, 10, 0, 0]} barSize={40} />
+            <Bar dataKey="submissions" fill="#CC5500" radius={[10, 10, 0, 0]} barSize={40} />
           </BarChart>
         </ResponsiveContainer>
       </div>

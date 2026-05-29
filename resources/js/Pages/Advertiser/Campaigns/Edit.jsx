@@ -86,15 +86,15 @@ export default function Edit({ auth }) {
                 {/* HEADER */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
                     <div>
-                        <Link href={route('campaigns.index')} className="text-pink-600 font-black text-[10px] uppercase tracking-[0.2em] flex items-center gap-2 mb-2 group">
+                        <Link href={route('campaigns.index')} className="text-brand-600 font-black text-[10px] uppercase tracking-[0.2em] flex items-center gap-2 mb-2 group">
                             <svg className="w-4 h-4 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></svg>
                             Discard Changes
                         </Link>
-                        <h1 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight">Update <span className="text-pink-600">Gig</span></h1>
+                        <h1 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight">Update <span className="text-brand-600">Gig</span></h1>
                     </div>
                     <div className="bg-white border border-gray-100 px-4 py-2 rounded-2xl shadow-sm self-start inline-flex items-center">
                         <span className="text-[10px] font-black uppercase text-gray-400 mr-2">Status:</span>
-                        <span className="text-xs font-black uppercase text-pink-600">{data.status}</span>
+                        <span className="text-xs font-black uppercase text-brand-600">{data.status}</span>
                     </div>
                 </div>
 
@@ -109,7 +109,7 @@ export default function Edit({ auth }) {
                                 <label className="block text-[10px] font-black uppercase text-gray-400 tracking-widest mb-3">Campaign Title</label>
                                 <input
                                     type="text"
-                                    className="w-full bg-gray-50 border-none rounded-2xl py-4 px-6 focus:ring-2 focus:ring-pink-500 font-bold text-gray-700 transition-all"
+                                    className="w-full bg-gray-50 border-none rounded-2xl py-4 px-6 focus:ring-2 focus:ring-brand-500 font-bold text-gray-700 transition-all"
                                     value={data.title}
                                     onChange={(e) => setData('title', e.target.value)}
                                 />
@@ -117,7 +117,7 @@ export default function Edit({ auth }) {
                             </div>
 
                             <div>
-                                <label className="block text-[10px] font-black uppercase text-pink-600 tracking-widest mb-4">Category</label>
+                                <label className="block text-[10px] font-black uppercase text-brand-600 tracking-widest mb-4">Category</label>
                                 <div className="flex flex-wrap gap-2">
                                     {categories.map((cat) => (
                                         <button
@@ -127,7 +127,7 @@ export default function Edit({ auth }) {
                                             className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border-2 ${
                                                 data.category === cat
                                                 ? 'bg-gray-900 border-gray-900 text-white shadow-lg'
-                                                : 'bg-white border-gray-50 text-gray-400 hover:border-pink-100'
+                                                : 'bg-white border-gray-50 text-gray-400 hover:border-brand-100'
                                             }`}
                                         >
                                             {cat}
@@ -140,7 +140,7 @@ export default function Edit({ auth }) {
                         {/* Targeting */}
                         <div className="bg-white p-6 sm:p-8 rounded-[2.5rem] border border-gray-100 shadow-sm space-y-8">
                             <div>
-                                <p className="text-[10px] font-black uppercase text-pink-600 tracking-widest mb-4">Social Platforms</p>
+                                <p className="text-[10px] font-black uppercase text-brand-600 tracking-widest mb-4">Social Platforms</p>
                                 <div className="flex flex-wrap gap-2">
                                     {['Facebook', 'YouTube', 'Instagram', 'WhatsApp', 'TikTok', 'Twitter'].map((p) => {
                                         const id = p.toLowerCase();
@@ -153,7 +153,7 @@ export default function Edit({ auth }) {
                                                     const current = [...data.platforms];
                                                     setData('platforms', isChecked ? current.filter(x => x !== id) : [...current, id]);
                                                 }}
-                                                className={`px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border-2 ${isChecked ? 'bg-pink-600 border-pink-600 text-white shadow-lg' : 'bg-white border-gray-50 text-gray-400'}`}
+                                                className={`px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border-2 ${isChecked ? 'bg-brand-600 border-brand-600 text-white shadow-lg' : 'bg-white border-gray-50 text-gray-400'}`}
                                             >
                                                 {p}
                                             </button>
@@ -163,7 +163,7 @@ export default function Edit({ auth }) {
                             </div>
 
                             <div>
-                                <p className="text-[10px] font-black uppercase text-pink-600 tracking-widest mb-4">Follower Requirement</p>
+                                <p className="text-[10px] font-black uppercase text-brand-600 tracking-widest mb-4">Follower Requirement</p>
                                 <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
                                     {followerRanges.map((range) => (
                                         <button
@@ -218,7 +218,7 @@ export default function Edit({ auth }) {
                                     </div>
                                     <div className="flex justify-between text-xl font-black text-white pt-4 border-t border-gray-800">
                                         <span>Total Cost</span>
-                                        <span className="text-pink-500">{formatCurrency(data.total_budget)}</span>
+                                        <span className="text-brand-500">{formatCurrency(data.total_budget)}</span>
                                     </div>
                                 </div>
                             </div>
@@ -227,7 +227,7 @@ export default function Edit({ auth }) {
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="hidden md:block w-full bg-pink-600 hover:bg-pink-700 disabled:bg-gray-700 text-white font-black py-4 rounded-2xl transition-all shadow-xl shadow-pink-900/20 uppercase tracking-widest text-sm"
+                                className="hidden md:block w-full bg-brand-600 hover:bg-brand-700 disabled:bg-gray-700 text-white font-black py-4 rounded-2xl transition-all shadow-xl shadow-brand-900/20 uppercase tracking-widest text-sm"
                             >
                                 {processing ? 'Updating...' : 'Update Gig Now'}
                             </button>
@@ -240,7 +240,7 @@ export default function Edit({ auth }) {
                     <button
                         onClick={submit}
                         disabled={processing}
-                        className="w-full bg-pink-600 text-white font-black py-4 rounded-2xl shadow-lg shadow-pink-200 uppercase tracking-widest text-sm active:scale-95 transition-transform"
+                        className="w-full bg-brand-600 text-white font-black py-4 rounded-2xl shadow-lg shadow-brand-200 uppercase tracking-widest text-sm active:scale-95 transition-transform"
                     >
                         {processing ? 'Saving Changes...' : 'Update Gig'}
                     </button>
