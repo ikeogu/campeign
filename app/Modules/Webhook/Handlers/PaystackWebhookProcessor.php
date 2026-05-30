@@ -16,8 +16,11 @@ class PaystackWebhookProcessor extends ProcessWebhookJob
         Log::info('Paystack Webhook Received', $data);
 
         match ($data['event']) {
-            'charge.success' => $paymentService->handleChargeSuccess($data),
-            default => $paymentService->verifyPayment($data['data']['reference'], null),
+            'charge.success'   => $paymentService->handleChargeSuccess($data),
+            'transfer.success' => $paymentService->handleTransferSuccess($data['data']),
+            'transfer.failed',
+            'transfer.reversed' => $paymentService->handleTransferFailed($data['data']),
+            default => Log::info('Paystack webhook event ignored', ['event' => $data['event']]),
         };
     }
 }
