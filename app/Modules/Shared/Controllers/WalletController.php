@@ -72,11 +72,38 @@ class WalletController extends ApiController
     public function resolveBank(Request $request)
     {
         $request->validate([
-            'account_number' => ['required'],
-            'bank_code' => ['required']
+            'account_number' => ['required', 'digits:10'],
+            'bank_code'      => ['required', 'string'],
         ]);
 
-        return $this->paystackGatewayInterface->resolveAccountNumber($request->account_number, $request->bank_code)['data'] ?? null;
+        try {
+            $result = $this->paystackGatewayInterface->resolveAccountNumber(
+                $request->account_number,
+                $request->bank_code
+            );
+
+            if (!empty($result['status']) && !empty($result['data']['account_name'])) {
+                return response()->json([
+                    'account_name'   => $result['data']['account_name'],
+                    'account_number' => $result['data']['account_number'] ?? $request->account_number,
+                ]);
+            }
+
+            return response()->json([
+                'error' => $result['message'] ?? 'Could not verify account. Check account number and bank.',
+            ], 422);
+
+        } catch (\Throwable $e) {
+            Log::error('Bank resolve failed', [
+                'account_number' => $request->account_number,
+                'bank_code'      => $request->bank_code,
+                'error'          => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'error' => 'Verification service unavailable. Please try again.',
+            ], 503);
+        }
     }
 
     public function payout(Request $request)

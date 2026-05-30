@@ -101,6 +101,7 @@ Route::middleware(['web', 'auth:web'])->group(function () {
     Route::post('wallet-fund-initialize', [WalletController::class, 'initialize'])->name('wallet.fund.initialize');
     Route::get('withdraw-create', [WalletController::class, 'withdraw'])->name('withdraw.create');
     Route::post('payout', [WalletController::class, 'payout'])->name('withdraw.store');
+    Route::get('resolve-bank', [WalletController::class, 'resolveBank'])->name('api.bank.resolve');
     Route::get('/promoter-analysis', [DashboardController::class, 'promoterAnalysis'])->name('promoter.analytics');
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->middleware(['auth', 'verified', 'onboarded'])->name('dashboard');
     Route::get('/referrals', [\App\Modules\User\Controllers\ReferralController::class, 'index'])->name('referrals.index');

@@ -34,20 +34,31 @@ export default function Withdraw({ banks }) {
 
     const resolveAccount = async () => {
         setIsValidating(true);
+        setAccountName('');
         try {
-            const response = await fetch(route('api.bank.resolve', {
-                account_number: data.account_number,
-                bank_code: data.bank_code
-            }));
+            const url = route('api.bank.resolve') +
+                `?account_number=${data.account_number}&bank_code=${data.bank_code}`;
+
+            const response = await fetch(url, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                credentials: 'same-origin',
+            });
+
             const result = await response.json();
-            if (result.account_name) {
+
+            if (response.ok && result.account_name) {
                 setAccountName(result.account_name);
                 setData('account_name', result.account_name);
             } else {
-                setAccountName('Could not verify account');
+                setAccountName(result.error || result.message || 'Could not verify account');
+                setData('account_name', '');
             }
         } catch (e) {
-            setAccountName('Error verifying account');
+            setAccountName('Verification failed. Check your connection.');
+            setData('account_name', '');
         } finally {
             setIsValidating(false);
         }
@@ -144,7 +155,7 @@ export default function Withdraw({ banks }) {
 
                         <button
                             type="submit"
-                            disabled={processing || !accountName || accountName.includes('Could not') || isValidating || isOverBalance || inputAmount <= 0}
+                            disabled={processing || !data.account_name || isValidating || isOverBalance || inputAmount <= 0}
                             className="w-full py-5 bg-brand-600 text-white font-black rounded-2xl hover:bg-brand-700 shadow-xl transition-all active:scale-95 disabled:opacity-50 uppercase text-[10px] tracking-widest"
                         >
                             {processing ? 'Processing...' : 'Confirm Withdrawal'}

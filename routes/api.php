@@ -9,6 +9,4 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 
-Route::middleware('auth:sanctum')->get('resolve-bank', [WalletController::class, 'resolveBank'])->name('api.bank.resolve');
-
 Route::webhooks('webhook/paystack', 'paystack');
