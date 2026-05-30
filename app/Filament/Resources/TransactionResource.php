@@ -42,7 +42,7 @@ class TransactionResource extends Resource
             ->modifyQueryUsing(
                 fn(Builder $query) => $query
                     ->where('type', 'debit')
-                    ->where('status', 'pending')
+                    ->whereIn('status', ['pending', 'processed'])
                     ->with('wallet.user')
             )
             ->columns([
