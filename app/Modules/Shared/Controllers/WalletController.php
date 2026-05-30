@@ -112,52 +112,68 @@ class WalletController extends ApiController
         $user = Auth::user();
 
         $request->validate([
-            'amount' => 'required|numeric|min:100',
-            'bank_code' => 'required',
+            'amount'         => 'required|numeric|min:100',
+            'bank_code'      => 'required',
             'account_number' => 'required|digits:10',
-            'account_name' => 'required|string|max:100',
-            'narration' => 'nullable|string|max:100', // Validate the new field
+            'account_name'   => 'required|string|max:100',
+            'narration'      => 'nullable|string|max:100',
         ]);
 
-        $percentage = config('app.transfer_fee');
-        $grossAmount = $request->amount; // e.g., 1000
+        Log::info('Payout initiated', [
+            'user'           => $user->email,
+            'amount_naira'   => $request->amount,
+            'bank_code'      => $request->bank_code,
+            'account_number' => $request->account_number,
+            'account_name'   => $request->account_name,
+        ]);
 
-        // Calculations in Kobo for Paystack accuracy
-        $grossKobo = $grossAmount * 100;
+        $percentage  = (float) config('app.transfer_fee', 10);
+        $grossAmount = (float) $request->amount;
+        $grossKobo   = (int) round($grossAmount * 100);
+        $feeKobo     = (int) round($grossKobo * $percentage / 100);
+        $netPayoutKobo = $grossKobo - $feeKobo;
 
-        // Compare in the same unit (kobo vs kobo)
+        Log::info('Payout amounts', [
+            'gross_kobo'      => $grossKobo,
+            'fee_kobo'        => $feeKobo,
+            'net_payout_kobo' => $netPayoutKobo,
+            'wallet_balance'  => $user->wallet->balance,
+        ]);
+
         if ($user->wallet->balance < $grossKobo) {
+            Log::warning('Payout blocked: insufficient wallet balance', [
+                'wallet_balance' => $user->wallet->balance,
+                'required_kobo'  => $grossKobo,
+            ]);
             return back()->withErrors(['amount' => 'Insufficient wallet balance.']);
         }
-        $feeKobo = (int) round(($grossKobo * $percentage) / 100);
-        $netPayoutKobo = $grossKobo - $feeKobo; // What actually goes to their bank
 
         // Check platform Paystack balance before touching the user's wallet.
         try {
             $paystackBalances = $this->paystackGatewayInterface->checkBalance();
-            $platformBalance  = collect($paystackBalances)->firstWhere('currency', 'NGN')['balance'] ?? 0;
+            Log::info('Paystack platform balance', ['balances' => $paystackBalances]);
+            $platformBalance = collect($paystackBalances)->firstWhere('currency', 'NGN')['balance'] ?? 0;
         } catch (\Throwable $e) {
             Log::error('Paystack balance check failed', ['error' => $e->getMessage()]);
             $platformBalance = null;
         }
 
         if ($platformBalance !== null && $platformBalance < $netPayoutKobo) {
-            $amountNaira   = number_format($netPayoutKobo / 100, 2);
-            $currentNaira  = number_format($platformBalance / 100, 2);
+            $amountNaira  = number_format($netPayoutKobo / 100, 2);
+            $currentNaira = number_format($platformBalance / 100, 2);
 
             User::where('role', 'admin')->each(fn($admin) =>
                 $admin->notify(new NotifyAnythingNotification(
                     'Low Paystack Balance — Withdrawal Blocked',
-                    "A withdrawal of ₦{$amountNaira} requested by {$user->email} could not be processed.\n\n" .
-                    "Platform Paystack NGN balance: ₦{$currentNaira}.\n\n" .
-                    "Please top up the platform Paystack account to resume payouts."
+                    "A withdrawal of ₦{$amountNaira} by {$user->email} was blocked.\n\n" .
+                    "Platform NGN balance: ₦{$currentNaira}.\n\nPlease top up Paystack."
                 ))
             );
 
             Log::warning('Payout blocked: insufficient Paystack balance', [
-                'user'              => $user->email,
-                'requested_kobo'    => $netPayoutKobo,
-                'platform_balance'  => $platformBalance,
+                'user'           => $user->email,
+                'requested_kobo' => $netPayoutKobo,
+                'platform_kobo'  => $platformBalance,
             ]);
 
             return back()->withErrors([
@@ -169,46 +185,61 @@ class WalletController extends ApiController
             DB::transaction(function () use ($user, $grossKobo, $feeKobo, $netPayoutKobo, $request) {
                 $reference = 'WD-' . now()->format('YmdHisv') . random_int(100, 999);
 
-                // Lock the wallet row for the duration of this transaction to prevent
-                // concurrent requests from passing the balance check simultaneously (TOCTOU).
                 $wallet = $user->wallet()->lockForUpdate()->firstOrFail();
 
                 if ($wallet->balance < $grossKobo) {
-                    throw new \RuntimeException('Insufficient wallet balance.');
+                    throw new \RuntimeException('Insufficient wallet balance (race condition check).');
                 }
 
-                // 1. Deduct the FULL amount from user wallet
                 $wallet->decrement('balance', $grossKobo);
 
-                // 2. Record the transaction
                 $wallet->transactions()->create([
-                    'type' => 'debit',
-                    'amount' => $grossKobo , // Total deducted in wallet
+                    'type'        => 'debit',
+                    'amount'      => $grossKobo,
                     'description' => $request->narration ?? "Withdrawal to {$request->account_number}",
-                    'status' => 'pending',
-                    'reference' => $reference,
-                    'metadata' => [
-                        'bank_code' => $request->bank_code,
+                    'status'      => 'pending',
+                    'reference'   => $reference,
+                    'metadata'    => [
+                        'bank_code'      => $request->bank_code,
                         'account_number' => $request->account_number,
-                        'fee' => $feeKobo / 100,
-                        'net_payout' => $netPayoutKobo / 100,
-                    ]
+                        'fee_kobo'       => $feeKobo,
+                        'net_payout_kobo'=> $netPayoutKobo,
+                    ],
                 ]);
 
-                // 3. Trigger actual transfer: Send the NET amount to Paystack
-                $this->paystackGatewayInterface->payout([
-                    'amount' => $netPayoutKobo, // Paystack receives the amount minus the fee
-                    'reference' => $reference,
-                    'bank_code' => $request->bank_code,
+                Log::info('Calling Paystack createRecipient', [
+                    'reference'      => $reference,
                     'account_number' => $request->account_number,
-                    'account_name' => $request->account_name,
-                    'narration' => $request->narration ?? "Withdrawal from Wallet"
+                    'bank_code'      => $request->bank_code,
+                    'account_name'   => $request->account_name,
+                    'net_kobo'       => $netPayoutKobo,
                 ]);
+
+                $result = $this->paystackGatewayInterface->payout([
+                    'amount'         => $netPayoutKobo,
+                    'reference'      => $reference,
+                    'bank_code'      => $request->bank_code,
+                    'account_number' => $request->account_number,
+                    'account_name'   => $request->account_name,
+                    'narration'      => $request->narration ?? 'Withdrawal from Wallet',
+                ]);
+
+                Log::info('Paystack payout response', ['result' => (array) $result]);
             });
 
+            Log::info('Payout DB transaction committed', ['user' => $user->email]);
             return back()->with('message', 'Withdrawal initiated successfully!');
-        } catch (\Exception $e) {
-            Log::error("Payout Failed: " . $e->getMessage() . " at line " . $e->getLine());
+
+        } catch (\Throwable $e) {
+            // \Throwable catches both \Exception and \Error (including PHP 8 TypeError)
+            Log::error('Payout failed', [
+                'user'    => $user->email,
+                'message' => $e->getMessage(),
+                'class'   => get_class($e),
+                'file'    => $e->getFile(),
+                'line'    => $e->getLine(),
+                'trace'   => collect($e->getTrace())->take(5)->toArray(),
+            ]);
             return back()->withErrors(['amount' => 'Payout failed: ' . $e->getMessage()]);
         }
     }

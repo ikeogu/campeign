@@ -5,90 +5,125 @@ namespace App\Http\Clients;
 use App\Interfaces\PaymentGateWayInterface;
 use Illuminate\Http\Client\PendingRequest;
 use App\Dtos\PaystackPayoutDto;
+use Illuminate\Support\Facades\Log;
 
 class PaystackClient extends PendingRequest implements PaymentGateWayInterface
 {
 
+    public function createRecipient(array $data)
+    {
+        $payload = [
+            'type'           => 'nuban',
+            'name'           => $data['account_name'],
+            'account_number' => $data['account_number'],
+            'bank_code'      => $data['bank_code'],
+            'currency'       => 'NGN',
+            'description'    => $data['narration'] ?? '',
+            'metadata'       => ['reference' => $data['reference']],
+        ];
 
-  public function createRecipient(array $data)
-  {
-    $payload = [
-      'type' => 'nuban',
-      'name' => $data['account_name'],
-      'account_number' => $data['account_number'],
-      'bank_code' => $data['bank_code'],
-      'currency' => 'NGN',
-      'description' => $data['narration'],
-      'metadata' => [
-        'reference' => $data['reference']
-      ]
-    ];
+        Log::info('[Paystack] POST transferrecipient', ['payload' => $payload]);
 
-    $response = $this->post('transferrecipient', $payload);
-    return $response->json('data');
-  }
+        $response = $this->post('transferrecipient', $payload);
+        $body     = $response->json();
 
-  public function payout(array $data)
-  {
-    $recipient = $this->createRecipient($data);
+        Log::info('[Paystack] transferrecipient response', [
+            'status'  => $response->status(),
+            'body'    => $body,
+        ]);
 
-    if (empty($recipient['recipient_code'])) {
-      throw new \RuntimeException('Could not create transfer recipient: ' . ($recipient['message'] ?? 'unknown error'));
+        if (!($body['status'] ?? false)) {
+            throw new \RuntimeException(
+                'Paystack createRecipient failed: ' . ($body['message'] ?? 'unknown error')
+            );
+        }
+
+        return $body['data'] ?? null;
     }
 
-    $payload = [
-      'source'    => 'balance',
-      'amount'    => $data['amount'],
-      'recipient' => $recipient['recipient_code'],
-      'reason'    => $data['narration'],
-      'currency'  => 'NGN',
-      'reference' => $data['reference'],
-      'metadata'  => ['reference' => $data['reference']],
-    ];
+    public function payout(array $data)
+    {
+        $recipient = $this->createRecipient($data);
 
-    $response = $this->post('transfer', $payload);
+        if (empty($recipient['recipient_code'])) {
+            throw new \RuntimeException(
+                'createRecipient returned no recipient_code. Response: ' . json_encode($recipient)
+            );
+        }
 
-    if (!$response->json('status')) {
-      throw new \RuntimeException('Paystack transfer failed: ' . ($response->json('message') ?? 'unknown error'));
+        $payload = [
+            'source'    => 'balance',
+            'amount'    => $data['amount'],
+            'recipient' => $recipient['recipient_code'],
+            'reason'    => $data['narration'] ?? 'Withdrawal',
+            'currency'  => 'NGN',
+            'reference' => $data['reference'],
+            'metadata'  => ['reference' => $data['reference']],
+        ];
+
+        Log::info('[Paystack] POST transfer', ['payload' => $payload]);
+
+        $response = $this->post('transfer', $payload);
+        $body     = $response->json();
+
+        Log::info('[Paystack] transfer response', [
+            'status' => $response->status(),
+            'body'   => $body,
+        ]);
+
+        if (!($body['status'] ?? false)) {
+            throw new \RuntimeException(
+                'Paystack transfer failed: ' . ($body['message'] ?? 'unknown error')
+            );
+        }
+
+        return PaystackPayoutDto::fromArray($body['data']);
     }
 
-    return PaystackPayoutDto::fromArray($response->json('data'));
-  }
+    public function payin(array $data)
+    {
+        $response = $this->post('transaction/initialize', $data);
+        return $response;
+    }
 
-  public function payin(array $data)
-  {
+    public function refund(array $data)
+    {
+        return $this->post('refund', $data);
+    }
 
-    $response =  $this->post('transaction/initialize', $data);
+    public function getBanks()
+    {
+        $response = $this->get('bank?country=Nigeria');
+        return $response->json();
+    }
 
-    return $response;
-  }
+    public function resolveAccountNumber(string $accountNumber, string $bankCode)
+    {
+        Log::info('[Paystack] GET bank/resolve', [
+            'account_number' => $accountNumber,
+            'bank_code'      => $bankCode,
+        ]);
 
-  public function refund(array $data)
-  {
-    return $this->post('refund', $data);
-  }
+        $response = $this->get("bank/resolve?account_number={$accountNumber}&bank_code={$bankCode}");
+        $body     = $response->json();
 
-  public function getBanks()
-  {
-    $response =  $this->get('bank?country=Nigeria');
-    return $response->json();
-  }
+        Log::info('[Paystack] bank/resolve response', [
+            'status' => $response->status(),
+            'body'   => $body,
+        ]);
 
-  public function resolveAccountNumber(string $accountNumber, string $bankCode)
-  {
-    $response =  $this->get("bank/resolve?account_number=$accountNumber&bank_code=$bankCode");
-    return $response->json();
-  }
+        return $body;
+    }
 
-  public function checkBalance()
-  {
-    $response =  $this->get('balance');
-    return $response->json('data');
-  }
+    public function checkBalance()
+    {
+        $response = $this->get('balance');
+        return $response->json('data');
+    }
 
-  public function verifyTransaction(string $reference)
-  {
-    $response =  $this->get("transaction/verify/{$reference}");
-    return $response;
-  }
+    public function verifyTransaction(string $reference)
+    {
+        $response = $this->get("transaction/verify/{$reference}");
+        return $response;
+    }
 }
