@@ -119,21 +119,13 @@ class WalletController extends ApiController
             'narration'      => 'nullable|string|max:100',
         ]);
 
-        Log::info('Payout initiated', [
-            'user'           => $user->email,
-            'amount_naira'   => $request->amount,
-            'bank_code'      => $request->bank_code,
-            'account_number' => $request->account_number,
-            'account_name'   => $request->account_name,
-        ]);
-
-        $percentage  = (float) config('app.transfer_fee', 10);
-        $grossAmount = (float) $request->amount;
-        $grossKobo   = (int) round($grossAmount * 100);
-        $feeKobo     = (int) round($grossKobo * $percentage / 100);
+        $percentage    = (float) config('app.transfer_fee', 10);
+        $grossKobo     = (int) round((float) $request->amount * 100);
+        $feeKobo       = (int) round($grossKobo * $percentage / 100);
         $netPayoutKobo = $grossKobo - $feeKobo;
 
-        Log::info('Payout amounts', [
+        Log::info('Payout initiated', [
+            'user'            => $user->email,
             'gross_kobo'      => $grossKobo,
             'fee_kobo'        => $feeKobo,
             'net_payout_kobo' => $netPayoutKobo,
@@ -141,14 +133,56 @@ class WalletController extends ApiController
         ]);
 
         if ($user->wallet->balance < $grossKobo) {
-            Log::warning('Payout blocked: insufficient wallet balance', [
-                'wallet_balance' => $user->wallet->balance,
-                'required_kobo'  => $grossKobo,
-            ]);
             return back()->withErrors(['amount' => 'Insufficient wallet balance.']);
         }
 
-        // Check platform Paystack balance before touching the user's wallet.
+        // ── Step 1: Debit wallet & create pending transaction atomically.
+        // This happens BEFORE the Paystack call so the record always exists
+        // for the retry command if the platform balance is insufficient.
+        $transaction = null;
+
+        try {
+            DB::transaction(function () use ($user, $grossKobo, $feeKobo, $netPayoutKobo, $request, &$transaction) {
+                $wallet = $user->wallet()->lockForUpdate()->firstOrFail();
+
+                if ($wallet->balance < $grossKobo) {
+                    throw new \RuntimeException('Insufficient wallet balance (race condition check).');
+                }
+
+                $wallet->decrement('balance', $grossKobo);
+
+                $transaction = $wallet->transactions()->create([
+                    'type'        => 'debit',
+                    'amount'      => $grossKobo,
+                    'channel'     => 'withdrawal',
+                    'description' => $request->narration ?? "Withdrawal to {$request->account_number}",
+                    'status'      => 'pending',
+                    'reference'   => 'WD-' . now()->format('YmdHisv') . random_int(100, 999),
+                    'metadata'    => [
+                        'bank_code'       => $request->bank_code,
+                        'account_number'  => $request->account_number,
+                        'account_name'    => $request->account_name,
+                        'fee_kobo'        => $feeKobo,
+                        'net_payout_kobo' => $netPayoutKobo,
+                        'narration'       => $request->narration ?? 'Withdrawal from Wallet',
+                    ],
+                ]);
+            });
+        } catch (\Throwable $e) {
+            Log::error('Payout: wallet debit failed', [
+                'user'    => $user->email,
+                'message' => $e->getMessage(),
+            ]);
+            return back()->withErrors(['amount' => 'Could not process withdrawal: ' . $e->getMessage()]);
+        }
+
+        // Safety guard — should never be null here since the catch above returns early.
+        if ($transaction === null) {
+            Log::error('Payout: transaction was not created after DB block.', ['user' => $user->email]);
+            return back()->withErrors(['amount' => 'Withdrawal could not be recorded. Please try again.']);
+        }
+
+        // ── Step 2: Check platform Paystack balance.
         try {
             $paystackBalances = $this->paystackGatewayInterface->checkBalance();
             Log::info('Paystack platform balance', ['balances' => $paystackBalances]);
@@ -159,88 +193,71 @@ class WalletController extends ApiController
         }
 
         if ($platformBalance !== null && $platformBalance < $netPayoutKobo) {
+            // Wallet is already debited. Leave the transaction pending — the
+            // ProcessPendingWithdrawals command will retry it when balance is topped up.
             $amountNaira  = number_format($netPayoutKobo / 100, 2);
             $currentNaira = number_format($platformBalance / 100, 2);
 
             User::where('role', 'admin')->each(fn($admin) =>
                 $admin->notify(new NotifyAnythingNotification(
-                    'Low Paystack Balance — Withdrawal Blocked',
-                    "A withdrawal of ₦{$amountNaira} by {$user->email} was blocked.\n\n" .
-                    "Platform NGN balance: ₦{$currentNaira}.\n\nPlease top up Paystack."
+                    'Low Paystack Balance — Withdrawal Queued',
+                    "A withdrawal of ₦{$amountNaira} by {$user->email} was queued (pending).\n\n" .
+                    "Platform NGN balance: ₦{$currentNaira}.\n\n" .
+                    "The withdrawal will be auto-processed once the balance is topped up."
                 ))
             );
 
-            Log::warning('Payout blocked: insufficient Paystack balance', [
-                'user'           => $user->email,
-                'requested_kobo' => $netPayoutKobo,
-                'platform_kobo'  => $platformBalance,
+            Log::warning('Payout queued: insufficient Paystack balance', [
+                'user'            => $user->email,
+                'transaction_ref' => $transaction->reference,
+                'required_kobo'   => $netPayoutKobo,
+                'platform_kobo'   => $platformBalance,
             ]);
 
-            return back()->withErrors([
-                'amount' => "We can't process your withdrawal at the moment. Please try again later or contact support.",
-            ]);
+            return redirect()->route('withdraw.create')->with('message',
+                'Your withdrawal request has been queued and will be processed automatically once our payment processor is ready. Your wallet has been debited.'
+            );
         }
 
+        // ── Step 3: Dispatch the transfer to Paystack immediately.
         try {
-            DB::transaction(function () use ($user, $grossKobo, $feeKobo, $netPayoutKobo, $request) {
-                $reference = 'WD-' . now()->format('YmdHisv') . random_int(100, 999);
+            Log::info('Dispatching Paystack transfer', [
+                'reference' => $transaction->reference,
+                'net_kobo'  => $netPayoutKobo,
+            ]);
 
-                $wallet = $user->wallet()->lockForUpdate()->firstOrFail();
+            $result = $this->paystackGatewayInterface->payout([
+                'amount'         => $netPayoutKobo,
+                'reference'      => $transaction->reference,
+                'bank_code'      => $request->bank_code,
+                'account_number' => $request->account_number,
+                'account_name'   => $request->account_name,
+                'narration'      => $request->narration ?? 'Withdrawal from Wallet',
+            ]);
 
-                if ($wallet->balance < $grossKobo) {
-                    throw new \RuntimeException('Insufficient wallet balance (race condition check).');
-                }
+            // Mark as dispatched — awaiting Paystack webhook confirmation.
+            $transaction->update(['status' => 'processing']);
 
-                $wallet->decrement('balance', $grossKobo);
+            Log::info('Paystack transfer dispatched', [
+                'reference' => $transaction->reference,
+                'result'    => (array) $result,
+            ]);
 
-                $wallet->transactions()->create([
-                    'type'        => 'debit',
-                    'amount'      => $grossKobo,
-                    'description' => $request->narration ?? "Withdrawal to {$request->account_number}",
-                    'status'      => 'pending',
-                    'reference'   => $reference,
-                    'metadata'    => [
-                        'bank_code'      => $request->bank_code,
-                        'account_number' => $request->account_number,
-                        'fee_kobo'       => $feeKobo,
-                        'net_payout_kobo'=> $netPayoutKobo,
-                    ],
-                ]);
-
-                Log::info('Calling Paystack createRecipient', [
-                    'reference'      => $reference,
-                    'account_number' => $request->account_number,
-                    'bank_code'      => $request->bank_code,
-                    'account_name'   => $request->account_name,
-                    'net_kobo'       => $netPayoutKobo,
-                ]);
-
-                $result = $this->paystackGatewayInterface->payout([
-                    'amount'         => $netPayoutKobo,
-                    'reference'      => $reference,
-                    'bank_code'      => $request->bank_code,
-                    'account_number' => $request->account_number,
-                    'account_name'   => $request->account_name,
-                    'narration'      => $request->narration ?? 'Withdrawal from Wallet',
-                ]);
-
-                Log::info('Paystack payout response', ['result' => (array) $result]);
-            });
-
-            Log::info('Payout DB transaction committed', ['user' => $user->email]);
-            return back()->with('message', 'Withdrawal initiated successfully!');
+            return redirect()->route('withdraw.create')->with('message', 'Withdrawal initiated successfully! You will receive your funds shortly.');
 
         } catch (\Throwable $e) {
-            // \Throwable catches both \Exception and \Error (including PHP 8 TypeError)
-            Log::error('Payout failed', [
-                'user'    => $user->email,
-                'message' => $e->getMessage(),
-                'class'   => get_class($e),
-                'file'    => $e->getFile(),
-                'line'    => $e->getLine(),
-                'trace'   => collect($e->getTrace())->take(5)->toArray(),
+            // Paystack call failed for a reason other than balance — log it.
+            // The transaction stays pending so the retry command can attempt it again.
+            Log::error('Paystack transfer dispatch failed', [
+                'user'      => $user->email,
+                'reference' => $transaction->reference,
+                'message'   => $e->getMessage(),
+                'class'     => get_class($e),
             ]);
-            return back()->withErrors(['amount' => 'Payout failed: ' . $e->getMessage()]);
+
+            return redirect()->route('withdraw.create')->with('message',
+                'Your withdrawal has been queued and will be retried automatically. Your wallet has been debited.'
+            );
         }
     }
 
