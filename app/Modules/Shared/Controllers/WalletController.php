@@ -112,7 +112,7 @@ class WalletController extends ApiController
         $user = Auth::user();
 
         $request->validate([
-            'amount' => 'required|numeric|min:500',
+            'amount' => 'required|numeric|min:100',
             'bank_code' => 'required',
             'account_number' => 'required|digits:10',
             'account_name' => 'required|string|max:100',
