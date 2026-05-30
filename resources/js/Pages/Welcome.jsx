@@ -35,8 +35,88 @@ export default function Landing({ liveGigs = [], brandLogos = [] }) {
         <div className="bg-white min-h-screen font-sans selection:bg-brand-100 selection:text-brand-900 overflow-x-hidden">
             <Navbar auth={{ user: null }} />
 
-            {/* ─── 1. HERO ─────────────────────────────────────────────────── */}
-            <section className="relative min-h-screen flex flex-col justify-center overflow-hidden pt-20 pb-10">
+            {/* ─── 1. LIVE GIGS (top — first thing visitors see) ───────────── */}
+            <section className="pt-20 sm:pt-24 pb-10 sm:pb-14 bg-white border-b border-gray-100 overflow-hidden">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6">
+                    <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 sm:mb-10 gap-3">
+                        <div>
+                            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-red-50 border border-red-100 rounded-full mb-2 sm:mb-3">
+                                <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>
+                                <span className="text-red-600 text-[10px] font-black uppercase tracking-widest">Live Now</span>
+                            </div>
+                            <h2 className="text-2xl sm:text-3xl font-black text-gray-900">
+                                Active <span className="text-brand-600">Gigs</span>
+                            </h2>
+                            <p className="text-gray-400 mt-0.5 text-sm font-medium">Real campaigns, real payouts.</p>
+                        </div>
+                        <Link href={route('guest.gigs')} className="text-brand-600 font-black hover:text-brand-700 flex items-center gap-1.5 group text-sm self-start sm:self-auto">
+                            Browse all gigs
+                            <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+                        </Link>
+                    </div>
+
+                    <div className="flex overflow-x-auto pb-4 gap-4 sm:gap-5 no-scrollbar snap-x snap-mandatory">
+                        {displayGigs.map((gig) => {
+                            const brandName = gig.user?.campaigner?.company_name || gig.user?.campaigner?.brand_name || "Exclusive Brand";
+                            const brandLogo = gig.user?.campaigner?.logo_url;
+                            const isCompleted = gig.status === 'completed' || gig.completion_percentage >= 100;
+
+                            return (
+                                <div key={gig.id}
+                                    className={`flex-none w-[260px] sm:w-72 snap-start group relative bg-white overflow-hidden rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl hover:border-brand-200 transition-all duration-300 ${isCompleted ? 'opacity-50 grayscale' : ''}`}>
+                                    <div className="p-4 pb-3 flex justify-between items-center">
+                                        <div className="flex items-center gap-2.5">
+                                            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gray-900 flex items-center justify-center text-white font-black text-sm overflow-hidden shrink-0">
+                                                {brandLogo ? <img src={brandLogo} className="w-full h-full object-cover" alt={brandName} /> : brandName.charAt(0)}
+                                            </div>
+                                            <div>
+                                                <p className="font-black text-gray-900 text-[10px] sm:text-[11px] uppercase tracking-tight leading-none truncate w-24">{brandName}</p>
+                                                <p className="text-[9px] text-gray-400 font-bold uppercase mt-0.5">{gig.category || 'Campaign'}</p>
+                                            </div>
+                                        </div>
+                                        <span className="text-brand-600 font-black text-sm">₦{Number(gig.payout).toLocaleString()}</span>
+                                    </div>
+
+                                    <div className="mx-3 sm:mx-4 h-36 sm:h-44 rounded-2xl bg-gradient-to-br from-gray-50 to-brand-50/30 border border-gray-100 flex items-center justify-center overflow-hidden relative">
+                                        <span className="absolute inset-0 flex items-center justify-center text-6xl font-black italic text-gray-900/[0.03] select-none uppercase">{brandName}</span>
+                                        <span className="text-5xl sm:text-6xl drop-shadow-lg group-hover:scale-110 transition-transform duration-500 relative z-10">
+                                            {gig.image_urls?.[0] ? <img src={gig.image_urls[0].url} className="h-24 sm:h-28 object-contain" alt="Gig" /> : gig.emoji || '📢'}
+                                        </span>
+                                        {gig.platforms?.[0] && (
+                                            <span className={`absolute top-2.5 left-2.5 text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-lg border ${platformColors[gig.platforms[0]?.toLowerCase()] || 'bg-gray-100 text-gray-600 border-gray-200'}`}>
+                                                {gig.platforms[0]}
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    <div className="p-4 pt-3">
+                                        <p className="text-[12px] sm:text-[13px] font-black text-gray-900 mb-2.5 truncate">{gig.title || "Promote our Brand"}</p>
+                                        <div className="flex items-center gap-3 mb-3 sm:mb-4">
+                                            <div className="h-1.5 flex-grow bg-gray-100 rounded-full overflow-hidden">
+                                                <div className="h-full bg-brand-500 transition-all" style={{ width: `${gig.completion_percentage}%` }} />
+                                            </div>
+                                            <span className="text-[9px] font-black text-gray-400">{gig.completion_percentage}%</span>
+                                        </div>
+                                        <Link href={route('login')}
+                                            className="block w-full py-3 rounded-2xl text-center text-white font-black text-[10px] uppercase tracking-[0.15em] bg-gray-900 hover:bg-brand-600 transition-all active:scale-95 shadow-sm">
+                                            Share & Earn
+                                        </Link>
+                                    </div>
+
+                                    {isCompleted && (
+                                        <div className="absolute inset-0 flex items-center justify-center bg-white/50 backdrop-blur-[2px] z-20">
+                                            <span className="bg-gray-900 text-white text-[9px] font-black px-5 py-2 rounded-full uppercase tracking-widest">Budget Reached</span>
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            </section>
+
+            {/* ─── 2. HERO ─────────────────────────────────────────────────── */}
+            <section className="relative flex flex-col justify-center overflow-hidden py-16 sm:py-24 md:py-32">
 
                 {/* Dot-grid */}
                 <div className="absolute inset-0 pointer-events-none"
@@ -147,88 +227,7 @@ export default function Landing({ liveGigs = [], brandLogos = [] }) {
                 </div>
             </section>
 
-            {/* ─── 4. LIVE GIGS ─────────────────────────────────────────────── */}
-            <section className="py-12 sm:py-16 bg-gray-50 border-y border-gray-100 overflow-hidden">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6">
-                    <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 sm:mb-10 gap-3">
-                        <div>
-                            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-red-50 border border-red-100 rounded-full mb-2 sm:mb-3">
-                                <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span>
-                                <span className="text-red-600 text-[10px] font-black uppercase tracking-widest">Live Now</span>
-                            </div>
-                            <h2 className="text-2xl sm:text-3xl font-black text-gray-900">
-                                Active <span className="text-brand-600">Gigs</span>
-                            </h2>
-                            <p className="text-gray-400 mt-0.5 text-sm font-medium">Real campaigns, real payouts.</p>
-                        </div>
-                        <Link href={route('guest.gigs')} className="text-brand-600 font-black hover:text-brand-700 flex items-center gap-1.5 group text-sm self-start sm:self-auto">
-                            Browse all gigs
-                            <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
-                        </Link>
-                    </div>
-
-                    {/* Gig cards — horizontal scroll on all sizes, 2-col-ish on large */}
-                    <div className="flex overflow-x-auto pb-4 gap-4 sm:gap-5 no-scrollbar snap-x snap-mandatory">
-                        {displayGigs.map((gig) => {
-                            const brandName = gig.user?.campaigner?.company_name || gig.user?.campaigner?.brand_name || "Exclusive Brand";
-                            const brandLogo = gig.user?.campaigner?.logo_url;
-                            const isCompleted = gig.status === 'completed' || gig.completion_percentage >= 100;
-
-                            return (
-                                <div key={gig.id}
-                                    className={`flex-none w-[260px] sm:w-72 snap-start group relative bg-white overflow-hidden rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl hover:border-brand-200 transition-all duration-300 ${isCompleted ? 'opacity-50 grayscale' : ''}`}>
-                                    <div className="p-4 pb-3 flex justify-between items-center">
-                                        <div className="flex items-center gap-2.5">
-                                            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gray-900 flex items-center justify-center text-white font-black text-sm overflow-hidden shrink-0">
-                                                {brandLogo ? <img src={brandLogo} className="w-full h-full object-cover" alt={brandName} /> : brandName.charAt(0)}
-                                            </div>
-                                            <div>
-                                                <p className="font-black text-gray-900 text-[10px] sm:text-[11px] uppercase tracking-tight leading-none truncate w-24">{brandName}</p>
-                                                <p className="text-[9px] text-gray-400 font-bold uppercase mt-0.5">{gig.category || 'Campaign'}</p>
-                                            </div>
-                                        </div>
-                                        <span className="text-brand-600 font-black text-sm">₦{Number(gig.payout).toLocaleString()}</span>
-                                    </div>
-
-                                    <div className="mx-3 sm:mx-4 h-36 sm:h-44 rounded-2xl bg-gradient-to-br from-gray-50 to-brand-50/30 border border-gray-100 flex items-center justify-center overflow-hidden relative">
-                                        <span className="absolute inset-0 flex items-center justify-center text-6xl font-black italic text-gray-900/[0.03] select-none uppercase">{brandName}</span>
-                                        <span className="text-5xl sm:text-6xl drop-shadow-lg group-hover:scale-110 transition-transform duration-500 relative z-10">
-                                            {gig.image_urls?.[0] ? <img src={gig.image_urls[0].url} className="h-24 sm:h-28 object-contain" alt="Gig" /> : gig.emoji || '📢'}
-                                        </span>
-                                        {gig.platforms?.[0] && (
-                                            <span className={`absolute top-2.5 left-2.5 text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-lg border ${platformColors[gig.platforms[0]?.toLowerCase()] || 'bg-gray-100 text-gray-600 border-gray-200'}`}>
-                                                {gig.platforms[0]}
-                                            </span>
-                                        )}
-                                    </div>
-
-                                    <div className="p-4 pt-3">
-                                        <p className="text-[12px] sm:text-[13px] font-black text-gray-900 mb-2.5 truncate">{gig.title || "Promote our Brand"}</p>
-                                        <div className="flex items-center gap-3 mb-3 sm:mb-4">
-                                            <div className="h-1.5 flex-grow bg-gray-100 rounded-full overflow-hidden">
-                                                <div className="h-full bg-brand-500 transition-all" style={{ width: `${gig.completion_percentage}%` }} />
-                                            </div>
-                                            <span className="text-[9px] font-black text-gray-400">{gig.completion_percentage}%</span>
-                                        </div>
-                                        <Link href={route('login')}
-                                            className="block w-full py-3 rounded-2xl text-center text-white font-black text-[10px] uppercase tracking-[0.15em] bg-gray-900 hover:bg-brand-600 transition-all active:scale-95 shadow-sm">
-                                            Share & Earn
-                                        </Link>
-                                    </div>
-
-                                    {isCompleted && (
-                                        <div className="absolute inset-0 flex items-center justify-center bg-white/50 backdrop-blur-[2px] z-20">
-                                            <span className="bg-gray-900 text-white text-[9px] font-black px-5 py-2 rounded-full uppercase tracking-widest">Budget Reached</span>
-                                        </div>
-                                    )}
-                                </div>
-                            );
-                        })}
-                    </div>
-                </div>
-            </section>
-
-            {/* ─── 5. FOR PROMOTERS / ADVERTISERS ─────────────────────────── */}
+            {/* ─── 4. FOR PROMOTERS / ADVERTISERS ─────────────────────────── */}
             <section className="py-14 sm:py-20 md:py-28 bg-white">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6">
                     <div className="text-center mb-10 sm:mb-16 md:mb-20">
