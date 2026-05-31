@@ -25,7 +25,6 @@ class WalletResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'id';
 
-    // ── Navigation badge: count wallets with a non-zero balance ──────────────
     public static function getNavigationBadge(): ?string
     {
         return (string) static::getModel()::where('balance', '>', 0)->count();
@@ -41,20 +40,14 @@ class WalletResource extends Resource
         return $form->schema([]);
     }
 
-    // ── Main wallet list table ────────────────────────────────────────────────
+    // ── Main wallet list ──────────────────────────────────────────────────────
     public static function table(Table $table): Table
     {
         return $table
             ->defaultSort('balance', 'desc')
             ->modifyQueryUsing(
-                fn(Builder $q) => $q->with(['user.promoter', 'user.campaigner'])
-                    ->withCount('transactions')
-                    ->withSum(['transactions as total_credited' => fn($q) =>
-                        $q->where('type', 'credit')->where('status', 'successful')
-                    ], 'amount')
-                    ->withSum(['transactions as total_debited' => fn($q) =>
-                        $q->where('type', 'debit')->whereIn('status', ['successful', 'processing'])
-                    ], 'amount')
+                // Keep only simple eager-loading; aggregate columns use getStateUsing
+                fn(Builder $q) => $q->with(['user', 'user.promoter', 'user.campaigner'])
             )
             ->columns([
                 Tables\Columns\TextColumn::make('user.email')
@@ -66,48 +59,69 @@ class WalletResource extends Resource
 
                 Tables\Columns\TextColumn::make('display_name')
                     ->label('Name')
-                    ->getStateUsing(fn(Wallet $record) =>
+                    ->getStateUsing(fn(Wallet $record): string =>
                         $record->user?->promoter?->full_name
                         ?? $record->user?->campaigner?->company_name
                         ?? '—'
                     )
                     ->searchable(query: fn(Builder $q, string $search) =>
                         $q->whereHas('user.promoter', fn($q) =>
-                            $q->whereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"])
+                            $q->whereRaw("CONCAT(first_name,' ',last_name) LIKE ?", ["%{$search}%"])
                         )->orWhereHas('user.campaigner', fn($q) =>
                             $q->where('company_name', 'like', "%{$search}%")
                         )
                     ),
 
-                Tables\Columns\BadgeColumn::make('user.role')
+                Tables\Columns\TextColumn::make('user.role')
                     ->label('Role')
-                    ->colors([
-                        'warning' => 'promoter',
-                        'info'    => 'campaigner',
-                        'danger'  => 'admin',
-                    ])
+                    ->badge()
+                    ->color(fn(?string $state) => match($state) {
+                        'promoter'   => 'warning',
+                        'campaigner' => 'info',
+                        'admin'      => 'danger',
+                        default      => 'gray',
+                    })
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('balance')
-                    ->label('Balance')
+                    ->label('Current Balance')
                     ->formatStateUsing(fn($state) => '₦' . number_format($state / 100, 2))
                     ->sortable()
                     ->color(fn($state) => $state > 0 ? 'success' : 'gray')
                     ->weight(\Filament\Support\Enums\FontWeight::Bold),
 
-                Tables\Columns\TextColumn::make('total_credited')
+                // Total credited — queried per-row to avoid withSum/withCount conflicts
+                Tables\Columns\TextColumn::make('total_in')
                     ->label('Total In')
-                    ->formatStateUsing(fn($state) => '₦' . number_format(($state ?? 0) / 100, 2))
+                    ->getStateUsing(fn(Wallet $record): string =>
+                        '₦' . number_format(
+                            $record->transactions()
+                                ->where('type', 'credit')
+                                ->where('status', 'successful')
+                                ->sum('amount') / 100,
+                            2
+                        )
+                    )
                     ->color('success'),
 
-                Tables\Columns\TextColumn::make('total_debited')
+                Tables\Columns\TextColumn::make('total_out')
                     ->label('Total Out')
-                    ->formatStateUsing(fn($state) => '₦' . number_format(($state ?? 0) / 100, 2))
+                    ->getStateUsing(fn(Wallet $record): string =>
+                        '₦' . number_format(
+                            $record->transactions()
+                                ->where('type', 'debit')
+                                ->whereIn('status', ['successful', 'processing'])
+                                ->sum('amount') / 100,
+                            2
+                        )
+                    )
                     ->color('danger'),
 
-                Tables\Columns\TextColumn::make('transactions_count')
+                Tables\Columns\TextColumn::make('txn_count')
                     ->label('Txns')
-                    ->sortable()
+                    ->getStateUsing(fn(Wallet $record): int =>
+                        $record->transactions()->count()
+                    )
                     ->alignCenter(),
 
                 Tables\Columns\TextColumn::make('updated_at')
@@ -117,9 +131,13 @@ class WalletResource extends Resource
                     ->since(),
             ])
             ->filters([
-                SelectFilter::make('role')
+                SelectFilter::make('user_role')
                     ->label('User Role')
-                    ->relationship('user', 'role')
+                    ->query(fn(Builder $q, array $data) =>
+                        $data['value']
+                            ? $q->whereHas('user', fn($q) => $q->where('role', $data['value']))
+                            : $q
+                    )
                     ->options([
                         'promoter'   => 'Promoter',
                         'campaigner' => 'Advertiser',
@@ -154,9 +172,9 @@ class WalletResource extends Resource
                             ->copyable()
                             ->icon('heroicon-m-envelope'),
 
-                        Infolists\Components\TextEntry::make('display_name')
+                        Infolists\Components\TextEntry::make('holder_name')
                             ->label('Name')
-                            ->getStateUsing(fn(Wallet $record) =>
+                            ->getStateUsing(fn(Wallet $record): string =>
                                 $record->user?->promoter?->full_name
                                 ?? $record->user?->campaigner?->company_name
                                 ?? '—'
@@ -165,7 +183,7 @@ class WalletResource extends Resource
                         Infolists\Components\TextEntry::make('user.role')
                             ->label('Role')
                             ->badge()
-                            ->color(fn(string $state) => match($state) {
+                            ->color(fn(?string $state) => match($state) {
                                 'promoter'   => 'warning',
                                 'campaigner' => 'info',
                                 default      => 'gray',
@@ -175,16 +193,15 @@ class WalletResource extends Resource
                             ->label('Current Balance')
                             ->formatStateUsing(fn($state) => '₦' . number_format($state / 100, 2))
                             ->color('success')
-                            ->size(Infolists\Components\TextEntry\TextEntrySize::Large)
                             ->weight(\Filament\Support\Enums\FontWeight::Bold),
                     ]),
 
-                Infolists\Components\Section::make('Totals')
+                Infolists\Components\Section::make('Transaction Summary')
                     ->columns(3)
                     ->schema([
-                        Infolists\Components\TextEntry::make('total_in')
+                        Infolists\Components\TextEntry::make('info_total_in')
                             ->label('Total Funded (Credits)')
-                            ->getStateUsing(fn(Wallet $record) =>
+                            ->getStateUsing(fn(Wallet $record): string =>
                                 '₦' . number_format(
                                     $record->transactions()
                                         ->where('type', 'credit')
@@ -195,9 +212,9 @@ class WalletResource extends Resource
                             )
                             ->color('success'),
 
-                        Infolists\Components\TextEntry::make('total_out')
-                            ->label('Total Withdrawn (Debits)')
-                            ->getStateUsing(fn(Wallet $record) =>
+                        Infolists\Components\TextEntry::make('info_total_out')
+                            ->label('Total Withdrawn')
+                            ->getStateUsing(fn(Wallet $record): string =>
                                 '₦' . number_format(
                                     $record->transactions()
                                         ->where('type', 'debit')
@@ -208,13 +225,13 @@ class WalletResource extends Resource
                             )
                             ->color('danger'),
 
-                        Infolists\Components\TextEntry::make('pending_total')
+                        Infolists\Components\TextEntry::make('info_pending')
                             ->label('Pending Withdrawals')
-                            ->getStateUsing(fn(Wallet $record) =>
+                            ->getStateUsing(fn(Wallet $record): string =>
                                 '₦' . number_format(
                                     $record->transactions()
                                         ->where('type', 'debit')
-                                        ->where('status', 'pending')
+                                        ->whereIn('status', ['pending', 'processing'])
                                         ->sum('amount') / 100,
                                     2
                                 )
