@@ -30,7 +30,9 @@ class TransactionResource extends Resource
         return $table
             ->defaultSort('created_at', 'desc')
             ->modifyQueryUsing(
-                fn(Builder $query) => $query->with('wallet.user')
+            fn(Builder $query) => $query
+                ->whereHas('wallet.user')
+                ->with('wallet.user')
             )
             ->columns([
                 Tables\Columns\TextColumn::make('wallet.user.email')
