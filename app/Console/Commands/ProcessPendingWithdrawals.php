@@ -35,7 +35,7 @@ class ProcessPendingWithdrawals extends Command
 
         if ($pending->isEmpty()) {
             $this->info('No pending withdrawals found.');
-            Log::info('[ProcessPendingWithdrawals] No pending withdrawals.');
+           /*  Log::info('[ProcessPendingWithdrawals] No pending withdrawals.'); */
             return self::SUCCESS;
         }
 

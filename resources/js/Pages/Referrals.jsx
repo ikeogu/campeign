@@ -46,7 +46,7 @@ export default function Referrals({ referrals, totalEarnings }) {
                         </div>
                         <div className="bg-brand-600 p-8 rounded-[2.5rem] shadow-xl shadow-brand-100">
                             <p className="text-[10px] font-black text-brand-200 uppercase tracking-widest mb-1">Total Commission</p>
-                            <h3 className="text-3xl font-black text-white">${totalEarnings.toFixed(2)}</h3>
+                            <h3 className="text-3xl font-black text-white"> ₦{totalEarnings.toFixed(2)}</h3>
                         </div>
                         <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm">
                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Commission Rate</p>
@@ -83,7 +83,7 @@ export default function Referrals({ referrals, totalEarnings }) {
                                             </td>
                                             <td className="px-8 py-6">
                                                 <span className="bg-brand-100 text-brand-700 px-3 py-1 rounded-full text-[10px] font-black uppercase">
-                                                    + ${((referral.total_spent || 0) * 0.10).toFixed(2)}
+                                                    + ₦{((referral.total_spent || 0) * 0.10).toFixed(2)}
                                                 </span>
                                             </td>
                                         </tr>
