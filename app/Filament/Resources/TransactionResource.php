@@ -24,7 +24,7 @@ class TransactionResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-arrow-path';
 
-    protected static ?string $navigationLabel = 'Pending Withdrawals';
+    protected static ?string $navigationLabel = 'Withdrawals';
 
     protected static ?string $navigationGroup = 'Finance';
 
@@ -42,7 +42,7 @@ class TransactionResource extends Resource
             ->modifyQueryUsing(
                 fn(Builder $query) => $query
                     ->where('type', 'debit')
-                    ->whereIn('status', ['pending', 'processed'])
+                    ->where('channel', 'withdrawal')
                     ->with('wallet.user')
             )
             ->columns([
@@ -69,10 +69,12 @@ class TransactionResource extends Resource
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->color(fn(string $state) => match ($state) {
-                        'successful' => 'success',
-                        'failed', 'reversed' => 'danger',
-                        default => 'warning',
-                    }),
+                        'successful'           => 'success',
+                        'processing'           => 'info',
+                        'failed', 'reversed'   => 'danger',
+                        default                => 'warning',   // pending
+                    })
+                    ->formatStateUsing(fn(string $state) => ucfirst($state)),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Requested At')
@@ -83,9 +85,10 @@ class TransactionResource extends Resource
                 SelectFilter::make('status')
                     ->options([
                         'pending'    => 'Pending',
-                        'reversed'   => 'Reversed',
+                        'processing' => 'Processing',
                         'successful' => 'Successful',
                         'failed'     => 'Failed',
+                        'reversed'   => 'Reversed',
                     ]),
             ])
             ->actions([
@@ -100,7 +103,7 @@ class TransactionResource extends Resource
                         " back to {$record->wallet->user->email}'s wallet and mark the transaction as reversed. This cannot be undone."
                     )
                     ->modalSubmitActionLabel('Yes, Revert')
-                    ->visible(fn(Transaction $record) => $record->status === 'pending' && $record->type === 'debit')
+                    ->visible(fn(Transaction $record) => in_array($record->status, ['pending', 'processing']) && $record->type === 'debit')
                     ->action(fn(Transaction $record) => static::revertTransaction($record)),
             ])
             ->bulkActions([
@@ -118,7 +121,7 @@ class TransactionResource extends Resource
                         $skipped  = 0;
 
                         foreach ($records as $record) {
-                            if ($record->status !== 'pending' || $record->type !== 'debit') {
+                            if (! in_array($record->status, ['pending', 'processing']) || $record->type !== 'debit') {
                                 $skipped++;
                                 continue;
                             }
@@ -131,8 +134,8 @@ class TransactionResource extends Resource
                             ->send();
                     }),
             ])
-            ->emptyStateHeading('No pending withdrawals')
-            ->emptyStateDescription('All withdrawal transactions have been processed.');
+            ->emptyStateHeading('No withdrawal transactions')
+            ->emptyStateDescription('No withdrawal transactions have been recorded yet.');
     }
 
     protected static function revertTransaction(Transaction $record): bool
