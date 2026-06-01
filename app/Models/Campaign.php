@@ -29,12 +29,14 @@ class Campaign extends Model
         'management_fee',
         'total_budget',
         'available_slots',
-        'status'
+        'status',
+        'is_trial',
     ];
 
     protected $casts = [
         'target_shares' => 'integer',
-        'platforms' => 'array'
+        'platforms' => 'array',
+        'is_trial' => 'boolean',
     ];
 
 
@@ -124,7 +126,7 @@ class Campaign extends Model
             $campaign->available_slots = $campaign->target_shares;
             $campaign->save();
 
-            if ($campaign->user->wallet->balance < $campaign->total_budget * 100) {
+            if (!$campaign->is_trial && $campaign->user->wallet->balance < $campaign->total_budget * 100) {
                 $campaign->user->notify(new FundWalletNotification($campaign->user, $campaign));
             }
         });

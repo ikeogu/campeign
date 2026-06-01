@@ -8,7 +8,7 @@ export default function Create({ auth }) {
     const { data, setData, post, errors, processing } = useForm({
         title: '',
         description: '',
-        category: '', // Added category to form state
+        category: '',
         platforms: [],
         min_followers: '',
         payout: '',
@@ -17,7 +17,32 @@ export default function Create({ auth }) {
         management_fee: 0,
         total_budget: 0,
         files: [],
+        is_trial: false,
     });
+
+    const toggleTrial = () => {
+        if (!data.is_trial) {
+            setData((prev) => ({
+                ...prev,
+                is_trial: true,
+                payout: 200,
+                target_shares: 5,
+                base_budget: 1000,
+                management_fee: 0,
+                total_budget: 0,
+            }));
+        } else {
+            setData((prev) => ({
+                ...prev,
+                is_trial: false,
+                payout: '',
+                target_shares: '',
+                base_budget: 0,
+                management_fee: 0,
+                total_budget: 0,
+            }));
+        }
+    };
 
     const categories = [
        'Fashion & Beauty',
@@ -51,6 +76,7 @@ export default function Create({ auth }) {
     ];
 
     useEffect(() => {
+        if (data.is_trial) return;
         const payout = Number(data.payout) || 0;
         const shares = Number(data.target_shares) || 0;
         const baseCost = payout * shares;
@@ -63,7 +89,7 @@ export default function Create({ auth }) {
             management_fee: fee,
             total_budget: total
         }));
-    }, [data.payout, data.target_shares]);
+    }, [data.payout, data.target_shares, data.is_trial]);
 
     function handleImages(e) {
         const newlySelectedFiles = Array.from(e.target.files);
@@ -265,54 +291,104 @@ export default function Create({ auth }) {
                     {/* RIGHT COLUMN: Budget Summary */}
                     <div className="space-y-6">
                         <div className="bg-gray-900 rounded-[2.5rem] p-8 text-white shadow-2xl sticky top-8">
-                            <h3 className="text-xs font-black text-brand-500 uppercase tracking-[0.2em] mb-8">Budget Summary</h3>
-
-                            <div className="space-y-6">
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="block text-[10px] font-black text-gray-500 uppercase mb-2 tracking-widest">Payout Per Share (₦)</label>
-                                        <input
-                                            type="number"
-                                            className="w-full bg-white/5 border-white/10 rounded-xl py-3 px-4 text-xl font-black text-white focus:ring-brand-500"
-                                            value={data.payout}
-                                            onChange={(e) => setData('payout', e.target.value)}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-[10px] font-black text-gray-500 uppercase mb-2 tracking-widest">Target Share Count</label>
-                                        <input
-                                            type="number"
-                                            className="w-full bg-white/5 border-white/10 rounded-xl py-3 px-4 text-xl font-black text-white focus:ring-brand-500"
-                                            value={data.target_shares}
-                                            onChange={(e) => setData('target_shares', e.target.value)}
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="pt-6 border-t border-white/10 space-y-3 text-xs font-bold">
-                                    <div className="flex justify-between">
-                                        <span className="text-gray-400">Net Spend</span>
-                                        <span>₦{data.base_budget.toLocaleString()}</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-gray-400">Platform Fee (10%)</span>
-                                        <span className="text-brand-500">+₦{data.management_fee.toLocaleString()}</span>
-                                    </div>
-                                </div>
-
-                                <div className="pt-6 border-t border-white/10">
-                                    <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Total Budget</p>
-                                    <p className="text-4xl font-black text-green-400 tracking-tighter">₦{data.total_budget.toLocaleString()}</p>
-                                </div>
-
+                            {/* Trial toggle */}
+                            <div className="flex items-center justify-between mb-8">
+                                <h3 className="text-xs font-black text-brand-500 uppercase tracking-[0.2em]">
+                                    {data.is_trial ? 'Trial Campaign' : 'Budget Summary'}
+                                </h3>
                                 <button
-                                    type="submit"
-                                    disabled={processing}
-                                    className="w-full bg-brand-600 hover:bg-brand-700 py-5 rounded-2xl font-black uppercase text-xs tracking-widest transition-all transform active:scale-95 disabled:opacity-50 shadow-xl shadow-brand-900/20"
+                                    type="button"
+                                    onClick={toggleTrial}
+                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${data.is_trial ? 'bg-brand-600' : 'bg-white/20'}`}
                                 >
-                                    {processing ? 'Processing...' : 'Launch Campaign'}
+                                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform ${data.is_trial ? 'translate-x-6' : 'translate-x-1'}`} />
                                 </button>
                             </div>
+
+                            {data.is_trial ? (
+                                <div className="space-y-6">
+                                    {errors.is_trial && (
+                                        <p className="text-xs text-red-400 font-bold bg-red-900/30 rounded-xl px-4 py-3">{errors.is_trial}</p>
+                                    )}
+                                    <p className="text-[10px] text-gray-400 leading-relaxed">
+                                        Launch your first campaign for free. The platform covers the payouts so you can see results before funding your wallet.
+                                    </p>
+                                    <div className="space-y-3 pt-2">
+                                        <div className="flex justify-between text-xs font-bold">
+                                            <span className="text-gray-400">Max promoters</span>
+                                            <span>5</span>
+                                        </div>
+                                        <div className="flex justify-between text-xs font-bold">
+                                            <span className="text-gray-400">Payout per promoter</span>
+                                            <span>₦200</span>
+                                        </div>
+                                        <div className="flex justify-between text-xs font-bold">
+                                            <span className="text-gray-400">Platform fee</span>
+                                            <span className="text-green-400">₦0</span>
+                                        </div>
+                                    </div>
+                                    <div className="pt-6 border-t border-white/10">
+                                        <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Your Cost</p>
+                                        <p className="text-4xl font-black text-green-400 tracking-tighter">₦0</p>
+                                    </div>
+                                    <button
+                                        type="submit"
+                                        disabled={processing}
+                                        className="w-full bg-brand-600 hover:bg-brand-700 py-5 rounded-2xl font-black uppercase text-xs tracking-widest transition-all transform active:scale-95 disabled:opacity-50 shadow-xl shadow-brand-900/20"
+                                    >
+                                        {processing ? 'Processing...' : 'Launch Free Trial'}
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="space-y-6">
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-[10px] font-black text-gray-500 uppercase mb-2 tracking-widest">Payout Per Share (₦)</label>
+                                            <input
+                                                type="number"
+                                                className="w-full bg-white/5 border-white/10 rounded-xl py-3 px-4 text-xl font-black text-white focus:ring-brand-500"
+                                                value={data.payout}
+                                                onChange={(e) => setData('payout', e.target.value)}
+                                            />
+                                            {errors.payout && <p className="mt-1 text-xs text-red-400 font-bold">{errors.payout}</p>}
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-black text-gray-500 uppercase mb-2 tracking-widest">Target Share Count</label>
+                                            <input
+                                                type="number"
+                                                className="w-full bg-white/5 border-white/10 rounded-xl py-3 px-4 text-xl font-black text-white focus:ring-brand-500"
+                                                value={data.target_shares}
+                                                onChange={(e) => setData('target_shares', e.target.value)}
+                                            />
+                                            {errors.target_shares && <p className="mt-1 text-xs text-red-400 font-bold">{errors.target_shares}</p>}
+                                        </div>
+                                    </div>
+
+                                    <div className="pt-6 border-t border-white/10 space-y-3 text-xs font-bold">
+                                        <div className="flex justify-between">
+                                            <span className="text-gray-400">Net Spend</span>
+                                            <span>₦{data.base_budget.toLocaleString()}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="text-gray-400">Platform Fee (10%)</span>
+                                            <span className="text-brand-500">+₦{data.management_fee.toLocaleString()}</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="pt-6 border-t border-white/10">
+                                        <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Total Budget</p>
+                                        <p className="text-4xl font-black text-green-400 tracking-tighter">₦{data.total_budget.toLocaleString()}</p>
+                                    </div>
+
+                                    <button
+                                        type="submit"
+                                        disabled={processing}
+                                        className="w-full bg-brand-600 hover:bg-brand-700 py-5 rounded-2xl font-black uppercase text-xs tracking-widest transition-all transform active:scale-95 disabled:opacity-50 shadow-xl shadow-brand-900/20"
+                                    >
+                                        {processing ? 'Processing...' : 'Launch Campaign'}
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </form>

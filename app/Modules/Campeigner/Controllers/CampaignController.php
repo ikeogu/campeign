@@ -57,6 +57,14 @@ class CampaignController extends ApiController
 
     public function store(Request $request)
     {
+        /** @var User $user */
+        $user = Auth::user();
+        $isTrial = $request->boolean('is_trial');
+
+        if ($isTrial && $user->campaigns()->where('is_trial', true)->exists()) {
+            return back()->withErrors(['is_trial' => 'You have already used your one free trial campaign.'])->withInput();
+        }
+
         // Detect PHP-level upload errors before validation runs.
         // These happen when the server rejects the file (e.g. upload_max_filesize in php.ini),
         // which Laravel's 'file' rule can only report as "failed to upload" without context.
@@ -81,26 +89,34 @@ class CampaignController extends ApiController
             'category'      => 'nullable|string',
             'platforms'     => 'required|array',
             'platforms.*'   => 'string',
-            'payout'        => 'required|numeric|min:1',
-            'target_shares' => 'required|integer|min:1',
+            'payout'        => $isTrial ? 'nullable|numeric' : 'required|numeric|min:1',
+            'target_shares' => $isTrial ? 'nullable|integer' : 'required|integer|min:1',
             'files'         => 'required|array',
             'files.*'       => [
                 'file',
                 'mimes:jpg,jpeg,png,mp4,mov,avi,webm',
                 'max:51200',
             ],
-            'total_budget'   => ['required', 'numeric', 'min:0'],
+            'total_budget'   => ['nullable', 'numeric', 'min:0'],
             'management_fee' => ['nullable', 'numeric', 'min:0'],
             'base_budget'    => ['nullable', 'numeric', 'min:0'],
             'min_followers'  => ['required', 'string'],
+            'is_trial'       => ['nullable', 'boolean'],
         ], [
             'files.*.file'  => 'Each upload must be a valid file.',
             'files.*.mimes' => 'Allowed formats: jpg, jpeg, png, mp4, mov, avi, webm.',
             'files.*.max'   => 'Each file must be 50 MB or smaller.',
         ]);
 
-        /** @var User $user */
-        $user = Auth::user();
+        // Force trial values server-side so they cannot be tampered with.
+        if ($isTrial) {
+            $validated['payout']         = 200;
+            $validated['target_shares']  = 5;
+            $validated['base_budget']    = 1000;
+            $validated['management_fee'] = 0;
+            $validated['total_budget']   = 1000;
+        }
+
         /*  abort_if(
             $user->campaigner && ! $user->campaigner->is_approved,
             403,
@@ -108,18 +124,19 @@ class CampaignController extends ApiController
         ); */
 
 
-        DB::transaction(function () use ($validated, $user, $request) {
+        DB::transaction(function () use ($validated, $user, $request, $isTrial) {
             $campaign = $user->campaigns()->create([
-                'title'         => $validated['title'],
-                'description'   => $validated['description'] ?? null,
+                'title'          => $validated['title'],
+                'description'    => $validated['description'] ?? null,
                 'platforms'      => $validated['platforms'],
-                'category'      => $validated['category'],
-                'payout'        => $validated['payout'],
-                'target_shares' => $validated['target_shares'],
-                'total_budget' => $validated['total_budget'],
-                'status'        => 'pending',
-                'management_fee'  => $validated['management_fee'] ?? null,
-                'base_budget'  => $validated['base_budget'] ?? null,
+                'category'       => $validated['category'],
+                'payout'         => $validated['payout'],
+                'target_shares'  => $validated['target_shares'],
+                'total_budget'   => $validated['total_budget'] ?? 0,
+                'status'         => $isTrial ? 'live' : 'pending',
+                'is_trial'       => $isTrial,
+                'management_fee' => $validated['management_fee'] ?? null,
+                'base_budget'    => $validated['base_budget'] ?? null,
                 'min_followers'  => $validated['min_followers'],
             ]);
 
@@ -134,9 +151,11 @@ class CampaignController extends ApiController
             }
         });
 
+        $message = $isTrial
+            ? 'Trial campaign launched! Up to 5 promoters can now pick it up.'
+            : 'Campaign created successfully';
 
-        return redirect()->route('campaigns.index')
-            ->with('success', 'Campaign created successfully');
+        return redirect()->route('campaigns.index')->with('success', $message);
     }
 
     public function edit(Campaign $campaign)

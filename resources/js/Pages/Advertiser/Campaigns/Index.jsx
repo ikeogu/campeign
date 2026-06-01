@@ -108,7 +108,14 @@ export default function CampaignIndex() {
                                     <div className="flex justify-between items-start mb-4">
                                         <div>
                                             <h3 className="text-sm font-black text-gray-900 uppercase leading-tight">{c.title}</h3>
-                                            <StatusBadge status={c.status} />
+                                            <div className="flex items-center gap-1.5 flex-wrap mt-1">
+                                                <StatusBadge status={c.status} />
+                                                {c.is_trial && (
+                                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[8px] font-black uppercase bg-amber-100 text-amber-800 border border-amber-200">
+                                                        Trial
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
                                         <p className="text-[10px] font-black text-brand-600 bg-brand-50 px-2 py-1 rounded-lg">
                                             {formatCurrency(c.payout)}/share
@@ -128,7 +135,7 @@ export default function CampaignIndex() {
 
                                     {/* Actions */}
                                     <div className="grid grid-cols-2 gap-2">
-                                        {(isPending || isPaused) && (
+                                        {(isPending || isPaused) && !c.is_trial && (
                                             <Link href={route('campaigns.fund', c.id)} className="col-span-2 bg-brand-600 text-white text-center py-3 rounded-xl text-[10px] font-black uppercase tracking-widest mb-1">
                                                 Fund Campaign
                                             </Link>
@@ -172,9 +179,16 @@ export default function CampaignIndex() {
                                         <tr key={c.id} className={isPaused ? 'bg-gray-50/40' : 'hover:bg-gray-50/20 transition-colors'}>
                                             <td className="px-6 py-6">
                                                 <p className={`text-sm font-black uppercase ${isPaused ? 'text-gray-400' : 'text-gray-900'}`}>{c.title}</p>
-                                                <span className={`inline-block mt-1 px-2 py-0.5 rounded-full text-[8px] font-black uppercase border ${getStatusColor(c.status)}`}>
-                                                    {c.status}
-                                                </span>
+                                                <div className="flex items-center gap-1.5 flex-wrap mt-1">
+                                                    <span className={`inline-block px-2 py-0.5 rounded-full text-[8px] font-black uppercase border ${getStatusColor(c.status)}`}>
+                                                        {c.status}
+                                                    </span>
+                                                    {c.is_trial && (
+                                                        <span className="inline-block px-2 py-0.5 rounded-full text-[8px] font-black uppercase bg-amber-100 text-amber-800 border border-amber-200">
+                                                            Trial
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </td>
                                             <td className="px-6 py-6">
                                                 <div className="w-48 h-1.5 bg-gray-100 rounded-full overflow-hidden">
@@ -185,7 +199,7 @@ export default function CampaignIndex() {
                                             </td>
                                             <td className="px-6 py-6">
                                                 <div className="flex justify-center items-center gap-2">
-                                                    {(isPending || isPaused) && (
+                                                    {(isPending || isPaused) && !c.is_trial && (
                                                         <Link href={route('campaigns.fund', c.id)} className="bg-brand-600 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase hover:bg-brand-700 shadow-sm transition-all">
                                                             Fund
                                                         </Link>
