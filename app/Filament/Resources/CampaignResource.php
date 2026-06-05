@@ -3,15 +3,11 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\CampaignResource\Pages;
-use App\Filament\Resources\CampaignResource\RelationManagers;
 use App\Models\Campaign;
-use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
@@ -130,14 +126,16 @@ class CampaignResource extends Resource
                     ->sortable(),
 
 
-                Tables\Columns\BadgeColumn::make('status')
-                    ->colors([
-                        'secondary' => 'pending',
-                        'warning'   => 'funded',
-                        'info'      => 'approved',
-                        'success'   => 'live',
-                        'gray'      => 'completed',
-                    ])
+                Tables\Columns\TextColumn::make('status')
+                    ->badge()
+                    ->color(fn(string $state): string => match($state) {
+                        'pending'   => 'gray',
+                        'funded'    => 'warning',
+                        'approved'  => 'info',
+                        'live'      => 'success',
+                        'completed' => 'gray',
+                        default     => 'gray',
+                    })
                     ->sortable(),
                 Tables\Columns\TextColumn::make('images_count')
                     ->counts('images')
@@ -196,6 +194,9 @@ class CampaignResource extends Resource
                         fn(Campaign $record) =>
                         $record->update(['status' => 'live'])
                     ),
+
+                Tables\Actions\DeleteAction::make()
+                    ->requiresConfirmation(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

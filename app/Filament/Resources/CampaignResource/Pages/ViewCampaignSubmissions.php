@@ -16,6 +16,9 @@ class ViewCampaignSubmissions extends Page
 
     public function mount(Campaign $record): void
     {
-        $this->record = $record;
+        $this->record = $record->load([
+            'submissions.user.promoter',
+            'submissions.verification',
+        ]);
     }
 }
