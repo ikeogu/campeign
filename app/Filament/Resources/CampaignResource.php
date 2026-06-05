@@ -15,7 +15,9 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\ViewField;
+use Filament\Tables\Filters\TernaryFilter;
 
 class CampaignResource extends Resource
 {
@@ -35,9 +37,17 @@ class CampaignResource extends Resource
                         TextInput::make('payout')->disabled(),
                         TextInput::make('target_shares')->disabled(),
 
+                        TextInput::make('min_followers')
+                            ->label('Min. Followers Required')
+                            ->disabled(),
+
                         TextInput::make('total_budget')->disabled(),
 
                         TextInput::make('status')->disabled(),
+
+                        Toggle::make('is_trial')
+                            ->label('Trial Campaign')
+                            ->disabled(),
                     ])
                     ->columns(2),
 
@@ -76,6 +86,19 @@ class CampaignResource extends Resource
 
                 Tables\Columns\TextColumn::make('target_shares')
                     ->label('Target Shares')
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('min_followers')
+                    ->label('Min. Followers')
+                    ->sortable()
+                    ->default('—'),
+
+                Tables\Columns\IconColumn::make('is_trial')
+                    ->label('Trial')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-gift')
+                    ->falseIcon('')
+                    ->trueColor('warning')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('payout')
@@ -134,6 +157,12 @@ class CampaignResource extends Resource
                         'live'      => 'Live',
                         'completed' => 'Completed',
                     ]),
+
+                TernaryFilter::make('is_trial')
+                    ->label('Trial Campaigns')
+                    ->trueLabel('Trial only')
+                    ->falseLabel('Paid only')
+                    ->placeholder('All campaigns'),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

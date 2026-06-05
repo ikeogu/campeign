@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use App\Modules\Promoter\Services\PostVerificationService;
@@ -139,12 +140,21 @@ class ProofResource extends Resource
                     ->badge(), */
 
                 Tables\Columns\TextColumn::make('user.promoter.follower_count')
-                    ->label('Followers')
+                    ->label('Promoter Followers')
                     ->numeric()
                     ->sortable(query: function (Builder $query, string $direction) {
                         $query->join('promoters', 'promoters.user_id', '=', 'promoter_submissions.user_id')
                             ->orderBy('promoters.follower_count', $direction);
                     }),
+
+                Tables\Columns\TextColumn::make('campaign.min_followers')
+                    ->label('Required Followers')
+                    ->default('—')
+                    ->color(fn($record): string =>
+                        ($record->user?->promoter?->follower_count ?? 0) < (int) ($record->campaign?->min_followers ?? 0)
+                            ? 'danger'
+                            : 'success'
+                    ),
 
                 Tables\Columns\TextColumn::make('campaign.title')
                     ->label('Campaign')
@@ -200,6 +210,17 @@ class ProofResource extends Resource
 
                 SelectFilter::make('platform')
                     ->relationship('campaign', 'title'),
+
+                Filter::make('below_follower_requirement')
+                    ->label('Below follower requirement')
+                    ->query(fn(Builder $query) =>
+                        $query->whereHas('user.promoter', function ($q) {
+                            $q->whereColumn(
+                                'promoters.follower_count', '<',
+                                \Illuminate\Support\Facades\DB::raw('(SELECT CAST(campaigns.min_followers AS UNSIGNED) FROM campaigns WHERE campaigns.id = promoter_submissions.campaign_id)')
+                            );
+                        })
+                    ),
             ])
             ->actions([
                 Tables\Actions\Action::make('approve')

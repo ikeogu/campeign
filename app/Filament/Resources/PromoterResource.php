@@ -9,9 +9,10 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
+use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Log;
 
 class PromoterResource extends Resource
@@ -95,6 +96,40 @@ class PromoterResource extends Resource
                 ->dateTime()
                 ->label('Approved At')
                 ->toggleable(isToggledHiddenByDefault: true), */
+            ])
+            ->filters([
+                Filter::make('follower_range')
+                    ->label('Min. Follower Count')
+                    ->form([
+                        TextInput::make('min')
+                            ->label('At least')
+                            ->numeric()
+                            ->placeholder('e.g. 1000'),
+                        TextInput::make('max')
+                            ->label('At most')
+                            ->numeric()
+                            ->placeholder('e.g. 50000'),
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        return $query
+                            ->when($data['min'], fn($q) => $q->where('follower_count', '>=', (int) $data['min']))
+                            ->when($data['max'], fn($q) => $q->where('follower_count', '<=', (int) $data['max']));
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+                        if ($data['min'] ?? null) {
+                            $indicators[] = 'Followers ≥ ' . number_format((int) $data['min']);
+                        }
+                        if ($data['max'] ?? null) {
+                            $indicators[] = 'Followers ≤ ' . number_format((int) $data['max']);
+                        }
+                        return $indicators;
+                    }),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
             ]);
     }
 

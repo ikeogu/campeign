@@ -17,12 +17,19 @@ class PromoterGigController extends ApiController
     public function index()
     {
         $gigs = Campaign::with(['images'])
-            ->where('status', 'live')
-            ->where('available_slots', '>', 0)
-            ->whereRaw(
-                '(SELECT COUNT(*) FROM promoter_submissions WHERE campaign_id = campaigns.id AND status != ?) < campaigns.target_shares',
-                ['rejected']
-            )
+            ->where(function ($q) {
+                // Live campaigns still accepting submissions
+                $q->where(function ($inner) {
+                    $inner->where('status', 'live')
+                          ->where('available_slots', '>', 0)
+                          ->whereRaw(
+                              '(SELECT COUNT(*) FROM promoter_submissions WHERE campaign_id = campaigns.id AND status != ?) < campaigns.target_shares',
+                              ['rejected']
+                          );
+                })
+                // Completed/exhausted campaigns — visible but locked
+                ->orWhere('status', 'completed');
+            })
             ->latest()
             ->get()
             ->map(function ($gig) {
@@ -33,8 +40,9 @@ class PromoterGigController extends ApiController
                     'platforms' => $gig->platforms,
                     'payout' => $gig->payout,
                     'target_shares' => $gig->target_shares,
-                    'target_followers' => $gig->target_followers,
+                    'min_followers' => $gig->min_followers,
                     'available_slots' => $gig->available_slots,
+                    'status' => $gig->status,
                     'completion_percentage' => $gig->completion_percentage,
                     'image_urls' => $gig->images->map(fn($i) => [
                         'id' => $i->id,
@@ -69,6 +77,10 @@ class PromoterGigController extends ApiController
         ->whereIn('action', ['submitted', 'verified', 'completed'])
         ->exists();
 
+        $followerCount = Auth::user()->promoter?->follower_count ?? 0;
+        $minFollowers = (int) $gig->min_followers;
+        $isEligible = $minFollowers === 0 || $followerCount >= $minFollowers;
+
         return Inertia::render('Promoter/Gigs/Show', [
             'gig' => [
                 'id' => $gig->id,
@@ -76,16 +88,18 @@ class PromoterGigController extends ApiController
                 'description' => $gig->description,
                 'platforms' => $gig->platforms,
                 'payout' => $gig->payout,
-                'target_followers' => $gig->target_followers,
+                'min_followers' => $gig->min_followers,
                 'available_slots' => $gig->available_slots ?? 'Unlimited',
                 'image_urls' => $gig->images->map(fn($i) => [
                     'id' => $i->id,
                     'url' => asset('storage/' . $i->file_path),
                 ]),
-
+                'category' => $gig->category,
             ],
             'companyName' => $gig->user->campaigner->company_name,
             'hasSubmitted' => $hasSubmitted,
+            'isEligible' => $isEligible,
+            'promoterFollowerCount' => $followerCount,
         ]);
     }
 
@@ -103,6 +117,14 @@ class PromoterGigController extends ApiController
         $user = Auth::user();
 
         $gig = Campaign::findOrFail($id);
+
+        $followerCount = $user->promoter?->follower_count ?? 0;
+        $minFollowers = (int) $gig->min_followers;
+
+        if ($minFollowers > 0 && $followerCount < $minFollowers) {
+            return redirect()->route('promoter.gigs.show', $id)
+                ->with('error', "You need at least " . number_format($minFollowers) . " followers to submit to this campaign. Your current count: " . number_format($followerCount) . ".");
+        }
 
         return Inertia::render('Promoter/Gigs/Submit', [
             'gig' => [
@@ -127,6 +149,15 @@ class PromoterGigController extends ApiController
 
         if ($activeSubmissions >= $campaign->target_shares) {
             return back()->withErrors(['submission' => 'This campaign is no longer accepting submissions.']);
+        }
+
+        $followerCount = Auth::user()->promoter?->follower_count ?? 0;
+        $minFollowers = (int) $campaign->min_followers;
+
+        if ($minFollowers > 0 && $followerCount < $minFollowers) {
+            return back()->withErrors([
+                'submission' => "You need at least " . number_format($minFollowers) . " followers to submit to this campaign.",
+            ]);
         }
 
         foreach ($request->submissions as $platform => $data) {

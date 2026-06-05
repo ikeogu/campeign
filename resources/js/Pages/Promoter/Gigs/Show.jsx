@@ -5,7 +5,7 @@ import { useState } from 'react';
 const formatCurrency = (amount) => `₦${Number(amount).toLocaleString('en-NG')}`;
 
 export default function PromoterCampaignShow() {
-    const { gig, hasSubmitted, auth, companyName } = usePage().props;
+    const { gig, hasSubmitted, auth, companyName, isEligible, promoterFollowerCount } = usePage().props;
     const [showReminder, setShowReminder] = useState(false);
     const [copied, setCopied] = useState(false);
 
@@ -174,15 +174,26 @@ export default function PromoterCampaignShow() {
                 {/* 7. FLOATING ACTION BAR */}
                 <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-xl border-t border-gray-100 z-50">
                     <div className="max-w-3xl mx-auto">
-                        {!hasSubmitted ? (
+                        {hasSubmitted ? (
+                            <div className="w-full py-4 bg-gray-100 text-gray-400 rounded-2xl font-black text-sm uppercase tracking-[0.2em] text-center border border-gray-200">
+                                Already Submitted
+                            </div>
+                        ) : !isEligible ? (
+                            <div className="w-full rounded-2xl overflow-hidden border border-red-100">
+                                <div className="bg-red-50 px-5 py-3 text-center">
+                                    <p className="text-[10px] font-black text-red-600 uppercase tracking-widest">
+                                        Not Eligible — Requires {Number(gig.min_followers).toLocaleString()} followers
+                                    </p>
+                                    <p className="text-[9px] font-bold text-red-400 mt-0.5">
+                                        Your current count: {Number(promoterFollowerCount).toLocaleString()}
+                                    </p>
+                                </div>
+                            </div>
+                        ) : (
                             <button onClick={() => setShowReminder(true)} className="flex items-center justify-center gap-3 w-full py-4 bg-brand-600 text-white rounded-2xl font-black text-sm uppercase tracking-[0.2em] shadow-2xl shadow-brand-200 hover:bg-brand-700 transition-all active:scale-95">
                                 Submit Proof of Share
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
                             </button>
-                        ) : (
-                            <div className="w-full py-4 bg-gray-100 text-gray-400 rounded-2xl font-black text-sm uppercase tracking-[0.2em] text-center border border-gray-200">
-                                Already Submitted
-                            </div>
                         )}
                     </div>
                 </div>
