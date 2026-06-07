@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\Auth\AdminAuthenticatedSessionController;
+use App\Http\Controllers\Admin\WithdrawalExportController;
 use App\Http\Controllers\ProfileController;
 use App\Modules\Auth\Controllers\OnboardingController;
 use App\Modules\Campeigner\Controllers\CampaignController;
@@ -105,6 +106,9 @@ Route::middleware(['web', 'auth:web'])->group(function () {
     Route::get('/promoter-analysis', [DashboardController::class, 'promoterAnalysis'])->name('promoter.analytics');
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->middleware(['auth', 'verified', 'onboarded'])->name('dashboard');
     Route::get('/referrals', [\App\Modules\User\Controllers\ReferralController::class, 'index'])->name('referrals.index');
+
+    Route::get('/admin/withdrawals/export-pending-csv', [WithdrawalExportController::class, 'pendingCsv'])
+        ->name('admin.withdrawals.export-csv');
 });
 
 

@@ -141,6 +141,46 @@ class WithdrawalResource extends Resource
                     ->action(fn(Transaction $record) => static::revertWithdrawal($record)),
             ])
             ->bulkActions([
+                BulkAction::make('mark_successful')
+                    ->label('Mark as Successful')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->modalHeading('Mark Selected as Successful')
+                    ->modalDescription('This will mark all selected processing withdrawals as successful and notify each user. Only "processing" transactions will be updated — others will be skipped.')
+                    ->modalSubmitActionLabel('Yes, Mark Successful')
+                    ->deselectRecordsAfterCompletion()
+                    ->action(function (Collection $records) {
+                        $marked  = 0;
+                        $skipped = 0;
+
+                        foreach ($records as $record) {
+                            if ($record->status !== 'processing') {
+                                $skipped++;
+                                continue;
+                            }
+
+                            $record->update(['status' => 'successful']);
+
+                            $user = $record->wallet?->user;
+                            if ($user) {
+                                $user->notify(new NotifyAnythingNotification(
+                                    'Withdrawal Successful',
+                                    "Your withdrawal of ₦" . number_format($record->amount / 100, 2) .
+                                    " (ref: {$record->reference}) has been processed successfully.\n\n" .
+                                    "The funds should reflect in your bank account shortly."
+                                ));
+                            }
+
+                            $marked++;
+                        }
+
+                        Notification::make()
+                            ->title("Done: {$marked} marked successful, {$skipped} skipped")
+                            ->success()
+                            ->send();
+                    }),
+
                 BulkAction::make('revert_selected')
                     ->label('Revert Selected')
                     ->icon('heroicon-o-arrow-uturn-left')
