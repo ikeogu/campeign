@@ -1,6 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { usePage, Link } from '@inertiajs/react';
-import { useState } from 'react';
 
 export default function WalletIndex() {
     const { wallet, transactions, auth } = usePage().props;
@@ -92,6 +91,12 @@ export default function WalletIndex() {
                                             </div>
                                             <div className="overflow-hidden">
                                                 <p className="font-black text-gray-800 text-xs md:text-sm leading-tight truncate">{t.description}</p>
+                                                {t.channel === 'withdrawal' && (t.metadata?.bank_name || t.metadata?.bank_code) && (
+                                                    <p className="text-[9px] font-bold text-gray-500 truncate mt-0.5">
+                                                        {t.metadata.bank_name || t.metadata.bank_code}
+                                                        {t.metadata.account_number ? ` · ${t.metadata.account_number}` : ''}
+                                                    </p>
+                                                )}
                                                 <div className="flex flex-wrap items-center gap-x-2 mt-0.5">
                                                     <p className="text-[9px] font-bold text-gray-400 uppercase truncate max-w-[80px] md:max-w-none">
                                                         #{t.reference.slice(-6)}
