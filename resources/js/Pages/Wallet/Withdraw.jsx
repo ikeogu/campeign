@@ -10,6 +10,7 @@ export default function Withdraw({ banks }) {
     const { data, setData, post, processing, errors } = useForm({
         amount: '',
         bank_code: '',
+        bank_name: '',
         account_number: '',
         account_name: '',
         narration: '',
@@ -115,7 +116,10 @@ export default function Withdraw({ banks }) {
 
                         <div>
                             <label className="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1">Select Bank</label>
-                            <select className="w-full bg-gray-50 border-gray-100 rounded-2xl px-5 py-4 font-bold focus:ring-green-500" value={data.bank_code} onChange={e => setData('bank_code', e.target.value)}>
+                            <select className="w-full bg-gray-50 border-gray-100 rounded-2xl px-5 py-4 font-bold focus:ring-green-500" value={data.bank_code} onChange={e => {
+                                const selected = banks.find(b => b.code === e.target.value);
+                                setData(prev => ({ ...prev, bank_code: e.target.value, bank_name: selected?.name ?? '' }));
+                            }}>
                                 <option value="">Choose your bank...</option>
                                 {banks.map((bank, index) => <option key={`${bank.code}-${index}`} value={bank.code}>{bank.name}</option>)}
                             </select>

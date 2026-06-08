@@ -81,6 +81,15 @@ class WithdrawalResource extends Resource
                     )
                     ->color('success'),
 
+                Tables\Columns\TextColumn::make('bank_name')
+                    ->label('Bank')
+                    ->getStateUsing(fn(Transaction $record): string =>
+                        $record->metadata['bank_name'] ?? $record->metadata['bank_code'] ?? '—'
+                    )
+                    ->searchable(query: fn($query, $search) =>
+                        $query->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(metadata, '$.bank_name')) LIKE ?", ["%{$search}%"])
+                    ),
+
                 Tables\Columns\TextColumn::make('bank_account')
                     ->label('Bank Account')
                     ->getStateUsing(fn(Transaction $record): string =>

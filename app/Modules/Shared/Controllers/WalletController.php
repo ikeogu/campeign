@@ -160,6 +160,7 @@ class WalletController extends ApiController
                     'reference'   => 'WD-' . now()->format('YmdHisv') . random_int(100, 999),
                     'metadata'    => [
                         'bank_code'       => $request->bank_code,
+                        'bank_name'       => $request->bank_name ?? '',
                         'account_number'  => $request->account_number,
                         'account_name'    => $request->account_name,
                         'fee_kobo'        => $feeKobo,
