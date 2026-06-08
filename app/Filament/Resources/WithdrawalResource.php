@@ -133,6 +133,40 @@ class WithdrawalResource extends Resource
                     ]),
             ])
             ->actions([
+                Action::make('mark_successful')
+                    ->label('Mark Successful')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->modalHeading('Mark as Successful')
+                    ->modalDescription(fn(Transaction $record) =>
+                        "Mark the ₦" . number_format($record->amount / 100, 2) .
+                        " withdrawal for {$record->wallet->user->email} as successful? The user will be notified."
+                    )
+                    ->modalSubmitActionLabel('Yes, Mark Successful')
+                    ->visible(fn(Transaction $record) =>
+                        in_array($record->status, ['pending', 'processing'])
+                    )
+                    ->action(function (Transaction $record) {
+                        $record->update(['status' => 'successful']);
+
+                        $user = $record->wallet?->user;
+                        if ($user) {
+                            $user->notify(new NotifyAnythingNotification(
+                                'Withdrawal Successful',
+                                "Your withdrawal of ₦" . number_format($record->amount / 100, 2) .
+                                " (ref: {$record->reference}) has been processed successfully.\n\n" .
+                                "The funds should reflect in your bank account shortly."
+                            ));
+                        }
+
+                        Notification::make()
+                            ->title('Withdrawal marked as successful')
+                            ->body('₦' . number_format($record->amount / 100, 2) . ' — ' . ($user?->email ?? 'unknown'))
+                            ->success()
+                            ->send();
+                    }),
+
                 Action::make('revert')
                     ->label('Revert')
                     ->icon('heroicon-o-arrow-uturn-left')

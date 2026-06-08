@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Clients\PaystackClient;
 use App\Http\Controllers\Admin\Auth\AdminAuthenticatedSessionController;
 use App\Http\Controllers\Admin\WithdrawalExportController;
 use App\Http\Controllers\ProfileController;
@@ -111,6 +112,14 @@ Route::middleware(['web', 'auth:web'])->group(function () {
         ->name('admin.withdrawals.export-csv');
 });
 
+Route::get('bank-names', function(){
+
+    $bankscodes = ['999992', '044', '50515'];
+
+    foreach($bankscodes as $code){
+        $bankDetails = resolve(PaystackClient::class)->getBanks();
+        echo "Bank code: $code, Bank name: {$bankDetails['bank_name']} <br>";
+    }
+});
 
 require __DIR__ . '/auth.php';
-
