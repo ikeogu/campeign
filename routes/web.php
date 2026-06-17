@@ -110,6 +110,9 @@ Route::middleware(['web', 'auth:web'])->group(function () {
 
     Route::get('/admin/withdrawals/export-pending-csv', [WithdrawalExportController::class, 'pendingCsv'])
         ->name('admin.withdrawals.export-csv');
+
+    Route::get('/admin/withdrawals/{transaction}/receipt', [WithdrawalExportController::class, 'receipt'])
+        ->name('admin.withdrawals.receipt');
 });
 
 Route::get('bank-names', function(){

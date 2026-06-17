@@ -4,10 +4,42 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Transaction;
+use Illuminate\Http\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class WithdrawalExportController extends Controller
 {
+    public function receipt(Transaction $transaction): Response
+    {
+        abort_unless(
+            $transaction->type === 'debit' && $transaction->channel === 'withdrawal',
+            404
+        );
+
+        $transaction->load('wallet.user');
+
+        $meta         = $transaction->metadata ?? [];
+        $grossKobo    = (int) $transaction->amount;
+        $feeKobo      = (int) ($meta['fee_kobo'] ?? 0);
+        $netPayoutKobo = (int) ($meta['net_payout_kobo'] ?? $grossKobo);
+
+        $data = [
+            'reference'      => $transaction->reference,
+            'date'           => $transaction->created_at->format('d M Y, H:i'),
+            'status'         => $transaction->status,
+            'user_email'     => $transaction->wallet?->user?->email ?? '—',
+            'account_name'   => $meta['account_name'] ?? '—',
+            'account_number' => $meta['account_number'] ?? '—',
+            'bank_name'      => $meta['bank_name'] ?? ($meta['bank_code'] ?? '—'),
+            'gross_amount'   => number_format($grossKobo / 100, 2),
+            'fee_amount'     => number_format($feeKobo / 100, 2),
+            'net_amount'     => number_format($netPayoutKobo / 100, 2),
+            'narration'      => $meta['narration'] ?? $transaction->description ?? '—',
+        ];
+
+        return response()->view('admin.withdrawal-receipt', $data);
+    }
+
     public function pendingCsv(): StreamedResponse
     {
         $transactions = Transaction::query()

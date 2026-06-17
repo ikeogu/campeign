@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\WithdrawalResource\Pages;
 use App\Models\Transaction;
 use App\Notifications\NotifyAnythingNotification;
+use App\Notifications\WithdrawalReceiptNotification;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
@@ -133,6 +134,14 @@ class WithdrawalResource extends Resource
                     ]),
             ])
             ->actions([
+                Action::make('receipt')
+                    ->label('Generate Receipt')
+                    ->icon('heroicon-o-document-text')
+                    ->color('gray')
+                    ->url(fn(Transaction $record) => route('admin.withdrawals.receipt', $record))
+                    ->openUrlInNewTab()
+                    ->visible(fn(Transaction $record) => $record->status === 'successful'),
+
                 Action::make('mark_successful')
                     ->label('Mark Successful')
                     ->icon('heroicon-o-check-circle')
@@ -141,30 +150,14 @@ class WithdrawalResource extends Resource
                     ->modalHeading('Mark as Successful')
                     ->modalDescription(fn(Transaction $record) =>
                         "Mark the ₦" . number_format($record->amount / 100, 2) .
-                        " withdrawal for {$record->wallet->user->email} as successful? The user will be notified."
+                        " withdrawal for {$record->wallet->user->email} as successful? The user will be notified and receive a receipt."
                     )
                     ->modalSubmitActionLabel('Yes, Mark Successful')
                     ->visible(fn(Transaction $record) =>
                         in_array($record->status, ['pending', 'processing'])
                     )
                     ->action(function (Transaction $record) {
-                        $record->update(['status' => 'successful']);
-
-                        $user = $record->wallet?->user;
-                        if ($user) {
-                            $user->notify(new NotifyAnythingNotification(
-                                'Withdrawal Successful',
-                                "Your withdrawal of ₦" . number_format($record->amount / 100, 2) .
-                                " (ref: {$record->reference}) has been processed successfully.\n\n" .
-                                "The funds should reflect in your bank account shortly."
-                            ));
-                        }
-
-                        Notification::make()
-                            ->title('Withdrawal marked as successful')
-                            ->body('₦' . number_format($record->amount / 100, 2) . ' — ' . ($user?->email ?? 'unknown'))
-                            ->success()
-                            ->send();
+                        static::markSuccessfulAndNotify($record);
                     }),
 
                 Action::make('revert')
@@ -190,7 +183,7 @@ class WithdrawalResource extends Resource
                     ->color('success')
                     ->requiresConfirmation()
                     ->modalHeading('Mark Selected as Successful')
-                    ->modalDescription('This will mark all selected processing withdrawals as successful and notify each user. Only "processing" transactions will be updated — others will be skipped.')
+                    ->modalDescription('This will mark all selected pending/processing withdrawals as successful, notify each user, and send them a receipt. Transactions already in other states will be skipped.')
                     ->modalSubmitActionLabel('Yes, Mark Successful')
                     ->deselectRecordsAfterCompletion()
                     ->action(function (Collection $records) {
@@ -198,23 +191,12 @@ class WithdrawalResource extends Resource
                         $skipped = 0;
 
                         foreach ($records as $record) {
-                            if ($record->status !== 'processing') {
+                            if (! in_array($record->status, ['pending', 'processing'])) {
                                 $skipped++;
                                 continue;
                             }
 
-                            $record->update(['status' => 'successful']);
-
-                            $user = $record->wallet?->user;
-                            if ($user) {
-                                $user->notify(new NotifyAnythingNotification(
-                                    'Withdrawal Successful',
-                                    "Your withdrawal of ₦" . number_format($record->amount / 100, 2) .
-                                    " (ref: {$record->reference}) has been processed successfully.\n\n" .
-                                    "The funds should reflect in your bank account shortly."
-                                ));
-                            }
-
+                            static::markSuccessfulAndNotify($record, sendFilamentNotification: false);
                             $marked++;
                         }
 
@@ -253,6 +235,24 @@ class WithdrawalResource extends Resource
             ])
             ->emptyStateHeading('No withdrawals found')
             ->emptyStateDescription('No withdrawal transactions match the current filters.');
+    }
+
+    protected static function markSuccessfulAndNotify(Transaction $record, bool $sendFilamentNotification = true): void
+    {
+        $record->update(['status' => 'successful']);
+
+        $user = $record->wallet?->user;
+        if ($user) {
+            $user->notify(new WithdrawalReceiptNotification($record));
+        }
+
+        if ($sendFilamentNotification) {
+            Notification::make()
+                ->title('Withdrawal marked as successful')
+                ->body('₦' . number_format($record->amount / 100, 2) . ' — ' . ($user?->email ?? 'unknown'))
+                ->success()
+                ->send();
+        }
     }
 
     protected static function revertWithdrawal(Transaction $record): bool
