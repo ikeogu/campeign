@@ -3,81 +3,80 @@
 @section('content')
 
 {{-- Title --}}
-<h2 style="margin:0 0 6px;font-size:22px;font-weight:700;color:#111827;">Withdrawal Successful</h2>
-<p style="margin:0 0 28px;font-size:14px;color:#6b7280;">Your withdrawal has been processed. See details below.</p>
+<h2 style="margin:0 0 6px;font-size:22px;font-weight:800;color:#CC5500;">Withdrawal Successful</h2>
+<p style="margin:0 0 28px;font-size:14px;color:#6b7280;line-height:1.5;">Your withdrawal has been processed. Here's your receipt — keep it for your records.</p>
 
-{{-- Amount highlight --}}
+{{-- Amount highlight card --}}
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:28px;">
     <tr>
-        <td style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:20px 24px;text-align:center;">
-            <p style="margin:0 0 4px;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#16a34a;">Amount Paid to Your Bank</p>
-            <p style="margin:0;font-size:36px;font-weight:800;color:#15803d;">&#8358;{{ $net_amount }}</p>
+        <td style="background:#CC5500;border-radius:12px;padding:24px;text-align:center;">
+            <p style="margin:0 0 6px;font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.75);">Amount Paid to Your Bank</p>
+            <p style="margin:0;font-size:40px;font-weight:800;color:#ffffff;line-height:1;letter-spacing:-1px;">&#8358;{{ $net_amount }}</p>
         </td>
     </tr>
 </table>
 
-{{-- Beneficiary details --}}
-<p style="margin:0 0 10px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#9ca3af;border-bottom:1px solid #f3f4f6;padding-bottom:8px;">Beneficiary Details</p>
+{{-- Beneficiary --}}
+<p style="margin:0 0 10px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;color:#CC5500;border-bottom:2px solid #fff0e8;padding-bottom:7px;">Beneficiary Details</p>
 
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:24px;">
     <tr>
-        <td style="padding:9px 0;border-bottom:1px solid #f9fafb;font-size:13px;color:#6b7280;width:45%;">Account Name</td>
-        <td style="padding:9px 0;border-bottom:1px solid #f9fafb;font-size:13px;font-weight:600;color:#111827;text-align:right;">{{ $account_name }}</td>
+        <td style="padding:9px 0;border-bottom:1px solid #fdf0e8;font-size:13px;color:#888888;width:45%;">Account Name</td>
+        <td style="padding:9px 0;border-bottom:1px solid #fdf0e8;font-size:13px;font-weight:700;color:#1a1a1a;text-align:right;">{{ $account_name }}</td>
     </tr>
     <tr>
-        <td style="padding:9px 0;border-bottom:1px solid #f9fafb;font-size:13px;color:#6b7280;">Account Number</td>
-        <td style="padding:9px 0;border-bottom:1px solid #f9fafb;font-size:13px;font-weight:600;color:#111827;font-family:monospace;text-align:right;">{{ $account_number }}</td>
+        <td style="padding:9px 0;border-bottom:1px solid #fdf0e8;font-size:13px;color:#888888;">Account Number</td>
+        <td style="padding:9px 0;border-bottom:1px solid #fdf0e8;font-size:13px;font-weight:700;color:#1a1a1a;font-family:'Courier New',monospace;text-align:right;">{{ $account_number }}</td>
     </tr>
     <tr>
-        <td style="padding:9px 0;font-size:13px;color:#6b7280;">Bank</td>
-        <td style="padding:9px 0;font-size:13px;font-weight:600;color:#111827;text-align:right;">{{ $bank_name }}</td>
+        <td style="padding:9px 0;font-size:13px;color:#888888;">Bank</td>
+        <td style="padding:9px 0;font-size:13px;font-weight:700;color:#1a1a1a;text-align:right;">{{ $bank_name }}</td>
     </tr>
 </table>
 
 {{-- Amount breakdown --}}
-<p style="margin:0 0 10px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#9ca3af;border-bottom:1px solid #f3f4f6;padding-bottom:8px;">Amount Breakdown</p>
+<p style="margin:0 0 10px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;color:#CC5500;border-bottom:2px solid #fff0e8;padding-bottom:7px;">Amount Breakdown</p>
 
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f9fafb;border-radius:8px;padding:4px 16px;margin-bottom:24px;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#fff7f3;border:1px solid #ffe8d9;border-radius:10px;margin-bottom:24px;">
     <tr>
-        <td style="padding:9px 0;border-bottom:1px dashed #e5e7eb;font-size:13px;color:#6b7280;">Gross Withdrawal</td>
-        <td style="padding:9px 0;border-bottom:1px dashed #e5e7eb;font-size:13px;font-weight:600;color:#374151;text-align:right;">&#8358;{{ $gross_amount }}</td>
+        <td style="padding:11px 16px;border-bottom:1px dashed #ffe0cc;font-size:13px;color:#888888;">Gross Withdrawal</td>
+        <td style="padding:11px 16px;border-bottom:1px dashed #ffe0cc;font-size:13px;font-weight:600;color:#1a1a1a;text-align:right;">&#8358;{{ $gross_amount }}</td>
     </tr>
     <tr>
-        <td style="padding:9px 0;border-bottom:1px dashed #e5e7eb;font-size:13px;color:#6b7280;">Platform Fee</td>
-        <td style="padding:9px 0;border-bottom:1px dashed #e5e7eb;font-size:13px;font-weight:600;color:#374151;text-align:right;">– &#8358;{{ $fee_amount }}</td>
+        <td style="padding:11px 16px;border-bottom:1px dashed #ffe0cc;font-size:13px;color:#888888;">Platform Fee</td>
+        <td style="padding:11px 16px;border-bottom:1px dashed #ffe0cc;font-size:13px;font-weight:600;color:#1a1a1a;text-align:right;">– &#8358;{{ $fee_amount }}</td>
     </tr>
     <tr>
-        <td style="padding:12px 0 9px;font-size:14px;font-weight:700;color:#111827;">Net Paid to Bank</td>
-        <td style="padding:12px 0 9px;font-size:14px;font-weight:700;color:#15803d;text-align:right;">&#8358;{{ $net_amount }}</td>
+        <td style="padding:13px 16px 11px;border-top:2px solid #CC5500;font-size:14px;font-weight:800;color:#1a1a1a;">Net Paid to Bank</td>
+        <td style="padding:13px 16px 11px;border-top:2px solid #CC5500;font-size:15px;font-weight:800;color:#CC5500;text-align:right;">&#8358;{{ $net_amount }}</td>
     </tr>
 </table>
 
 {{-- Transaction info --}}
-<p style="margin:0 0 10px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#9ca3af;border-bottom:1px solid #f3f4f6;padding-bottom:8px;">Transaction Info</p>
+<p style="margin:0 0 10px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;color:#CC5500;border-bottom:2px solid #fff0e8;padding-bottom:7px;">Transaction Info</p>
 
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:24px;">
     <tr>
-        <td style="padding:9px 0;border-bottom:1px solid #f9fafb;font-size:13px;color:#6b7280;">Reference</td>
-        <td style="padding:9px 0;border-bottom:1px solid #f9fafb;font-size:12px;font-family:monospace;font-weight:600;color:#111827;text-align:right;">{{ $reference }}</td>
+        <td style="padding:9px 0;border-bottom:1px solid #fdf0e8;font-size:13px;color:#888888;">Reference</td>
+        <td style="padding:9px 0;border-bottom:1px solid #fdf0e8;font-size:12px;font-family:'Courier New',monospace;font-weight:700;color:#1a1a1a;text-align:right;">{{ $reference }}</td>
     </tr>
     <tr>
-        <td style="padding:9px 0;font-size:13px;color:#6b7280;">Date &amp; Time</td>
-        <td style="padding:9px 0;font-size:13px;font-weight:600;color:#111827;text-align:right;">{{ $date }}</td>
+        <td style="padding:9px 0;font-size:13px;color:#888888;">Date &amp; Time</td>
+        <td style="padding:9px 0;font-size:13px;font-weight:700;color:#1a1a1a;text-align:right;">{{ $date }}</td>
     </tr>
 </table>
 
 @if($narration && $narration !== '—')
-{{-- Narration --}}
-<p style="margin:0 0 10px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#9ca3af;border-bottom:1px solid #f3f4f6;padding-bottom:8px;">Description / Post Shared</p>
-<div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;padding:14px 16px;font-size:13px;color:#374151;line-height:1.6;margin-bottom:24px;">
+<p style="margin:0 0 10px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;color:#CC5500;border-bottom:2px solid #fff0e8;padding-bottom:7px;">Description / Post Shared</p>
+<div style="background:#fff7f3;border:1px solid #ffe8d9;border-left:3px solid #CC5500;border-radius:6px;padding:14px 16px;font-size:13px;color:#374151;line-height:1.6;margin-bottom:24px;">
     {{ $narration }}
 </div>
 @endif
 
 {{-- Footer note --}}
-<p style="margin:0;font-size:12px;color:#9ca3af;line-height:1.6;text-align:center;">
-    Funds typically reflect in your bank account within minutes. If you have any issues, contact us at
-    <a href="mailto:info@gigsandcampaigns.com" style="color:#CC5500;text-decoration:none;">info@gigsandcampaigns.com</a>.
+<p style="margin:0;font-size:12px;color:#aaaaaa;line-height:1.7;text-align:center;">
+    Funds typically reflect in your bank account within minutes.<br>
+    Questions? Email us at <a href="mailto:info@gigsandcampaigns.com" style="color:#CC5500;text-decoration:none;font-weight:600;">info@gigsandcampaigns.com</a>
 </p>
 
 @endsection

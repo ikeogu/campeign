@@ -9,8 +9,8 @@
 
         body {
             font-family: 'Segoe UI', Arial, sans-serif;
-            background: #f4f6f9;
-            color: #1a1a2e;
+            background: #fff7f3;
+            color: #1a1a1a;
             padding: 40px 20px;
         }
 
@@ -18,77 +18,114 @@
             max-width: 580px;
             margin: 0 auto;
             background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 24px rgba(0,0,0,.10);
+            border-radius: 14px;
+            box-shadow: 0 4px 28px rgba(204,85,0,.12);
             overflow: hidden;
+            border: 1px solid #ffe8d9;
         }
 
+        /* ── Header ───────────────────────────────────── */
         .receipt-header {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: #CC5500;
             color: #fff;
-            padding: 32px 36px 24px;
+            padding: 28px 36px 24px;
+            position: relative;
         }
 
-        .receipt-header .brand {
-            font-size: 18px;
-            font-weight: 700;
-            letter-spacing: .5px;
-            margin-bottom: 4px;
-        }
-
-        .receipt-header .subtitle {
-            font-size: 13px;
-            opacity: .65;
+        .receipt-header .logo-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
             margin-bottom: 20px;
+        }
+
+        .receipt-header .logo-row img {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: #fff;
+            padding: 3px;
+            object-fit: contain;
+        }
+
+        .receipt-header .brand-text .name {
+            font-size: 15px;
+            font-weight: 800;
+            letter-spacing: .3px;
+            line-height: 1.2;
+        }
+
+        .receipt-header .brand-text .tagline {
+            font-size: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            opacity: .75;
+            margin-top: 2px;
+        }
+
+        .receipt-header .divider {
+            border: none;
+            border-top: 1px solid rgba(255,255,255,.25);
+            margin-bottom: 20px;
+        }
+
+        .receipt-header .label {
+            font-size: 11px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            opacity: .75;
+            margin-bottom: 6px;
         }
 
         .receipt-header .amount-block {
             display: flex;
             align-items: baseline;
-            gap: 6px;
+            gap: 4px;
         }
 
         .receipt-header .currency {
-            font-size: 22px;
-            font-weight: 500;
-            opacity: .8;
+            font-size: 24px;
+            font-weight: 600;
+            opacity: .85;
         }
 
         .receipt-header .amount {
-            font-size: 46px;
-            font-weight: 700;
+            font-size: 52px;
+            font-weight: 800;
             line-height: 1;
+            letter-spacing: -1px;
         }
 
         .badge {
             display: inline-block;
-            margin-top: 12px;
-            padding: 4px 12px;
+            margin-top: 14px;
+            padding: 5px 14px;
             border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
+            font-size: 11px;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: .5px;
+            letter-spacing: .6px;
         }
 
-        .badge-success { background: #22c55e; color: #fff; }
-        .badge-pending { background: #f59e0b; color: #fff; }
-        .badge-failed  { background: #ef4444; color: #fff; }
+        .badge-success { background: rgba(255,255,255,.25); color: #fff; border: 1px solid rgba(255,255,255,.4); }
+        .badge-pending { background: rgba(255,200,0,.2);   color: #fff; border: 1px solid rgba(255,200,0,.4); }
+        .badge-failed  { background: rgba(255,80,80,.2);   color: #fff; border: 1px solid rgba(255,80,80,.4); }
 
+        /* ── Body ─────────────────────────────────────── */
         .receipt-body {
             padding: 28px 36px;
         }
 
         .section-label {
-            font-size: 11px;
-            font-weight: 700;
+            font-size: 10px;
+            font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #6b7280;
-            margin-bottom: 12px;
+            letter-spacing: 1.2px;
+            color: #CC5500;
+            margin-bottom: 10px;
             margin-top: 24px;
             padding-bottom: 6px;
-            border-bottom: 1px solid #f0f0f0;
+            border-bottom: 2px solid #fff0e8;
         }
 
         .section-label:first-child { margin-top: 0; }
@@ -98,7 +135,7 @@
             justify-content: space-between;
             align-items: flex-start;
             padding: 9px 0;
-            border-bottom: 1px solid #f7f7f7;
+            border-bottom: 1px solid #fdf0e8;
             gap: 12px;
         }
 
@@ -106,14 +143,14 @@
 
         .row .label {
             font-size: 13px;
-            color: #6b7280;
+            color: #888;
             flex-shrink: 0;
         }
 
         .row .value {
             font-size: 13px;
             font-weight: 600;
-            color: #1a1a2e;
+            color: #1a1a1a;
             text-align: right;
             word-break: break-word;
         }
@@ -124,9 +161,10 @@
         }
 
         .narration-box {
-            background: #f8fafc;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
+            background: #fff7f3;
+            border: 1px solid #ffe8d9;
+            border-left: 3px solid #CC5500;
+            border-radius: 6px;
             padding: 14px 16px;
             font-size: 13px;
             color: #374151;
@@ -134,86 +172,112 @@
             margin-top: 8px;
         }
 
+        /* ── Amount breakdown card ─────────────────────── */
         .amount-breakdown {
-            background: #f8fafc;
-            border-radius: 8px;
-            padding: 16px;
+            background: #fff7f3;
+            border: 1px solid #ffe8d9;
+            border-radius: 10px;
+            padding: 0 16px;
             margin-top: 8px;
+            overflow: hidden;
         }
 
         .amount-breakdown .row {
-            border-bottom: 1px dashed #e5e7eb;
+            border-bottom: 1px dashed #ffe0cc;
         }
 
-        .amount-breakdown .row:last-child {
-            border-bottom: none;
-            margin-top: 6px;
-            padding-top: 12px;
-            border-top: 2px solid #e5e7eb;
+        .amount-breakdown .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            margin-top: 4px;
+            border-top: 2px solid #CC5500;
         }
 
-        .amount-breakdown .row:last-child .label,
-        .amount-breakdown .row:last-child .value {
-            font-weight: 700;
+        .amount-breakdown .total-row .label {
             font-size: 14px;
-            color: #111827;
+            font-weight: 700;
+            color: #1a1a1a;
         }
 
+        .amount-breakdown .total-row .value {
+            font-size: 15px;
+            font-weight: 800;
+            color: #CC5500;
+        }
+
+        /* ── Footer ───────────────────────────────────── */
         .receipt-footer {
-            background: #f9fafb;
-            border-top: 1px solid #f0f0f0;
-            padding: 18px 36px;
+            background: #CC5500;
+            padding: 16px 36px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 8px;
         }
 
         .receipt-footer .ref {
-            font-size: 12px;
-            color: #9ca3af;
+            font-size: 11px;
+            color: rgba(255,255,255,.75);
             font-family: 'Courier New', monospace;
         }
 
         .receipt-footer .date {
-            font-size: 12px;
-            color: #9ca3af;
+            font-size: 11px;
+            color: rgba(255,255,255,.75);
+        }
+
+        .company-note {
+            text-align: center;
+            font-size: 11px;
+            color: #aaa;
+            margin-top: 18px;
         }
 
         @media print {
             body { background: #fff; padding: 0; }
-            .receipt { box-shadow: none; border-radius: 0; }
+            .receipt { box-shadow: none; border-radius: 0; border: none; }
             .print-btn { display: none !important; }
+            .company-note { display: none; }
         }
 
         .print-btn {
             display: block;
             max-width: 580px;
             margin: 20px auto 0;
-            padding: 12px;
-            background: #1a1a2e;
+            padding: 13px;
+            background: #CC5500;
             color: #fff;
             border: none;
             border-radius: 8px;
             font-size: 14px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
             text-align: center;
             letter-spacing: .3px;
         }
 
-        .print-btn:hover { background: #16213e; }
+        .print-btn:hover { background: #aa4400; }
     </style>
 </head>
 <body>
 
 <div class="receipt">
 
+    {{-- Header --}}
     <div class="receipt-header">
-        <div class="brand">Gigs and Campaigns LTD</div>
-        <div class="subtitle">Withdrawal Receipt</div>
+        <div class="logo-row">
+            <img src="{{ asset('logo/android-chrome-192x192.png') }}" alt="Gigs and Campaigns LTD">
+            <div class="brand-text">
+                <div class="name">Gigs and Campaigns LTD</div>
+                <div class="tagline">Spread the Word</div>
+            </div>
+        </div>
 
+        <hr class="divider">
+
+        <div class="label">Amount Paid to Bank</div>
         <div class="amount-block">
             <span class="currency">₦</span>
             <span class="amount">{{ $net_amount }}</span>
@@ -224,6 +288,7 @@
         </span>
     </div>
 
+    {{-- Body --}}
     <div class="receipt-body">
 
         <div class="section-label">Beneficiary Details</div>
@@ -252,11 +317,11 @@
                 <span class="label">Gross Withdrawal</span>
                 <span class="value">₦{{ $gross_amount }}</span>
             </div>
-            <div class="row">
+            <div class="row" style="border-bottom:none;">
                 <span class="label">Platform Fee</span>
                 <span class="value">– ₦{{ $fee_amount }}</span>
             </div>
-            <div class="row">
+            <div class="total-row">
                 <span class="label">Net Paid to Bank</span>
                 <span class="value">₦{{ $net_amount }}</span>
             </div>
@@ -280,6 +345,7 @@
 
     </div>
 
+    {{-- Footer --}}
     <div class="receipt-footer">
         <span class="ref">Ref: {{ $reference }}</span>
         <span class="date">{{ $date }}</span>
@@ -287,8 +353,8 @@
 
 </div>
 
-<p style="text-align:center;font-size:11px;color:#9ca3af;margin-top:16px;">
-    &copy; {{ date('Y') }} Gigs and Campaigns LTD &nbsp;|&nbsp; Lagos, Nigeria &nbsp;|&nbsp; info@gigsandcampaigns.com
+<p class="company-note">
+    &copy; {{ date('Y') }} Gigs and Campaigns LTD &nbsp;·&nbsp; Lagos, Nigeria &nbsp;·&nbsp; info@gigsandcampaigns.com
 </p>
 
 <button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
