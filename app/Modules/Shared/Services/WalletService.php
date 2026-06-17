@@ -6,9 +6,6 @@ use App\Interfaces\PaymentGateWayInterface;
 use App\Models\Transaction;
 use App\Models\Wallet;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Str;
-use Inertia\Inertia;
 
 class WalletService
 {
@@ -55,36 +52,35 @@ class WalletService
         ]);
     }
 
-    public function walletTopup(int $amount)
+    public function walletTopup(int $amount): array
     {
-        /** @var User $user */
-        $user = Auth::user();
-        // 1. Create unique reference
-        $reference = 'WAL-'. now()->format('YmdHisv') . random_int(100, 999);
+        $user      = Auth::user();
+        $reference = 'WAL-' . now()->format('YmdHisv') . random_int(100, 999);
 
-        // 2. Save PENDING transaction in your DB
-        Transaction::create([
-            'wallet_id' => $user->wallet->id,
-            'amount' => $amount * 100, // Convert to Kobo
-            'reference' => $reference,
-            'status' => 'pending',
-            'type' => 'credit',
-            'description' => 'Wallet Funding via Paystack'
+        $transaction = Transaction::create([
+            'wallet_id'   => $user->wallet->id,
+            'amount'      => $amount * 100,
+            'reference'   => $reference,
+            'status'      => 'pending',
+            'type'        => 'credit',
+            'description' => 'Wallet Funding via OPay',
         ]);
 
-        $response = $this->paystackGatewayInterface->payin(
-            [
-                'email' => $user->email,
-                'amount' => $amount * 100,
-                'reference' => $reference,
-                'callback_url' => route('handleGatewayCallbackWalletFunding'),
-                'customizations' => [
-                    'title' => 'GigsAndCampaigns',
-                    'description' => 'Make money by sharing contents',
-                    'logo' => 'https://assets.piedpiper.com/logo.png',
-                ],
-            ]
-        );
+        $response = $this->paystackGatewayInterface->payin([
+            'email'        => $user->email,
+            'userId'       => $user->id,
+            'amount'       => $amount * 100,
+            'reference'    => $reference,
+            'callback_url' => url('/api/webhook/opay'),
+        ]);
+
+        // Store OPay's orderNo so we can query status later
+        if (! empty($response['data']['orderNo'])) {
+            $transaction->update([
+                'metadata' => ['opay_order_no' => $response['data']['orderNo']],
+            ]);
+        }
+
         return $response;
     }
 }

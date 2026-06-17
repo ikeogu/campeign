@@ -113,12 +113,9 @@ Route::middleware(['web', 'auth:web'])->group(function () {
 });
 
 Route::get('bank-names', function(){
-
-    $bankscodes = ['999992', '044', '50515'];
-
-    foreach($bankscodes as $code){
-        $bankDetails = resolve(PaystackClient::class)->getBanks();
-        echo "Bank code: $code, Bank name: {$bankDetails['bank_name']} <br>";
+    $banks = resolve(\App\Interfaces\PaymentGateWayInterface::class)->getBanks()['data'];
+    foreach ($banks as $bank) {
+        echo "Bank: {$bank['name']} — Code: {$bank['code']} <br>";
     }
 });
 

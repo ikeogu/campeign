@@ -36,8 +36,10 @@ class HandleInertiaRequests extends Middleware
             ],
             'csrf_token' => csrf_token(),
             'flash' => [
-                'message' => session('message'),
-                'error' => session('errors') ? session('errors')->first() : null,
+                'message'      => session('message'),
+                'error'        => session('errors') ? session('errors')->first() : null,
+                'info'         => session('info'),
+                'opay_payment' => session('opay_payment'),
             ],
         ];
     }

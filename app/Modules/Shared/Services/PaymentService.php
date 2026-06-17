@@ -43,7 +43,7 @@ class PaymentService
                 // Update payment status
                 $payment->update([
                     'status' => 'successful',
-                    'channel' => 'paystack',
+                    'channel' => 'opay',
                     /*  'rave_reference' => $reference,
                     'channel' => $channel,
                     'card' => $card ?? [], */

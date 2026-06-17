@@ -37,12 +37,12 @@ class ProcessPendingWithdrawals extends Command
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // CREDITS — pending wallet top-ups waiting for Paystack confirmation
+    // CREDITS — pending wallet top-ups waiting for OPay confirmation
     // ─────────────────────────────────────────────────────────────────────────
     private function processPendingCredits(): void
     {
-        // Give Paystack at least 5 minutes before we check; freshly created
-        // transactions may still be processing on their end.
+        // Give OPay at least 5 minutes before we poll; freshly created
+        // bank transfer payments may still be awaiting the user's transfer.
         $pending = Transaction::query()
             ->where('type',   'credit')
             ->where('status', 'pending')
@@ -55,7 +55,7 @@ class ProcessPendingWithdrawals extends Command
             return;
         }
 
-        $this->info("Found {$pending->count()} pending credit(s). Verifying with Paystack...");
+        $this->info("Found {$pending->count()} pending credit(s). Verifying with OPay...");
         Log::info('[ProcessPendingWithdrawals:credits] Found ' . $pending->count() . ' pending credit(s).');
 
         $completed = 0;
@@ -67,20 +67,16 @@ class ProcessPendingWithdrawals extends Command
                     'reference' => $transaction->reference,
                 ]);
 
-                $response = $this->paystack->verifyTransaction($transaction->reference);
-                $body     = $response->json();
+                $body   = $this->paystack->verifyTransaction($transaction->reference);
+                $status = $body['data']['status'] ?? null;
 
-                $paystackStatus = $body['data']['status'] ?? null;
-
-                Log::info('[ProcessPendingWithdrawals:credits] Paystack verify response', [
-                    'reference'       => $transaction->reference,
-                    'paystack_status' => $paystackStatus,
-                    'http_status'     => $response->status(),
+                Log::info('[ProcessPendingWithdrawals:credits] OPay status response', [
+                    'reference'   => $transaction->reference,
+                    'opay_status' => $status,
                 ]);
 
-                if ($paystackStatus === 'success') {
-                    // Complete the wallet funding — credits wallet + notifies user.
-                    $done = $this->paymentService->verifyPayment($transaction->reference, 'paystack');
+                if ($status === 'SUCCESS') {
+                    $done = $this->paymentService->verifyPayment($transaction->reference, 'opay');
 
                     if ($done) {
                         $amountNaira = number_format($transaction->amount / 100, 2);
@@ -91,18 +87,17 @@ class ProcessPendingWithdrawals extends Command
                         $skipped++;
                     }
 
-                } elseif (in_array($paystackStatus, ['failed', 'abandoned', 'reversed'])) {
+                } elseif (in_array($status, ['FAIL', 'CLOSE'])) {
                     $transaction->update(['status' => 'failed']);
-                    $this->warn("  ✗ {$transaction->reference}: Paystack status is '{$paystackStatus}'. Marked failed.");
-                    Log::warning('[ProcessPendingWithdrawals:credits] Payment failed on Paystack', [
-                        'reference'       => $transaction->reference,
-                        'paystack_status' => $paystackStatus,
+                    $this->warn("  ✗ {$transaction->reference}: OPay status is '{$status}'. Marked failed.");
+                    Log::warning('[ProcessPendingWithdrawals:credits] Payment failed on OPay', [
+                        'reference'   => $transaction->reference,
+                        'opay_status' => $status,
                     ]);
                     $skipped++;
 
                 } else {
-                    // Still pending on Paystack — leave it.
-                    $this->line("  · {$transaction->reference}: still '{$paystackStatus}' on Paystack. Leaving pending.");
+                    $this->line("  · {$transaction->reference}: still '{$status}' on OPay. Leaving pending.");
                     $skipped++;
                 }
 
@@ -138,7 +133,7 @@ class ProcessPendingWithdrawals extends Command
             return;
         }
 
-        $this->info("Found {$pending->count()} pending withdrawal(s). Checking Paystack balance...");
+        $this->info("Found {$pending->count()} pending withdrawal(s). Checking OPay balance...");
         Log::info('[ProcessPendingWithdrawals:debits] Found ' . $pending->count() . ' pending withdrawal(s).');
 
         // Check platform balance once for the whole batch.
@@ -146,7 +141,7 @@ class ProcessPendingWithdrawals extends Command
             $balances        = $this->paystack->checkBalance();
             $platformBalance = collect($balances)->firstWhere('currency', 'NGN')['balance'] ?? 0;
         } catch (\Throwable $e) {
-            $this->error('Could not retrieve Paystack balance: ' . $e->getMessage());
+            $this->error('Could not retrieve OPay balance: ' . $e->getMessage());
             Log::error('[ProcessPendingWithdrawals:debits] Balance check failed', ['error' => $e->getMessage()]);
             return;
         }
@@ -255,7 +250,7 @@ class ProcessPendingWithdrawals extends Command
                     "{$skipped} withdrawal(s) could not be processed.\n\n" .
                     "Dispatched: {$processed}.\n\n" .
                     "Platform NGN balance remaining: ₦" . number_format($platformBalance / 100, 2) . ".\n\n" .
-                    "Top up the Paystack account to unblock the queue."
+                    "Top up the OPay account to unblock the queue."
                 ))
             );
         }

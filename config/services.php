@@ -35,12 +35,19 @@ return [
         ],
     ],
 
-     'paystack' => [
-        'base_url' => env('PAYSTACK_BASE_URL'),
+    'opay' => [
+        'base_url'    => env('OPAY_BASE_URL', 'https://testapi.opaycheckout.com'),
+        'private_key' => env('OPAY_PRIVATE_KEY'),
+        'public_key'  => env('OPAY_PUBLIC_KEY'),
+        'merchant_id' => env('OPAY_MERCHANT_ID'),
+    ],
+
+    'paystack' => [
+        'base_url'   => env('PAYSTACK_BASE_URL'),
         'secret_key' => env('PAYSTACK_SECRET_KEY'),
         'public_key' => env('PAYSTACK_PUBLIC_KEY'),
     ],
 
-    'payment_gateway' => env('PAYMENT_GATEWAY', 'flutterwave'),
+    'payment_gateway' => env('PAYMENT_GATEWAY', 'opay'),
 
 ];

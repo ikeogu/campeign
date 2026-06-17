@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Http\Clients\PaystackClient;
+use App\Http\Clients\OpayClient;
 use App\Interfaces\PaymentGateWayInterface;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
@@ -20,15 +20,7 @@ class AppServiceProvider extends ServiceProvider
 
         app()->bind(
             PaymentGateWayInterface::class,
-            function () {
-                // $paymentGateway = config('services.payment_gateway');
-                return app()->make(PaystackClient::class);
-                /* return match ($paymentGateway) {
-                   /// 'paystack' => app()->make(PaystackClient::class),
-                  //  'flutter' => app()->make(FlutterWaveClient::class),
-                    default  => app()->make(PaystackClient::class),
-                }; */
-            }
+            fn() => app()->make(OpayClient::class)
         );
     }
 

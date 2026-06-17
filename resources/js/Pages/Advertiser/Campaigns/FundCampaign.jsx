@@ -1,6 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { useForm, usePage, Link } from '@inertiajs/react';
-import { useState, useMemo } from 'react';
 
 // Utility function to format currency
 const formatCurrency = (amount) => {
@@ -9,8 +8,8 @@ const formatCurrency = (amount) => {
 };
 
 export default function FundCampaign() {
-    // Assuming the following props are passed from the Laravel controller:
-    const { campaign, user_balance = 0 } = usePage().props;
+    const { campaign, user_balance = 0, flash } = usePage().props;
+    const opayPayment = flash?.opay_payment ?? null;
 
     // Calculate the total estimated cost (Example: Payout * Target Shares)
     const estimatedCost = campaign.total_budget;
@@ -72,6 +71,43 @@ export default function FundCampaign() {
                             Back to Campaigns
                         </Link>
                     </div>
+
+                    {/* OPay virtual account — shown after gateway payment initialised */}
+                    {opayPayment && (
+                        <div className="bg-green-50 border border-green-200 rounded-2xl p-6 mb-6 space-y-4">
+                            <h3 className="text-sm font-black text-green-800 uppercase tracking-tight">
+                                Complete Payment via Bank Transfer
+                            </h3>
+                            <p className="text-xs text-green-700">
+                                Transfer exactly <span className="font-black">₦{Number(opayPayment.amount).toLocaleString()}</span> to the account below. Your campaign will be activated automatically once the transfer is confirmed.
+                            </p>
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <div className="bg-white rounded-xl px-4 py-3 shadow-sm">
+                                    <p className="text-[10px] font-black text-gray-400 uppercase mb-1">Bank</p>
+                                    <p className="font-bold text-gray-800">{opayPayment.bank_name}</p>
+                                </div>
+                                <div className="bg-white rounded-xl px-4 py-3 shadow-sm flex items-center justify-between sm:col-span-2">
+                                    <div>
+                                        <p className="text-[10px] font-black text-gray-400 uppercase mb-1">Account Number</p>
+                                        <p className="font-black text-2xl text-gray-900 tracking-widest">{opayPayment.bank_account}</p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => navigator.clipboard.writeText(opayPayment.bank_account)}
+                                        className="ml-4 text-xs font-black text-green-700 hover:text-green-900 shrink-0"
+                                    >
+                                        Copy
+                                    </button>
+                                </div>
+                            </div>
+                            {opayPayment.expires_at && (
+                                <p className="text-[10px] text-orange-600 font-bold text-center">
+                                    Expires: {opayPayment.expires_at}
+                                </p>
+                            )}
+                            <p className="text-[10px] text-gray-400 text-center">Ref: {opayPayment.reference}</p>
+                        </div>
+                    )}
 
                     {/* Main Funding Card */}
                     <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">

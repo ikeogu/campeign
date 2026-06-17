@@ -60,7 +60,7 @@ export default function FundSuccess({ campaign }) {
                     </div>
 
                     <p className="mt-12 text-[10px] text-gray-300 font-black uppercase tracking-[0.2em]">
-                        Transaction Secured by Paystack &bull; 2026
+                        Transaction Secured by OPay &bull; 2026
                     </p>
                 </div>
             </div>

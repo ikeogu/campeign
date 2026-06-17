@@ -396,8 +396,8 @@ class CampaignController extends ApiController
             return back()->withErrors(['amount' => 'Failed to initiate gateway payment.']);
         }
 
-        if (is_array($response) && $response['type'] === 'paystack') {
-            return Inertia::location($response['url']);
+        if (is_array($response) && $response['type'] === 'opay') {
+            return back()->with('opay_payment', $response['payment']);
         }
 
         return back()->with('error', 'Unexpected payment response.');
@@ -447,37 +447,46 @@ class CampaignController extends ApiController
     {
         $reference = 'CMP_' . Str::uuid();
 
-        // Persist intent (required for webhook reconciliation)
-        $campaign->payment()->create([
+        $payment = $campaign->payment()->create([
             'user_id'   => $user->id,
             'reference' => $reference,
             'amount'    => $amountInCents,
             'status'    => 'pending',
-            'channel'   => 'paystack',
+            'channel'   => 'opay',
         ]);
-
 
         $response = $this->paystackGatewayInterface->payin([
-            'email'     => $user->email,
-            'amount'    => $amountInCents,
-            'currency'  => 'NGN',
-            'reference' => $reference,
-            'callback_url' => route('handleGatewayCallback', ['campaign' => $campaign->id]),
-            'metadata'  => [
-                'campaign_id' => $campaign->id,
-                'user_id'     => $user->id,
-                'type'        => 'campaign_funding',
-            ],
+            'email'        => $user->email,
+            'userId'       => $user->id,
+            'amount'       => $amountInCents,
+            'reference'    => $reference,
+            'callback_url' => url('/api/webhook/opay'),
         ]);
 
-        if (! $response->json('status')) {
+        if (($response['code'] ?? '') !== '00000') {
             return null;
         }
 
-        // IMPORTANT: return URL, not redirect
+        $data       = $response['data'] ?? [];
+        $nextAction = $data['nextAction'] ?? [];
+
+        // Store OPay orderNo for status polling
+        if (! empty($data['orderNo'])) {
+            $payment->update(['gateway_data' => ['opay_order_no' => $data['orderNo']]]);
+        }
+
         return [
-            'type' => 'paystack',
-            'url'  => $response->json('data.authorization_url'),
+            'type'    => 'opay',
+            'payment' => [
+                'bank_account' => $nextAction['transferAccountNumber'] ?? null,
+                'bank_name'    => $nextAction['transferBankName'] ?? 'OPay Digital Services',
+                'amount'       => $amountInCents / 100,
+                'reference'    => $data['reference'] ?? $reference,
+                'order_no'     => $data['orderNo'] ?? null,
+                'expires_at'   => isset($nextAction['expiredTimestamp'])
+                    ? date('d M Y, H:i', (int) $nextAction['expiredTimestamp'])
+                    : null,
+            ],
         ];
     }
 
@@ -505,18 +514,25 @@ class CampaignController extends ApiController
     {
         $reference = $request->query('reference');
 
-        $response  = $this->paystackGatewayInterface->verifyTransaction($reference);
-
-        if (!$response->json('status')) {
-            return redirect()->route('campaigns.index')
-                ->with('error', 'Payment verification failed.');
+        if (! $reference) {
+            return redirect()->route('campaigns.index')->with('error', 'Missing payment reference.');
         }
 
-        app(PaymentService::class)->handleChargeSuccess(['reference' => $reference]);
+        $body   = $this->paystackGatewayInterface->verifyTransaction($reference);
+        $status = $body['data']['status'] ?? null;
 
-        return Inertia::render('Advertiser/Campaigns/FundSuccess', [
-            'campaign' => $campaign
-        ]);
+        if ($status === 'SUCCESS') {
+            app(PaymentService::class)->handleChargeSuccess(['reference' => $reference]);
+            return Inertia::render('Advertiser/Campaigns/FundSuccess', ['campaign' => $campaign]);
+        }
+
+        if (in_array($status, ['FAIL', 'CLOSE'])) {
+            return redirect()->route('campaigns.index')->with('error', 'Payment was not completed.');
+        }
+
+        // Still PENDING — payment not yet confirmed
+        return redirect()->route('campaigns.fund', $campaign->id)
+            ->with('info', 'Payment is still pending. Please complete the bank transfer and check back.');
     }
 
     public function updateStatus(Request $request, Campaign $campaign)

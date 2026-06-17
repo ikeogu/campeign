@@ -12,7 +12,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class WalletController extends ApiController
@@ -45,11 +44,30 @@ class WalletController extends ApiController
 
     public function initialize(Request $request)
     {
+        $minAmount = app()->isProduction() ? 100 : 1;
+        $request->validate(['amount' => "required|numeric|min:{$minAmount}"]);
 
-        $request->validate(['amount' => 'required|numeric|min:100']);
         $response = $this->walletService->walletTopup($request->amount);
 
-        return Inertia::location($response['data']['authorization_url']);
+        if (($response['code'] ?? '') !== '00000') {
+            return back()->withErrors([
+                'amount' => $response['message'] ?? 'Payment initialization failed. Please try again.',
+            ]);
+        }
+
+        $data       = $response['data'] ?? [];
+        $nextAction = $data['nextAction'] ?? [];
+
+        return back()->with('opay_payment', [
+            'bank_account' => $nextAction['transferAccountNumber'] ?? null,
+            'bank_name'    => $nextAction['transferBankName'] ?? 'OPay Digital Services',
+            'amount'       => $request->amount,
+            'reference'    => $data['reference'] ?? null,
+            'order_no'     => $data['orderNo'] ?? null,
+            'expires_at'   => isset($nextAction['expiredTimestamp'])
+                ? date('d M Y, H:i', (int) $nextAction['expiredTimestamp'])
+                : null,
+        ]);
     }
 
     public function withdraw()
@@ -265,25 +283,32 @@ class WalletController extends ApiController
     public function handleGatewayCallback(Request $request)
     {
         $reference = $request->query('reference');
+
+        if (! $reference) {
+            return redirect()->route('wallet.index')->with('error', 'Missing payment reference.');
+        }
+
         try {
             $response = $this->paystackGatewayInterface->verifyTransaction($reference);
         } catch (\Exception $e) {
-            Log::error("Payout Callback Failed: " . $e->getMessage() . " at line " . $e->getLine());
+            Log::error('[OPay] Callback verification failed', ['error' => $e->getMessage()]);
             return redirect()->route('wallet.index')
-                ->with('error', 'Payout verification failed: ' . $e->getMessage());
+                ->with('error', 'Payment verification failed. Please contact support.');
         }
 
-        if (!$response->json('status')) {
-            return redirect()->route('wallet.index')
-                ->with('error', 'Payout verification failed.');
+        $status = $response['data']['status'] ?? null;
+
+        if ($status === 'SUCCESS') {
+            $this->paymentService->verifyPayment($reference, 'opay');
+            return redirect()->route('wallet.index')->with('success', 'Payment verified successfully.');
         }
 
-        // Update the transaction status based on the payout response
-        $data = $response->json('data');
+        if (in_array($status, ['FAIL', 'CLOSE'])) {
+            return redirect()->route('wallet.index')->with('error', 'Payment was not successful.');
+        }
 
-        $this->paymentService->verifyPayment($data['reference'], null);
-
-        return redirect()->route('wallet.index')
-            ->with('success', 'Payout status updated successfully.');
+        // PENDING / INITIAL — payment not yet confirmed
+        return redirect()->route('wallet-fund')
+            ->with('info', 'Payment is still pending. Please complete the bank transfer and check back shortly.');
     }
 }
