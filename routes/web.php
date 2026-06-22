@@ -1,8 +1,8 @@
 <?php
 
-use App\Http\Clients\PaystackClient;
-use App\Http\Controllers\Admin\Auth\AdminAuthenticatedSessionController;
 use App\Http\Controllers\Admin\WithdrawalExportController;
+use App\Modules\Kyc\Controllers\KycController;
+use App\Modules\Kyc\Controllers\PayoutAccountController;
 use App\Http\Controllers\ProfileController;
 use App\Modules\Auth\Controllers\OnboardingController;
 use App\Modules\Campeigner\Controllers\CampaignController;
@@ -113,6 +113,16 @@ Route::middleware(['web', 'auth:web'])->group(function () {
 
     Route::get('/admin/withdrawals/{transaction}/receipt', [WithdrawalExportController::class, 'receipt'])
         ->name('admin.withdrawals.receipt');
+
+    // KYC
+    Route::get('/kyc', [KycController::class, 'show'])->name('kyc.show');
+    Route::post('/kyc', [KycController::class, 'submit'])->name('kyc.submit');
+
+    // Advertiser payout account
+    Route::get('/advertiser/payout-account', [PayoutAccountController::class, 'show'])
+        ->name('advertiser.payout-account');
+    Route::post('/advertiser/payout-account', [PayoutAccountController::class, 'store'])
+        ->name('advertiser.payout-account.store');
 });
 
 Route::get('bank-names', function(){

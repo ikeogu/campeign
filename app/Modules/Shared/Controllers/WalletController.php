@@ -72,18 +72,20 @@ class WalletController extends ApiController
 
     public function withdraw()
     {
-
-        $bankList = $this->paystackGatewayInterface->getBanks()['data'];
+        $user         = Auth::user()->load(['kyc', 'payoutAccount']);
+        $isCampaigner = $user->role === 'campaigner';
 
         return Inertia('Wallet/Withdraw', [
-            'banks' => $bankList, // Array of ['name' => 'Access Bank', 'code' => '044']
-            'wallet' => Auth::user()->wallet->balance / 100,
-            'config' => [
+            'banks'          => $this->paystackGatewayInterface->getBanks()['data'],
+            'wallet'         => $user->wallet->balance / 100,
+            'config'         => [
                 'min_withdrawal' => 1000,
-                'transfer_fee' => 10,
-                'currency' => 'NGN'
+                'transfer_fee'   => 10,
+                'currency'       => 'NGN',
             ],
-            'lastUsedAccount' => []
+            'kyc_status'     => $user->kyc?->status,
+            'user_role'      => $user->role,
+            'payout_account' => $isCampaigner ? $user->payoutAccount : null,
         ]);
     }
 
@@ -127,7 +129,26 @@ class WalletController extends ApiController
     public function payout(Request $request)
     {
         /** @var User $user */
-        $user = Auth::user();
+        $user = Auth::user()->load(['kyc', 'payoutAccount']);
+
+        // ── Advertiser gate ───────────────────────────────────────────────────
+        if ($user->role === 'campaigner') {
+            if (! $user->kyc || $user->kyc->status !== 'approved') {
+                return redirect()->route('kyc.show')
+                    ->with('info', 'Complete identity verification before withdrawing.');
+            }
+            if (! $user->payoutAccount) {
+                return redirect()->route('advertiser.payout-account')
+                    ->with('info', 'Register your payout account before withdrawing.');
+            }
+            // Override form with saved, verified payout details — no user manipulation possible.
+            $request->merge([
+                'bank_code'      => $user->payoutAccount->bank_code,
+                'bank_name'      => $user->payoutAccount->bank_name,
+                'account_number' => $user->payoutAccount->account_number,
+                'account_name'   => $user->payoutAccount->account_name,
+            ]);
+        }
 
         $request->validate([
             'amount'         => 'required|numeric|min:100',
@@ -137,8 +158,16 @@ class WalletController extends ApiController
             'narration'      => 'nullable|string|max:100',
         ]);
 
+        // ── Promoter KYC gate for withdrawals above ₦10,000 ──────────────────
+        $grossKobo = (int) round((float) $request->amount * 100);
+        if ($user->role === 'promoter' && $grossKobo > 1_000_000) {
+            if (! $user->kyc || $user->kyc->status !== 'approved') {
+                return redirect()->route('kyc.show')
+                    ->with('info', 'Identity verification is required for withdrawals above ₦10,000. It only takes a minute.');
+            }
+        }
+
         $percentage    = (float) config('app.transfer_fee', 10);
-        $grossKobo     = (int) round((float) $request->amount * 100);
         $feeKobo       = (int) round($grossKobo * $percentage / 100);
         $netPayoutKobo = $grossKobo - $feeKobo;
 

@@ -40,7 +40,9 @@ class HandleInertiaRequests extends Middleware
                 'error'        => session('errors') ? session('errors')->first() : null,
                 'info'         => session('info'),
                 'opay_payment' => session('opay_payment'),
+                'kyc_result'   => session('kyc_result'),
             ],
+            'kyc_status' => $request->user()?->kyc?->status,
         ];
     }
 }

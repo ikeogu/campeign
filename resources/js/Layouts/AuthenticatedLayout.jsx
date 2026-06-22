@@ -5,8 +5,9 @@ import { useState } from 'react';
 import ThemedNavLink from '@/Components/ThemedNavLink'
 
 export default function AuthenticatedLayout({ header, children }) {
-    const { auth } = usePage().props;
+    const { auth, kyc_status } = usePage().props;
     const user = auth.user;
+    const kycPending = kyc_status !== 'approved';
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     const isPromoter = user.role === 'promoter';
@@ -45,7 +46,17 @@ export default function AuthenticatedLayout({ header, children }) {
                             <ThemedNavLink href={route('promoter.analytics')} active={route().current('promoter.analytics')} icon="⚡">Analytics</ThemedNavLink>
                             <ThemedNavLink href={route('promoter.submissions')} active={route().current('promoter.submissions')} icon="📸">My Shares</ThemedNavLink>
                             <ThemedNavLink href={route('wallet.index')} active={route().current('wallet.index')} icon="💰">Wallet</ThemedNavLink>
-                             <ThemedNavLink href={route('referrals.index')} active={route().current('referrals.index')} icon="👥">Referrals</ThemedNavLink>
+                            <ThemedNavLink href={route('referrals.index')} active={route().current('referrals.index')} icon="👥">Referrals</ThemedNavLink>
+                            <div className="flex items-center">
+                                <ThemedNavLink href={route('kyc.show')} active={route().current('kyc.show')} icon="🪪">
+                                    Identity Verify
+                                </ThemedNavLink>
+                                {kycPending && (
+                                    <span className="ml-auto mr-2 text-[9px] font-black uppercase bg-amber-500 text-white px-2 py-0.5 rounded-full">
+                                        {kyc_status === 'pending' ? 'Review' : 'Required'}
+                                    </span>
+                                )}
+                            </div>
                         </div>
                     )}
 
@@ -55,6 +66,17 @@ export default function AuthenticatedLayout({ header, children }) {
                             <ThemedNavLink href={route('campaigns.index')} active={route().current('campaigns.index')} icon="🚀">Campaigns</ThemedNavLink>
                             <ThemedNavLink href={route('wallet.index')} active={route().current('wallet.index')} icon="💳">Wallet</ThemedNavLink>
                             <ThemedNavLink href={route('referrals.index')} active={route().current('referrals.index')} icon="👥">Referrals</ThemedNavLink>
+                            <ThemedNavLink href={route('advertiser.payout-account')} active={route().current('advertiser.payout-account')} icon="🏦">Payout Account</ThemedNavLink>
+                            <div className="flex items-center">
+                                <ThemedNavLink href={route('kyc.show')} active={route().current('kyc.show')} icon="🪪">
+                                    Identity Verify
+                                </ThemedNavLink>
+                                {kycPending && (
+                                    <span className="ml-auto mr-2 text-[9px] font-black uppercase bg-amber-500 text-white px-2 py-0.5 rounded-full">
+                                        {kyc_status === 'pending' ? 'Review' : 'Required'}
+                                    </span>
+                                )}
+                            </div>
                         </div>
                     )}
 
