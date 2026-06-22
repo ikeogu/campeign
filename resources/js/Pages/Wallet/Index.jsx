@@ -29,28 +29,32 @@ export default function WalletIndex() {
                             </div>
 
                             {/* --- ACTION BUTTONS --- */}
-                            <div className="w-full md:w-auto">
-                                {isAdvertiser ? (
+                            <div className={`w-full md:w-auto flex flex-col ${isAdvertiser ? 'sm:flex-row' : ''} gap-3`}>
+                                {isAdvertiser && (
                                     <Link
                                         href={route('wallet-fund')}
-                                        className="flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-black py-4 px-6 md:px-8 rounded-2xl shadow-lg shadow-brand-200 transition-all active:scale-95 uppercase text-[10px] md:text-xs tracking-widest w-full"
+                                        className="flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-black py-4 px-6 md:px-8 rounded-2xl shadow-lg shadow-brand-200 transition-all active:scale-95 uppercase text-[10px] md:text-xs tracking-widest"
                                     >
                                         <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4" />
                                         </svg>
                                         Fund Wallet
                                     </Link>
-                                ) : (
-                                    <Link
-                                        href={route('withdraw.create')}
-                                        className="flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-black py-4 px-6 md:px-8 rounded-2xl shadow-lg shadow-brand-200 transition-all active:scale-95 uppercase text-[10px] md:text-xs tracking-widest w-full"
-                                    >
-                                        <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                                        </svg>
-                                        Withdraw Funds
-                                    </Link>
                                 )}
+
+                                <Link
+                                    href={route('withdraw.create')}
+                                    className={`flex items-center justify-center gap-2 font-black py-4 px-6 md:px-8 rounded-2xl transition-all active:scale-95 uppercase text-[10px] md:text-xs tracking-widest ${
+                                        isAdvertiser
+                                            ? 'bg-white border-2 border-brand-200 text-brand-600 hover:bg-brand-50'
+                                            : 'bg-brand-600 hover:bg-brand-700 text-white shadow-lg shadow-brand-200'
+                                    }`}
+                                >
+                                    <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                                    </svg>
+                                    Withdraw Funds
+                                </Link>
                             </div>
                         </div>
                     </div>

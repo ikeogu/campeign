@@ -2,11 +2,11 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { useForm, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
-export default function Withdraw({ banks, kyc_status, user_role, payout_account }) {
+export default function Withdraw({ banks, kyc_status, user_role, payout_account, withdrawal_count }) {
     const { wallet, config, flash } = usePage().props;
     const [confirmed, setConfirmed] = useState(false);
 
-    const isAdvertiser = user_role === 'campaigner';
+    const isAdvertiser  = user_role === 'campaigner';
     const KYC_THRESHOLD = 10000; // ₦10,000
 
     const { data, setData, post, processing, errors } = useForm({
@@ -24,14 +24,17 @@ export default function Withdraw({ banks, kyc_status, user_role, payout_account 
     const netPayout      = inputAmount - calculatedFee;
     const isOverBalance  = inputAmount > wallet;
 
-    // Promoters need KYC for amounts above ₦10,000
-    const needsKycForAmount = !isAdvertiser && inputAmount > KYC_THRESHOLD && kyc_status !== 'approved';
+    // Promoters need KYC for: amounts above ₦10,000 OR from their 3rd withdrawal onwards
+    const isThirdWithdrawal = !isAdvertiser && withdrawal_count >= 2;
+    const needsKyc = !isAdvertiser && kyc_status !== 'approved' && (
+        inputAmount > KYC_THRESHOLD || isThirdWithdrawal
+    );
 
     const detailsComplete = isAdvertiser
         ? !!payout_account // advertisers just need an amount; bank details are pre-filled
         : data.bank_code && data.account_number.length === 10 && data.account_name.trim().length >= 2;
 
-    const canSubmit = detailsComplete && confirmed && !isOverBalance && inputAmount > 0 && !needsKycForAmount;
+    const canSubmit = detailsComplete && confirmed && !isOverBalance && inputAmount > 0 && !needsKyc;
 
     const submit = (e) => {
         e.preventDefault();
@@ -122,13 +125,15 @@ export default function Withdraw({ banks, kyc_status, user_role, payout_account 
                             {errors.amount && <p className="text-red-500 text-[10px] mt-1 font-bold">{errors.amount}</p>}
                         </div>
 
-                        {/* KYC prompt for promoters exceeding ₦10k */}
-                        {needsKycForAmount && (
+                        {/* KYC prompt — amount threshold or 3rd withdrawal */}
+                        {needsKyc && (
                             <div className="p-5 bg-amber-50 border border-amber-200 rounded-2xl">
                                 <p className="text-sm font-black text-amber-800 mb-1">Identity Verification Required</p>
                                 <p className="text-xs text-amber-700 mb-3">
-                                    Withdrawals above ₦10,000 require identity verification.
-                                    {kyc_status === 'pending' ? ' Your submission is under review.' : ''}
+                                    {isThirdWithdrawal
+                                        ? 'From your 3rd withdrawal onwards, identity verification is required.'
+                                        : 'Withdrawals above ₦10,000 require identity verification.'}
+                                    {kyc_status === 'pending' ? ' Your submission is currently under review.' : ''}
                                 </p>
                                 {kyc_status !== 'pending' && (
                                     <a
@@ -239,7 +244,7 @@ export default function Withdraw({ banks, kyc_status, user_role, payout_account 
                         )}
 
                         {/* Confirmation checkbox */}
-                        {detailsComplete && inputAmount > 0 && !needsKycForAmount && (
+                        {detailsComplete && inputAmount > 0 && !needsKyc && (
                             <label className="flex items-start gap-3 cursor-pointer bg-amber-50 border border-amber-200 rounded-2xl px-5 py-4">
                                 <input
                                     type="checkbox"

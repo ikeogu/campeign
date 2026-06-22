@@ -75,17 +75,26 @@ class WalletController extends ApiController
         $user         = Auth::user()->load(['kyc', 'payoutAccount']);
         $isCampaigner = $user->role === 'campaigner';
 
+        $withdrawalCount = $user->role === 'promoter'
+            ? $user->wallet->transactions()
+                ->where('type', 'debit')
+                ->where('channel', 'withdrawal')
+                ->whereNotIn('status', ['reversed'])
+                ->count()
+            : 0;
+
         return Inertia('Wallet/Withdraw', [
-            'banks'          => $this->paystackGatewayInterface->getBanks()['data'],
-            'wallet'         => $user->wallet->balance / 100,
-            'config'         => [
+            'banks'            => $this->paystackGatewayInterface->getBanks()['data'],
+            'wallet'           => $user->wallet->balance / 100,
+            'config'           => [
                 'min_withdrawal' => 1000,
                 'transfer_fee'   => 10,
                 'currency'       => 'NGN',
             ],
-            'kyc_status'     => $user->kyc?->status,
-            'user_role'      => $user->role,
-            'payout_account' => $isCampaigner ? $user->payoutAccount : null,
+            'kyc_status'       => $user->kyc?->status,
+            'user_role'        => $user->role,
+            'payout_account'   => $isCampaigner ? $user->payoutAccount : null,
+            'withdrawal_count' => $withdrawalCount,
         ]);
     }
 
@@ -158,12 +167,29 @@ class WalletController extends ApiController
             'narration'      => 'nullable|string|max:100',
         ]);
 
-        // ── Promoter KYC gate for withdrawals above ₦10,000 ──────────────────
+        // ── Promoter KYC gates ────────────────────────────────────────────────
         $grossKobo = (int) round((float) $request->amount * 100);
-        if ($user->role === 'promoter' && $grossKobo > 1_000_000) {
-            if (! $user->kyc || $user->kyc->status !== 'approved') {
-                return redirect()->route('kyc.show')
-                    ->with('info', 'Identity verification is required for withdrawals above ₦10,000. It only takes a minute.');
+        if ($user->role === 'promoter') {
+            $kycApproved = $user->kyc && $user->kyc->status === 'approved';
+
+            // Count previous withdrawal attempts (excluding reversed ones)
+            $previousWithdrawals = $user->wallet->transactions()
+                ->where('type', 'debit')
+                ->where('channel', 'withdrawal')
+                ->whereNotIn('status', ['reversed'])
+                ->count();
+
+            $needsKyc = ! $kycApproved && (
+                $grossKobo > 1_000_000        // above ₦10,000
+                || $previousWithdrawals >= 2  // 3rd withdrawal or beyond
+            );
+
+            if ($needsKyc) {
+                $reason = $previousWithdrawals >= 2
+                    ? 'Identity verification is required from your 3rd withdrawal onwards.'
+                    : 'Identity verification is required for withdrawals above ₦10,000.';
+
+                return redirect()->route('kyc.show')->with('info', $reason . ' It only takes a minute.');
             }
         }
 
