@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\WithdrawalResource\Pages;
+use App\Interfaces\PaymentGateWayInterface;
 use App\Models\Transaction;
 use App\Notifications\NotifyAnythingNotification;
 use App\Notifications\WithdrawalReceiptNotification;
@@ -100,6 +101,18 @@ class WithdrawalResource extends Resource
                     )
                     ->wrap(),
 
+                Tables\Columns\TextColumn::make('initiator_type')
+                    ->label('Type')
+                    ->badge()
+                    ->getStateUsing(fn(Transaction $record): string =>
+                        ($record->metadata['initiator_role'] ?? null) === 'campaigner'
+                            ? 'Advertiser Request'
+                            : 'Promoter'
+                    )
+                    ->color(fn(string $state): string =>
+                        $state === 'Advertiser Request' ? 'warning' : 'gray'
+                    ),
+
                 Tables\Columns\TextColumn::make('reference')
                     ->label('Reference')
                     ->searchable()
@@ -141,6 +154,71 @@ class WithdrawalResource extends Resource
                     ->url(fn(Transaction $record) => route('admin.withdrawals.receipt', $record))
                     ->openUrlInNewTab()
                     ->visible(fn(Transaction $record) => $record->status === 'successful'),
+
+                Action::make('process_payout')
+                    ->label('Process Payout')
+                    ->icon('heroicon-o-paper-airplane')
+                    ->color('warning')
+                    ->requiresConfirmation()
+                    ->modalHeading(fn(Transaction $record) =>
+                        'Process Payout — ₦' . number_format(
+                            (int) ($record->metadata['net_payout_kobo'] ?? $record->amount) / 100, 2
+                        )
+                    )
+                    ->modalDescription(fn(Transaction $record) =>
+                        'Send ₦' . number_format((int) ($record->metadata['net_payout_kobo'] ?? $record->amount) / 100, 2) .
+                        " to {$record->metadata['account_name']} ({$record->metadata['account_number']})" .
+                        " at {$record->metadata['bank_name']}.\n\n" .
+                        "User: {$record->wallet->user->email}\n" .
+                        "Reference: {$record->reference}"
+                    )
+                    ->modalSubmitActionLabel('Send Payment')
+                    ->visible(fn(Transaction $record) =>
+                        $record->status === 'pending' &&
+                        ($record->metadata['initiator_role'] ?? null) === 'campaigner'
+                    )
+                    ->action(function (Transaction $record) {
+                        $meta    = $record->metadata ?? [];
+                        $netKobo = (int) ($meta['net_payout_kobo'] ?? $record->amount);
+                        $user    = $record->wallet->user;
+
+                        try {
+                            app(PaymentGateWayInterface::class)->payout([
+                                'amount'         => $netKobo,
+                                'reference'      => $record->reference,
+                                'bank_code'      => $meta['bank_code'],
+                                'account_number' => $meta['account_number'],
+                                'account_name'   => $meta['account_name'],
+                                'narration'      => $meta['narration'] ?? 'Advertiser Withdrawal',
+                            ]);
+
+                            $record->update(['status' => 'processing']);
+
+                            $user->notify(new NotifyAnythingNotification(
+                                'Withdrawal Being Processed',
+                                "Your withdrawal of ₦" . number_format($netKobo / 100, 2) .
+                                " (ref: {$record->reference}) is now being processed and will arrive in your account shortly."
+                            ));
+
+                            Notification::make()
+                                ->title('Payout dispatched')
+                                ->body('₦' . number_format($netKobo / 100, 2) . ' → ' . $user->email)
+                                ->success()
+                                ->send();
+
+                        } catch (\Throwable $e) {
+                            Log::error('Admin payout dispatch failed', [
+                                'transaction_id' => $record->id,
+                                'error'          => $e->getMessage(),
+                            ]);
+
+                            Notification::make()
+                                ->title('Payout failed')
+                                ->body($e->getMessage())
+                                ->danger()
+                                ->send();
+                        }
+                    }),
 
                 Action::make('mark_successful')
                     ->label('Mark Successful')

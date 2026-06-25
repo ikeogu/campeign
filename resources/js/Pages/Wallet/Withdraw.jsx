@@ -267,12 +267,23 @@ export default function Withdraw({ banks, kyc_status, user_role, payout_account,
                             </label>
                         )}
 
+                        {isAdvertiser && (
+                            <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl text-xs text-blue-800 font-bold leading-relaxed">
+                                Your request will be reviewed and processed within 1–2 business days. You will be notified once the payment is dispatched.
+                            </div>
+                        )}
+
                         <button
                             type="submit"
                             disabled={!canSubmit || processing}
                             className="w-full py-5 bg-brand-600 text-white font-black rounded-2xl hover:bg-brand-700 shadow-xl transition-all active:scale-95 disabled:opacity-50 uppercase text-[10px] tracking-widest"
                         >
-                            {processing ? 'Processing...' : 'Confirm Withdrawal'}
+                            {processing
+                                ? 'Submitting...'
+                                : isAdvertiser
+                                    ? 'Submit Withdrawal Request'
+                                    : 'Confirm Withdrawal'
+                            }
                         </button>
                     </form>
                 </div>

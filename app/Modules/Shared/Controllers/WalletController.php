@@ -239,6 +239,7 @@ class WalletController extends ApiController
                         'fee_kobo'        => $feeKobo,
                         'net_payout_kobo' => $netPayoutKobo,
                         'narration'       => $request->narration ?? 'Withdrawal from Wallet',
+                        'initiator_role'  => $user->role,
                     ],
                 ]);
             });
@@ -254,6 +255,34 @@ class WalletController extends ApiController
         if ($transaction === null) {
             Log::error('Payout: transaction was not created after DB block.', ['user' => $user->email]);
             return back()->withErrors(['amount' => 'Withdrawal could not be recorded. Please try again.']);
+        }
+
+        // ── Advertiser: stop here — no self-service payout (OPay compliance). ──
+        // The request sits as `pending`; admin dispatches payment from the back office.
+        if ($user->role === 'campaigner') {
+            $amountNaira = number_format($netPayoutKobo / 100, 2);
+
+            User::where('role', 'admin')->each(fn($admin) =>
+                $admin->notify(new NotifyAnythingNotification(
+                    'Advertiser Withdrawal Request',
+                    "An advertiser has requested a withdrawal of ₦{$amountNaira}.\n\n" .
+                    "User: {$user->email}\n" .
+                    "Reference: {$transaction->reference}\n" .
+                    "Account: {$request->account_name} · {$request->account_number} ({$request->bank_name})\n\n" .
+                    "Please process this from the admin withdrawals panel."
+                ))
+            );
+
+            Log::info('Advertiser withdrawal request created — awaiting admin dispatch.', [
+                'user'      => $user->email,
+                'reference' => $transaction->reference,
+                'net_kobo'  => $netPayoutKobo,
+            ]);
+
+            return redirect()->route('wallet.index')->with('message',
+                'Your withdrawal request of ₦' . number_format($netPayoutKobo / 100, 2) .
+                ' has been submitted. We will process it within 1–2 business days.'
+            );
         }
 
         // ── Step 2: Check platform Paystack balance.
