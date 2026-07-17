@@ -21,7 +21,7 @@ class DojahClient
     public function verifyBvn(string $bvn): array
     {
         $response = Http::withHeaders($this->headers())
-            ->get("{$this->baseUrl}/api/v1/kyc/bvn", ['bvn' => $bvn]);
+            ->get("{$this->baseUrl}/api/v1/kyc/bvn/full", ['bvn' => $bvn]);
 
         Log::info('[Dojah] BVN verify', ['status' => $response->status()]);
 
@@ -40,25 +40,17 @@ class DojahClient
 
     /**
      * Extract full name from a Dojah response.
-     * BVN entity uses first_name / last_name; NIN uses firstname / surname.
+     * Both BVN (full/advance) and NIN entities use first_name / middle_name / last_name.
      */
     public function extractName(array $response, string $idType): ?string
     {
         $entity = $response['entity'] ?? [];
 
-        [$first, $middle, $last] = $idType === 'bvn'
-            ? [
-                $entity['first_name']  ?? '',
-                $entity['middle_name'] ?? '',
-                $entity['last_name']   ?? '',
-            ]
-            : [
-                $entity['firstname']   ?? '',
-                $entity['middlename']  ?? '',
-                $entity['surname']     ?? '',
-            ];
-
-        $parts = array_filter([trim($first), trim($middle), trim($last)]);
+        $parts = array_filter([
+            trim($entity['first_name']  ?? ''),
+            trim($entity['middle_name'] ?? ''),
+            trim($entity['last_name']   ?? ''),
+        ]);
 
         return $parts ? implode(' ', $parts) : null;
     }
