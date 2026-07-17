@@ -1,0 +1,15 @@
+services:
+  app:
+    image: ghcr.io/ikeogu/campeign:latest
+    container_name: gigsandcampaigns
+    restart: unless-stopped
+    network_mode: host
+    env_file:
+      - .env
+    volumes:
+      - storage-app:/var/www/html/storage/app
+      - storage-logs:/var/www/html/storage/logs
+
+volumes:
+  storage-app:
+  storage-logs:
