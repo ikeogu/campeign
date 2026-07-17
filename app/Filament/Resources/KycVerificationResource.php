@@ -44,7 +44,7 @@ class KycVerificationResource extends Resource
     {
         return $table
             ->defaultSort('created_at', 'desc')
-            ->modifyQueryUsing(fn(Builder $q) => $q->with('user.promoter', 'user.campaigner'))
+            ->modifyQueryUsing(fn(Builder $query) => $query->with('user.promoter', 'user.campaigner'))
             ->columns([
                 Tables\Columns\TextColumn::make('user.email')
                     ->label('User')
