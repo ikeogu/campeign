@@ -269,18 +269,21 @@ class OpayClient implements PaymentGateWayInterface
 
         $data = $body['data'] ?? [];
 
-        // Response shape wasn't confirmed against a real example — normalize a
-        // single {currency, balance} object into the list shape callers expect.
-        if (isset($data['currency']) || isset($data['balance'])) {
+        // Confirmed real shape: {merchantId, country, balance: {total, currency}}
+        // — balance itself is a nested object, not a scalar. Kept the looser
+        // fallbacks below too, in case OPay's response varies by account/type.
+        if (isset($data['balance']) && is_array($data['balance'])) {
+            $data = [$data['balance']];
+        } elseif (isset($data['currency']) || isset($data['balance'])) {
             $data = [$data];
         }
 
         $balances = collect($data)
             ->map(fn($b) => [
                 'currency' => $b['currency'] ?? 'NGN',
-                'balance'  => $b['balance'] ?? $b['availableBalance'] ?? $b['amount'] ?? null,
+                'balance'  => $b['total'] ?? $b['balance'] ?? $b['availableBalance'] ?? $b['amount'] ?? null,
             ])
-            ->filter(fn($b) => $b['balance'] !== null)
+            ->filter(fn($b) => is_numeric($b['balance']))
             ->values();
 
         if ($balances->isEmpty()) {
