@@ -12,34 +12,58 @@ class OpayClient implements PaymentGateWayInterface
     private string $baseUrl;
     private string $privateKey;
     private string $merchantId;
+    private string $payoutPrivateKeyPath;
     private string $country = 'NG';
 
     public function __construct()
     {
-        $this->baseUrl    = config('services.opay.base_url', 'https://testapi.opaycheckout.com');
-        $this->privateKey = config('services.opay.private_key', '');
-        $this->merchantId = config('services.opay.merchant_id', '');
+        $this->baseUrl              = config('services.opay.base_url', 'https://testapi.opaycheckout.com');
+        $this->privateKey           = config('services.opay.private_key', '');
+        $this->merchantId           = config('services.opay.merchant_id', '');
+        $this->payoutPrivateKeyPath = config('services.opay.payout_private_key_path');
     }
 
-    private function sign(array $payload): string
+    /**
+     * The Payout API (createSingleOrder, balance, bank-account-validate) signs
+     * with RSA-SHA256 against a merchant-generated keypair — a different scheme
+     * from the HMAC-SHA512 used by the checkout/payin/refund endpoints below,
+     * which sign with the shared OPAY_PRIVATE_KEY secret instead.
+     */
+    private function signRsa(string $json): string
+    {
+        if (! is_readable($this->payoutPrivateKeyPath)) {
+            throw new \RuntimeException("OPay payout: private key not found at {$this->payoutPrivateKeyPath}");
+        }
+
+        $key = openssl_pkey_get_private(file_get_contents($this->payoutPrivateKeyPath));
+
+        if (! $key) {
+            throw new \RuntimeException('OPay payout: could not load RSA private key (' . openssl_error_string() . ')');
+        }
+
+        openssl_sign($json, $binarySignature, $key, OPENSSL_ALGO_SHA256);
+
+        return base64_encode($binarySignature);
+    }
+
+    private function request(string $path, array $payload, string $authMethod = 'hmac'): array
     {
         ksort($payload, SORT_STRING);
         $json = json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-        return hash_hmac('sha512', $json, $this->privateKey);
-    }
 
-    private function request(string $path, array $payload): array
-    {
-        ksort($payload, SORT_STRING);
-        $signature = $this->sign($payload);
+        $signature = $authMethod === 'rsa'
+            ? $this->signRsa($json)
+            : hash_hmac('sha512', $json, $this->privateKey);
 
-        Log::info("[OPay] POST {$path}", ['payload' => $payload]);
+        Log::info("[OPay] POST {$path}", ['payload' => $payload, 'auth' => $authMethod]);
 
+        // Send the exact bytes that were signed — letting Http::post() re-encode
+        // the array itself would escape slashes differently and invalidate the
+        // signature on OPay's end (confirmed via openssl_verify during testing).
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $signature,
             'MerchantId'    => $this->merchantId,
-            'Content-Type'  => 'application/json',
-        ])->post($this->baseUrl . $path, $payload);
+        ])->withBody($json, 'application/json')->post($this->baseUrl . $path);
 
         $body = $response->json() ?? [];
 
@@ -94,17 +118,27 @@ class OpayClient implements PaymentGateWayInterface
 
     public function payout(array $data): array
     {
+        // Payout API (createSingleOrder) — same host as checkout, but a
+        // distinct product with its own path/payload shape and RSA-SHA256
+        // auth. Endpoint, fields, and signing scheme sourced from OPay's
+        // official "OPay-NG-payout" Postman collection.
         $payload = [
-            'amount'        => ['currency' => 'NGN', 'total' => (int) $data['amount']],
-            'bankAccountNo' => $data['account_number'],
-            'bankCode'      => $data['bank_code'],
-            'beneficiary'   => ['name' => $data['account_name']],
-            'country'       => $this->country,
-            'reason'        => $data['narration'] ?? 'Withdrawal',
-            'reference'     => $data['reference'],
+            'country'         => $this->country,
+            'merchantOrderNo' => $data['reference'],
+            'metaData'        => [
+                'accountNo'       => $data['account_number'],
+                'accountName'     => $data['account_name'],
+                'accountBankCode' => $data['bank_code'],
+            ],
+            'amount'     => (int) $data['amount'],
+            'currency'   => 'NGN',
+            'payoutType' => 'BankTransfer',
+            'notifyUrl'  => route('webhook-client-opay'),
+            'language'   => 'en',
+            'remark'     => $data['narration'] ?? 'Withdrawal',
         ];
 
-        $body = $this->request('/api/v1/international/transfer/tobank', $payload);
+        $body = $this->request('/api/v1/international/payout/createSingleOrder', $payload, authMethod: 'rsa');
 
         if (($body['code'] ?? '') !== '00000') {
             throw new \RuntimeException('OPay payout failed: ' . ($body['message'] ?? 'unknown error'));
@@ -115,8 +149,52 @@ class OpayClient implements PaymentGateWayInterface
 
     public function getBanks(): array
     {
-        // OPay checkout does not expose a bank list endpoint.
-        // This static list covers all major Nigerian banks supported for transfers.
+        // Cache only successful live results — a transient failure shouldn't
+        // lock the fallback list in for a full day.
+        if ($cached = Cache::get('opay_bank_list')) {
+            return $cached;
+        }
+
+        try {
+            $body = $this->request('/api/v1/international/banks', [
+                'countryCode' => $this->country,
+            ], authMethod: 'rsa');
+        } catch (\Throwable $e) {
+            Log::warning('[OPay/Banks] Live bank list request failed, using static fallback', [
+                'error' => $e->getMessage(),
+            ]);
+            return $this->staticBankFallback();
+        }
+
+        // Response shape wasn't confirmed against a real example — normalize
+        // whichever key names OPay actually uses, and fall back if none match.
+        $banks = collect($body['data'] ?? [])
+            ->map(fn($bank) => [
+                'name' => $bank['bankName'] ?? $bank['name'] ?? $bank['bank_name'] ?? null,
+                'code' => $bank['bankCode'] ?? $bank['code'] ?? $bank['bank_code'] ?? null,
+            ])
+            ->filter(fn($bank) => $bank['name'] && $bank['code'])
+            ->values();
+
+        if ($banks->isEmpty()) {
+            Log::warning('[OPay/Banks] Live response had no recognizable bank entries, using static fallback', [
+                'body' => $body,
+            ]);
+            return $this->staticBankFallback();
+        }
+
+        $result = ['data' => $banks->all()];
+        Cache::put('opay_bank_list', $result, now()->addDay());
+
+        return $result;
+    }
+
+    /**
+     * Covers all major Nigerian banks supported for transfers — used only if
+     * the live /international/banks call fails or returns an unrecognized shape.
+     */
+    private function staticBankFallback(): array
+    {
         return [
             'data' => [
                 ['name' => 'Access Bank',                       'code' => '044'],
@@ -173,9 +251,46 @@ class OpayClient implements PaymentGateWayInterface
 
     public function checkBalance(): array
     {
-        // OPay B2C does not require a pre-funded platform balance.
-        // Return a sentinel value so the withdrawal queue is never gated on balance.
-        return [['currency' => 'NGN', 'balance' => PHP_INT_MAX]];
+        try {
+            $body = $this->request('/api/v1/international/payout/balance', [
+                'country'  => $this->country,
+                'currency' => 'NGN',
+                'type'     => 'CASH_ACCOUNT',
+            ], authMethod: 'rsa');
+        } catch (\Throwable $e) {
+            // Fail open rather than blocking the whole withdrawal queue on a
+            // balance-check error — payout() will still fail/retry per-transfer
+            // if the account genuinely can't cover it.
+            Log::warning('[OPay/Balance] Live balance check failed, treating as unconstrained', [
+                'error' => $e->getMessage(),
+            ]);
+            return [['currency' => 'NGN', 'balance' => PHP_INT_MAX]];
+        }
+
+        $data = $body['data'] ?? [];
+
+        // Response shape wasn't confirmed against a real example — normalize a
+        // single {currency, balance} object into the list shape callers expect.
+        if (isset($data['currency']) || isset($data['balance'])) {
+            $data = [$data];
+        }
+
+        $balances = collect($data)
+            ->map(fn($b) => [
+                'currency' => $b['currency'] ?? 'NGN',
+                'balance'  => $b['balance'] ?? $b['availableBalance'] ?? $b['amount'] ?? null,
+            ])
+            ->filter(fn($b) => $b['balance'] !== null)
+            ->values();
+
+        if ($balances->isEmpty()) {
+            Log::warning('[OPay/Balance] Live response had no recognizable balance, treating as unconstrained', [
+                'body' => $body,
+            ]);
+            return [['currency' => 'NGN', 'balance' => PHP_INT_MAX]];
+        }
+
+        return $balances->all();
     }
 
     public function refund(array $data): array

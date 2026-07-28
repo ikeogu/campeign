@@ -39,6 +39,10 @@ return [
         'base_url'    => env('OPAY_BASE_URL', 'https://testapi.opaycheckout.com'),
         'private_key' => env('OPAY_PRIVATE_KEY'),
         'public_key'  => env('OPAY_PUBLIC_KEY'),
+        // Payout API (createSingleOrder/balance/bank-account-validate) signs with
+        // RSA-SHA256 against this merchant-generated keypair, not the shared
+        // OPAY_PRIVATE_KEY secret used above for HMAC-signed checkout endpoints.
+        'payout_private_key_path' => env('OPAY_PAYOUT_PRIVATE_KEY_PATH', storage_path('app/opay/client_private_key.pem')),
         'merchant_id' => env('OPAY_MERCHANT_ID'),
     ],
 

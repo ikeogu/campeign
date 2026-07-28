@@ -16,6 +16,7 @@
 /public/hot
 /public/storage
 /storage/*.key
+/storage/app/opay
 /storage/pail
 /vendor
 Homestead.json

@@ -19,7 +19,7 @@ class WalletController extends ApiController
 
     public function __construct(
         public readonly WalletService $walletService,
-        public readonly PaymentGateWayInterface $paystackGatewayInterface,
+        public readonly PaymentGateWayInterface $gateway,
         public readonly PaymentService $paymentService
     ) {}
 
@@ -84,7 +84,7 @@ class WalletController extends ApiController
             : 0;
 
         return Inertia('Wallet/Withdraw', [
-            'banks'            => $this->paystackGatewayInterface->getBanks()['data'],
+            'banks'            => $this->gateway->getBanks()['data'],
             'wallet'           => $user->wallet->balance / 100,
             'config'           => [
                 'min_withdrawal' => 1000,
@@ -106,7 +106,7 @@ class WalletController extends ApiController
         ]);
 
         try {
-            $result = $this->paystackGatewayInterface->resolveAccountNumber(
+            $result = $this->gateway->resolveAccountNumber(
                 $request->account_number,
                 $request->bank_code
             );
@@ -285,13 +285,13 @@ class WalletController extends ApiController
             );
         }
 
-        // ── Step 2: Check platform Paystack balance.
+        // ── Step 2: Check platform OPay balance.
         try {
-            $paystackBalances = $this->paystackGatewayInterface->checkBalance();
-            Log::info('Paystack platform balance', ['balances' => $paystackBalances]);
-            $platformBalance = collect($paystackBalances)->firstWhere('currency', 'NGN')['balance'] ?? 0;
+            $balances = $this->gateway->checkBalance();
+            Log::info('OPay platform balance', ['balances' => $balances]);
+            $platformBalance = collect($balances)->firstWhere('currency', 'NGN')['balance'] ?? 0;
         } catch (\Throwable $e) {
-            Log::error('Paystack balance check failed', ['error' => $e->getMessage()]);
+            Log::error('OPay balance check failed', ['error' => $e->getMessage()]);
             $platformBalance = null;
         }
 
@@ -329,7 +329,7 @@ class WalletController extends ApiController
                 'net_kobo'  => $netPayoutKobo,
             ]);
 
-            $result = $this->paystackGatewayInterface->payout([
+            $result = $this->gateway->payout([
                 'amount'         => $netPayoutKobo,
                 'reference'      => $transaction->reference,
                 'bank_code'      => $request->bank_code,
@@ -373,7 +373,7 @@ class WalletController extends ApiController
         }
 
         try {
-            $response = $this->paystackGatewayInterface->verifyTransaction($reference);
+            $response = $this->gateway->verifyTransaction($reference);
         } catch (\Exception $e) {
             Log::error('[OPay] Callback verification failed', ['error' => $e->getMessage()]);
             return redirect()->route('wallet.index')

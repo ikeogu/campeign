@@ -1,10 +1,14 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { useForm, usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export default function Withdraw({ banks, kyc_status, user_role, payout_account, withdrawal_count }) {
     const { wallet, config, flash } = usePage().props;
     const [confirmed, setConfirmed] = useState(false);
+    const [resolving, setResolving] = useState(false);
+    const [resolveError, setResolveError] = useState(null);
+    const [resolved, setResolved] = useState(false);
+    const resolveRequestRef = useRef(null);
 
     const isAdvertiser  = user_role === 'campaigner';
     const KYC_THRESHOLD = 10000; // ₦10,000
@@ -30,9 +34,51 @@ export default function Withdraw({ banks, kyc_status, user_role, payout_account,
         inputAmount > KYC_THRESHOLD || isThirdWithdrawal
     );
 
+    // Auto-resolve the account name from the bank instead of trusting free-text
+    // entry — the name must match what OPay has on file for the payout to work.
+    useEffect(() => {
+        if (isAdvertiser) return;
+
+        setResolved(false);
+        setResolveError(null);
+
+        if (!data.bank_code || data.account_number.length !== 10) {
+            if (data.account_name) setData('account_name', '');
+            return;
+        }
+
+        const requestKey = `${data.bank_code}:${data.account_number}`;
+        setResolving(true);
+
+        const timer = setTimeout(() => {
+            window.axios
+                .get(route('api.bank.resolve'), {
+                    params: { bank_code: data.bank_code, account_number: data.account_number },
+                })
+                .then(({ data: res }) => {
+                    if (resolveRequestRef.current !== requestKey) return; // stale response
+                    setData('account_name', res.account_name);
+                    setResolved(true);
+                })
+                .catch((err) => {
+                    if (resolveRequestRef.current !== requestKey) return;
+                    setData('account_name', '');
+                    setResolveError(err.response?.data?.error ?? 'Could not verify account. Check account number and bank.');
+                })
+                .finally(() => {
+                    if (resolveRequestRef.current === requestKey) setResolving(false);
+                });
+        }, 600);
+
+        resolveRequestRef.current = requestKey;
+
+        return () => clearTimeout(timer);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [data.bank_code, data.account_number]);
+
     const detailsComplete = isAdvertiser
         ? !!payout_account // advertisers just need an amount; bank details are pre-filled
-        : data.bank_code && data.account_number.length === 10 && data.account_name.trim().length >= 2;
+        : data.bank_code && data.account_number.length === 10 && resolved && !resolving;
 
     const canSubmit = detailsComplete && confirmed && !isOverBalance && inputAmount > 0 && !needsKyc;
 
@@ -195,15 +241,29 @@ export default function Withdraw({ banks, kyc_status, user_role, payout_account,
                                     </label>
                                     <input
                                         type="text"
-                                        className="w-full bg-gray-50 border-gray-100 rounded-2xl px-5 py-4 font-bold focus:ring-brand-500"
+                                        readOnly
+                                        className={`w-full rounded-2xl px-5 py-4 font-bold cursor-not-allowed ${
+                                            resolveError
+                                                ? 'bg-red-50 border-red-200 text-red-700'
+                                                : resolved
+                                                    ? 'bg-brand-50 border-brand-200 text-brand-700'
+                                                    : 'bg-gray-50 border-gray-100 text-gray-400'
+                                        }`}
                                         value={data.account_name}
-                                        onChange={e => {
-                                            setData('account_name', e.target.value);
-                                            setConfirmed(false);
-                                        }}
-                                        placeholder="Full name on the bank account"
+                                        placeholder={resolving ? 'Verifying account…' : 'Auto-filled from your bank details'}
                                     />
-                                    <p className="text-[10px] text-gray-400 mt-1.5 ml-1">Enter the exact name on your bank account.</p>
+                                    {resolving && (
+                                        <p className="text-[10px] text-gray-400 mt-1.5 ml-1">Verifying account with your bank…</p>
+                                    )}
+                                    {resolved && !resolving && (
+                                        <p className="text-[10px] text-brand-600 mt-1.5 ml-1 font-bold">✓ Verified</p>
+                                    )}
+                                    {resolveError && !resolving && (
+                                        <p className="text-red-500 text-[10px] mt-1.5 ml-1 font-bold">{resolveError}</p>
+                                    )}
+                                    {!resolving && !resolved && !resolveError && (
+                                        <p className="text-[10px] text-gray-400 mt-1.5 ml-1">Select a bank and enter a 10-digit account number to verify.</p>
+                                    )}
                                     {errors.account_name && <p className="text-red-500 text-[10px] mt-1 font-bold">{errors.account_name}</p>}
                                 </div>
                             </>

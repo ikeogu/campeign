@@ -75,7 +75,10 @@ class PaymentService
 
     public function handleTransferSuccess(array $data): void
     {
-        $reference = $data['reference'] ?? null;
+        // OPay's payout API is given our Transaction.reference as merchantOrderNo
+        // (see OpayClient::payout()) — accept either key since the real webhook
+        // field name isn't confirmed yet.
+        $reference = $data['reference'] ?? $data['merchantOrderNo'] ?? null;
 
         if (!$reference) {
             Log::warning('transfer.success webhook missing reference', ['data' => $data]);
@@ -85,8 +88,13 @@ class PaymentService
         Log::info('Handling transfer.success', ['reference' => $reference]);
 
         DB::transaction(function () use ($reference, $data) {
+            // Scoped to debit/withdrawal only — a funding (credit) transaction
+            // must never be finalised by a transfer-out webhook, even if some
+            // future reference collision made the lookup match by accident.
             // Accept both 'pending' and 'processing' to be idempotent against retries.
             $transaction = Transaction::where('reference', $reference)
+                ->where('type', 'debit')
+                ->where('channel', 'withdrawal')
                 ->whereIn('status', ['pending', 'processing'])
                 ->lockForUpdate()
                 ->first();
@@ -127,7 +135,7 @@ class PaymentService
 
     public function handleTransferFailed(array $data): void
     {
-        $reference = $data['reference'] ?? null;
+        $reference = $data['reference'] ?? $data['merchantOrderNo'] ?? null;
 
         if (!$reference) {
             Log::warning('transfer.failed webhook missing reference', ['data' => $data]);
@@ -138,6 +146,8 @@ class PaymentService
 
         DB::transaction(function () use ($reference, $data) {
             $transaction = Transaction::where('reference', $reference)
+                ->where('type', 'debit')
+                ->where('channel', 'withdrawal')
                 ->whereIn('status', ['pending', 'processing'])
                 ->lockForUpdate()
                 ->first();
