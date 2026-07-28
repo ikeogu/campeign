@@ -16,7 +16,7 @@ class ProcessPendingWithdrawals extends Command
     protected $description = 'Process pending credit (wallet funding) and debit (withdrawal) transactions.';
 
     public function __construct(
-        protected readonly PaymentGateWayInterface $paystack,
+        protected readonly PaymentGateWayInterface $gateway,
         protected readonly PaymentService $paymentService,
     ) {
         parent::__construct();
@@ -67,7 +67,7 @@ class ProcessPendingWithdrawals extends Command
                     'reference' => $transaction->reference,
                 ]);
 
-                $body   = $this->paystack->verifyTransaction($transaction->reference);
+                $body   = $this->gateway->verifyTransaction($transaction->reference);
                 $status = $body['data']['status'] ?? null;
 
                 Log::info('[ProcessPendingWithdrawals:credits] OPay status response', [
@@ -86,7 +86,6 @@ class ProcessPendingWithdrawals extends Command
                         $this->warn("  ~ {$transaction->reference}: verifyPayment returned false (already processed?).");
                         $skipped++;
                     }
-
                 } elseif (in_array($status, ['FAIL', 'CLOSE'])) {
                     $transaction->update(['status' => 'failed']);
                     $this->warn("  ✗ {$transaction->reference}: OPay status is '{$status}'. Marked failed.");
@@ -95,12 +94,10 @@ class ProcessPendingWithdrawals extends Command
                         'opay_status' => $status,
                     ]);
                     $skipped++;
-
                 } else {
                     $this->line("  · {$transaction->reference}: still '{$status}' on OPay. Leaving pending.");
                     $skipped++;
                 }
-
             } catch (\Throwable $e) {
                 Log::error('[ProcessPendingWithdrawals:credits] Verification error', [
                     'reference' => $transaction->reference,
@@ -116,7 +113,7 @@ class ProcessPendingWithdrawals extends Command
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // DEBITS — pending withdrawals waiting for sufficient Paystack balance
+    // DEBITS — pending withdrawals waiting for sufficient OPay balance
     // ─────────────────────────────────────────────────────────────────────────
     private function processPendingDebits(): void
     {
@@ -138,7 +135,7 @@ class ProcessPendingWithdrawals extends Command
 
         // Check platform balance once for the whole batch.
         try {
-            $balances        = $this->paystack->checkBalance();
+            $balances        = $this->gateway->checkBalance();
             $platformBalance = collect($balances)->firstWhere('currency', 'NGN')['balance'] ?? 0;
         } catch (\Throwable $e) {
             $this->error('Could not retrieve OPay balance: ' . $e->getMessage());
@@ -179,7 +176,7 @@ class ProcessPendingWithdrawals extends Command
                 $this->warn("  Skipped {$transaction->reference}: need ₦"
                     . number_format($netPayoutKobo / 100, 2)
                     . ', have ₦' . number_format($platformBalance / 100, 2) . '.');
-                Log::warning('[ProcessPendingWithdrawals:debits] Insufficient Paystack balance', [
+                Log::warning('[ProcessPendingWithdrawals:debits] Insufficient OPay balance', [
                     'reference'      => $transaction->reference,
                     'required_kobo'  => $netPayoutKobo,
                     'available_kobo' => $platformBalance,
@@ -197,10 +194,11 @@ class ProcessPendingWithdrawals extends Command
                     'account'   => $accountNumber,
                 ]);
 
-                $result = $this->paystack->payout([
+                $result = $this->gateway->payout([
                     'amount'         => $netPayoutKobo,
                     'reference'      => $transaction->reference,
                     'bank_code'      => $bankCode,
+
                     'account_number' => $accountNumber,
                     'account_name'   => $accountName,
                     'narration'      => $narration,
@@ -224,10 +222,9 @@ class ProcessPendingWithdrawals extends Command
                     $user->notify(new NotifyAnythingNotification(
                         'Withdrawal Processing',
                         "Your withdrawal of ₦" . number_format($netPayoutKobo / 100, 2) .
-                        " (ref: {$transaction->reference}) is now being processed and will arrive shortly."
+                            " (ref: {$transaction->reference}) is now being processed and will arrive shortly."
                     ));
                 }
-
             } catch (\Throwable $e) {
                 Log::error('[ProcessPendingWithdrawals:debits] Dispatch failed', [
                     'reference' => $transaction->reference,
@@ -244,13 +241,14 @@ class ProcessPendingWithdrawals extends Command
 
         // Alert admins if there are still queued transactions.
         if ($skipped > 0) {
-            User::where('role', 'admin')->each(fn($admin) =>
+            User::where('role', 'admin')->each(
+                fn($admin) =>
                 $admin->notify(new NotifyAnythingNotification(
                     'Pending Withdrawals Still Queued',
                     "{$skipped} withdrawal(s) could not be processed.\n\n" .
-                    "Dispatched: {$processed}.\n\n" .
-                    "Platform NGN balance remaining: ₦" . number_format($platformBalance / 100, 2) . ".\n\n" .
-                    "Top up the OPay account to unblock the queue."
+                        "Dispatched: {$processed}.\n\n" .
+                        "Platform NGN balance remaining: ₦" . number_format($platformBalance / 100, 2) . ".\n\n" .
+                        "Top up the OPay account to unblock the queue."
                 ))
             );
         }
