@@ -1,4 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import BankSelect from '@/Components/BankSelect';
 import { useForm, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
@@ -82,20 +83,14 @@ export default function PayoutAccount({ payoutAccount, banks, kyc }) {
                             <label className="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1">
                                 Bank
                             </label>
-                            <select
-                                className="w-full bg-gray-50 border-gray-100 rounded-2xl px-5 py-4 font-bold focus:ring-brand-500"
+                            <BankSelect
+                                banks={banks}
                                 value={data.bank_code}
-                                onChange={e => {
-                                    const selected = banks.find(b => b.code === e.target.value);
-                                    setData(prev => ({ ...prev, bank_code: e.target.value, bank_name: selected?.name ?? '' }));
+                                onChange={(code, name) => {
+                                    setData(prev => ({ ...prev, bank_code: code, bank_name: name }));
                                     setConfirmed(false);
                                 }}
-                            >
-                                <option value="">Choose your bank...</option>
-                                {banks.map((bank, i) => (
-                                    <option key={`${bank.code}-${i}`} value={bank.code}>{bank.name}</option>
-                                ))}
-                            </select>
+                            />
                             {errors.bank_code && <p className="text-red-500 text-[10px] mt-1 font-bold">{errors.bank_code}</p>}
                         </div>
 
