@@ -48,6 +48,13 @@ class OpayClient implements PaymentGateWayInterface
             'body'        => $body,
         ]);
 
+        if ($response->failed()) {
+            throw new \RuntimeException(
+                "OPay HTTP {$response->status()} on {$path}: "
+                . ($body['message'] ?? $response->body() ?: 'no response body')
+            );
+        }
+
         return $body;
     }
 
