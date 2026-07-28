@@ -132,4 +132,30 @@ Route::get('bank-names', function(){
     }
 });
 
+Route::get('notify-unwithdrawable-balances', function () {
+   /*  if (\Illuminate\Support\Facades\Auth::user()->role !== 'admin') {
+        abort(403);
+    } */
+
+    $users = \App\Models\User::query()
+        ->whereHas('promoter')
+        ->whereHas('wallet', fn($q) => $q->where('balance', '>', 0))
+        ->with(['wallet', 'kyc'])
+        ->get()
+        ->filter(fn($user) => ! $user->kyc || $user->kyc->status !== 'approved');
+
+    foreach ($users as $user) {
+        $balance = number_format($user->wallet->balance / 100, 2);
+
+        $user->notify(new \App\Notifications\NotifyAnythingNotification(
+            'Withdrawal is now back and available',
+            "Dear Customer we had issue with our payout provider, but now we are back and better . You currently have ₦{$balance} in your wallet, but you can't withdraw it yet because "
+            . "your identity verification (KYC) hasn't been approved.\n\n"
+            . "Please complete your KYC verification so we can unlock withdrawals for you."
+        ));
+    }
+
+    return "Notified {$users->count()} user(s) with unwithdrawable wallet balances.";
+});
+
 require __DIR__ . '/auth.php';
