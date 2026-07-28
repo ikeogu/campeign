@@ -43,16 +43,22 @@ class OpaySignatureValidator implements SignatureValidator
             return false;
         }
 
+        // Confirmed from a real delivery (2026-07-28): the actual event fields
+        // are nested under a `payload` key, sibling to `sha512` and `type` —
+        // not flat on the top-level body as originally assumed. Falling back
+        // to the top level too in case some webhook variant sends it flat.
+        $fields = $payload['payload'] ?? $payload;
+
         // OPay signs a specific string of fields in a fixed order using HMAC-SHA3-512.
         // Refunded uses 't' for true and 'f' for false (not boolean).
-        $amount        = $payload['amount']        ?? '';
-        $currency      = $payload['currency']      ?? '';
-        $reference     = $payload['reference']     ?? '';
-        $refunded      = ($payload['refunded']     ?? false) ? 't' : 'f';
-        $status        = $payload['status']        ?? '';
-        $timestamp     = $payload['timestamp']     ?? '';
-        $token         = $payload['token']         ?? '';
-        $transactionId = $payload['transactionId'] ?? '';
+        $amount        = $fields['amount']        ?? '';
+        $currency      = $fields['currency']      ?? '';
+        $reference     = $fields['reference']     ?? '';
+        $refunded      = ($fields['refunded']     ?? false) ? 't' : 'f';
+        $status        = $fields['status']        ?? '';
+        $timestamp     = $fields['timestamp']     ?? '';
+        $token         = $fields['token']         ?? '';
+        $transactionId = $fields['transactionId'] ?? '';
 
         $sigString = "{Amount:\"{$amount}\",Currency:\"{$currency}\",Reference:\"{$reference}\","
             . "Refunded:{$refunded},Status:\"{$status}\",Timestamp:\"{$timestamp}\","
