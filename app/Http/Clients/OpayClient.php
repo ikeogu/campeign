@@ -229,24 +229,54 @@ class OpayClient implements PaymentGateWayInterface
 
     public function resolveAccountNumber(string $accountNumber, string $bankCode): array
     {
-        // OPay has no account enquiry endpoint — delegate to Paystack's free resolve API.
         $cacheKey = "bank_resolve_{$bankCode}_{$accountNumber}";
 
         return Cache::remember($cacheKey, now()->addHours(24), function () use ($accountNumber, $bankCode) {
-            Log::info('[OPay/Resolve] Delegating account resolution to Paystack', [
-                'account_number' => $accountNumber,
-                'bank_code'      => $bankCode,
-            ]);
+            try {
+                $body = $this->request('/api/v1/international/payout/bank-account-validate', [
+                    'accountBankCode' => $bankCode,
+                    'accountNo'       => $accountNumber,
+                ], authMethod: 'rsa');
 
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . config('services.paystack.secret_key'),
-            ])->get('https://api.paystack.co/bank/resolve', [
-                'account_number' => $accountNumber,
-                'bank_code'      => $bankCode,
-            ]);
+                if (($body['code'] ?? '') === '00000') {
+                    $data        = $body['data'] ?? [];
+                    $accountName = $data['accountName'] ?? $data['account_name'] ?? $data['name'] ?? null;
 
-            return $response->json() ?? [];
+                    if ($accountName) {
+                        return [
+                            'status' => true,
+                            'data'   => [
+                                'account_name'   => $accountName,
+                                'account_number' => $accountNumber,
+                            ],
+                        ];
+                    }
+                }
+
+                Log::warning('[OPay/Validate] Unrecognized response, falling back to Paystack', ['body' => $body]);
+            } catch (\Throwable $e) {
+                Log::warning('[OPay/Validate] Request failed, falling back to Paystack', ['error' => $e->getMessage()]);
+            }
+
+            return $this->resolveViaPaystack($accountNumber, $bankCode);
         });
+    }
+
+    private function resolveViaPaystack(string $accountNumber, string $bankCode): array
+    {
+        Log::info('[OPay/Resolve] Delegating account resolution to Paystack', [
+            'account_number' => $accountNumber,
+            'bank_code'      => $bankCode,
+        ]);
+
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . config('services.paystack.secret_key'),
+        ])->get('https://api.paystack.co/bank/resolve', [
+            'account_number' => $accountNumber,
+            'bank_code'      => $bankCode,
+        ]);
+
+        return $response->json() ?? [];
     }
 
     public function checkBalance(): array

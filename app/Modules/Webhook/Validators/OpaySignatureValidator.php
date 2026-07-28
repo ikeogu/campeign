@@ -13,6 +13,17 @@ class OpaySignatureValidator implements SignatureValidator
     {
         $payload = json_decode($request->getContent(), true);
 
+        // This validator's HMAC-SHA3-512-over-body scheme is confirmed correct
+        // for payin/checkout webhooks only. Payout webhooks are a different
+        // OPay product with an unconfirmed shape — logging headers too, since
+        // the payout API signs outbound requests via an Authorization header,
+        // so an incoming payout webhook signature may live there instead of
+        // in the body like the payin 'sha512' field does.
+        Log::info('[OPay Webhook] Signature check', [
+            'headers' => $request->headers->all(),
+            'payload' => $payload,
+        ]);
+
         if (empty($payload)) {
             Log::error('[OPay Webhook] Empty or invalid JSON payload');
             return false;
