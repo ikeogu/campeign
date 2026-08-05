@@ -42,8 +42,9 @@ class CampaignService
                     'available_slots' => $gig->available_slots,
                     'completion_percentage' => $completion_percentage,
                     'image_urls' => $gig->images->map(fn($i) => [
-                        'id' => $i->id,
-                        'url' => asset('storage/' . $i->file_path),
+                        'id'       => $i->id,
+                        'url'      => asset('storage/' . $i->file_path),
+                        'is_video' => $i->is_video,
                     ]),
                 ];
             });

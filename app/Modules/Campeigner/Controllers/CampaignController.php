@@ -35,8 +35,9 @@ class CampaignController extends ApiController
         $campaigns->transform(function ($campaign) {
             $campaign->image_urls = $campaign->images->map(function ($image) {
                 return [
-                    'id' => $image->id,
-                    'url' => asset('storage/' . $image->file_path), // Adjust 'path' and 'asset()' as per your storage setup
+                    'id'       => $image->id,
+                    'url'      => asset('storage/' . $image->file_path), // Adjust 'path' and 'asset()' as per your storage setup
+                    'is_video' => $image->is_video,
                 ];
             });
             // Remove the raw 'images' relationship to clean up the data sent to Inertia,
@@ -111,10 +112,10 @@ class CampaignController extends ApiController
         // Force trial values server-side so they cannot be tampered with.
         if ($isTrial) {
             $validated['payout']         = 200;
-            $validated['target_shares']  = 5;
-            $validated['base_budget']    = 1000;
+            $validated['target_shares']  = 25;
+            $validated['base_budget']    = 5000;
             $validated['management_fee'] = 0;
-            $validated['total_budget']   = 1000;
+            $validated['total_budget']   = 5000;
         }
 
         /*  abort_if(
@@ -152,7 +153,7 @@ class CampaignController extends ApiController
         });
 
         $message = $isTrial
-            ? 'Trial campaign launched! Up to 5 promoters can now pick it up.'
+            ? 'Trial campaign launched! Up to 25 promoters can now pick it up.'
             : 'Campaign created successfully';
 
         return redirect()->route('campaigns.index')->with('success', $message);
@@ -168,8 +169,9 @@ class CampaignController extends ApiController
 
         $campaign->image_urls = $campaign->images->map(function ($image) {
             return [
-                'id' => $image->id,
-                'url' => asset('storage/' . $image->file_path),
+                'id'       => $image->id,
+                'url'      => asset('storage/' . $image->file_path),
+                'is_video' => $image->is_video,
             ];
         });
 
@@ -217,7 +219,7 @@ class CampaignController extends ApiController
                 'max:51200',
             ],
             'remove_files'   => 'nullable|array',
-            'remove_files.*' => 'integer|exists:campaign_images,id',
+            'remove_files.*' => 'string|exists:campaign_media,id',
             'total_budget'   => ['required', 'numeric', 'min:0'],
             'management_fee' => ['nullable', 'numeric', 'min:0'],
             'base_budget'    => ['nullable', 'numeric', 'min:0'],

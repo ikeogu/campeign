@@ -26,8 +26,8 @@ export default function Create({ auth }) {
                 ...prev,
                 is_trial: true,
                 payout: 200,
-                target_shares: 5,
-                base_budget: 1000,
+                target_shares: 25,
+                base_budget: 5000,
                 management_fee: 0,
                 total_budget: 0,
             }));
@@ -94,8 +94,11 @@ export default function Create({ auth }) {
     function handleImages(e) {
         const newlySelectedFiles = Array.from(e.target.files);
         setData('files', [...data.files, ...newlySelectedFiles]);
-        const newPreviewUrls = newlySelectedFiles.map((file) => URL.createObjectURL(file));
-        setPreviews((prev) => [...prev, ...newPreviewUrls]);
+        const newPreviews = newlySelectedFiles.map((file) => ({
+            url: URL.createObjectURL(file),
+            isVideo: file.type.startsWith('video/'),
+        }));
+        setPreviews((prev) => [...prev, ...newPreviews]);
     }
 
     function removeImage(index) {
@@ -271,9 +274,20 @@ export default function Create({ auth }) {
 
                             {previews.length > 0 && (
                                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-4 mt-6">
-                                    {previews.map((src, index) => (
+                                    {previews.map((preview, index) => (
                                         <div key={index} className="relative aspect-square group">
-                                            <img src={src} className="w-full h-full object-cover rounded-2xl border border-gray-100 shadow-sm" />
+                                            {preview.isVideo ? (
+                                                <video
+                                                    src={preview.url}
+                                                    controls
+                                                    muted
+                                                    playsInline
+                                                    preload="metadata"
+                                                    className="w-full h-full object-cover rounded-2xl border border-gray-100 shadow-sm bg-black"
+                                                />
+                                            ) : (
+                                                <img src={preview.url} className="w-full h-full object-cover rounded-2xl border border-gray-100 shadow-sm" />
+                                            )}
                                             <button
                                                 type="button"
                                                 onClick={() => removeImage(index)}
@@ -316,7 +330,7 @@ export default function Create({ auth }) {
                                     <div className="space-y-3 pt-2">
                                         <div className="flex justify-between text-xs font-bold">
                                             <span className="text-gray-400">Max promoters</span>
-                                            <span>5</span>
+                                            <span>25</span>
                                         </div>
                                         <div className="flex justify-between text-xs font-bold">
                                             <span className="text-gray-400">Payout per promoter</span>

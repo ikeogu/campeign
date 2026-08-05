@@ -80,7 +80,13 @@ export default function Landing({ liveGigs = [], brandLogos = [] }) {
                                     <div className="mx-3 sm:mx-4 h-36 sm:h-44 rounded-2xl bg-gradient-to-br from-gray-50 to-brand-50/30 border border-gray-100 flex items-center justify-center overflow-hidden relative">
                                         <span className="absolute inset-0 flex items-center justify-center text-6xl font-black italic text-gray-900/[0.03] select-none uppercase">{brandName}</span>
                                         <span className="text-5xl sm:text-6xl drop-shadow-lg group-hover:scale-110 transition-transform duration-500 relative z-10">
-                                            {gig.image_urls?.[0] ? <img src={gig.image_urls[0].url} className="h-24 sm:h-28 object-contain" alt="Gig" /> : gig.emoji || '📢'}
+                                            {gig.image_urls?.[0] ? (
+                                                gig.image_urls[0].is_video ? (
+                                                    <video src={gig.image_urls[0].url} className="h-24 sm:h-28 object-contain" muted playsInline preload="metadata" />
+                                                ) : (
+                                                    <img src={gig.image_urls[0].url} className="h-24 sm:h-28 object-contain" alt="Gig" />
+                                                )
+                                            ) : gig.emoji || '📢'}
                                         </span>
                                         {gig.platforms?.[0] && (
                                             <span className={`absolute top-2.5 left-2.5 text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-lg border ${platformColors[gig.platforms[0]?.toLowerCase()] || 'bg-gray-100 text-gray-600 border-gray-200'}`}>

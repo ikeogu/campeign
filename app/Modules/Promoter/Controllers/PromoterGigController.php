@@ -46,8 +46,9 @@ class PromoterGigController extends ApiController
                     'status' => $gig->status,
                     'completion_percentage' => $gig->completion_percentage,
                     'image_urls' => $gig->images->map(fn($i) => [
-                        'id' => $i->id,
-                        'url' => asset('storage/' . $i->file_path),
+                        'id'       => $i->id,
+                        'url'      => asset('storage/' . $i->file_path),
+                        'is_video' => $i->is_video,
                     ]),
                 ];
             });
@@ -92,8 +93,9 @@ class PromoterGigController extends ApiController
                 'min_followers' => $gig->min_followers,
                 'available_slots' => $gig->available_slots ?? 'Unlimited',
                 'image_urls' => $gig->images->map(fn($i) => [
-                    'id' => $i->id,
-                    'url' => asset('storage/' . $i->file_path),
+                    'id'       => $i->id,
+                    'url'      => asset('storage/' . $i->file_path),
+                    'is_video' => $i->is_video,
                 ]),
                 'category' => $gig->category,
             ],

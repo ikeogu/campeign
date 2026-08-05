@@ -38,9 +38,12 @@ export default function PromoterCampaignShow() {
     };
 
     const handleDownload = (img) => {
+        const urlExtension = img.url.split(/[?#]/)[0].split('.').pop();
+        const extension = urlExtension || (img.is_video ? 'mp4' : 'jpg');
+
         const link = document.createElement('a');
         link.href = img.url;
-        link.download = `campaign-asset-${img.id}.jpg`;
+        link.download = `campaign-asset-${img.id}.${extension}`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -142,7 +145,11 @@ export default function PromoterCampaignShow() {
                         <div className="grid grid-cols-2 gap-4">
                             {gig.image_urls?.map((img) => (
                                 <div key={img.id} className="relative group rounded-3xl overflow-hidden aspect-square bg-gray-50 border border-gray-100">
-                                    <img src={img.url} className="w-full h-full object-cover" />
+                                    {img.is_video ? (
+                                        <video src={img.url} className="w-full h-full object-cover" controls muted playsInline preload="metadata" />
+                                    ) : (
+                                        <img src={img.url} className="w-full h-full object-cover" />
+                                    )}
                                     <button onClick={() => handleDownload(img)} className="absolute bottom-3 right-3 p-3 bg-white/90 backdrop-blur rounded-2xl shadow-xl hover:bg-white transition-all active:scale-90">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-900"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
                                     </button>

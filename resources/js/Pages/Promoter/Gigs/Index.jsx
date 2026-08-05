@@ -123,7 +123,11 @@ export default function PromoterCampaignIndex() {
                                             <div className="mx-4 relative h-44 rounded-[2rem] bg-gray-50 overflow-hidden flex items-center justify-center border border-gray-50">
                                                 <div className="relative z-10 transition-transform duration-700 group-hover:scale-110">
                                                     {gig.image_urls?.[0] ? (
-                                                        <img src={gig.image_urls[0].url} className="h-32 object-contain drop-shadow-2xl" />
+                                                        gig.image_urls[0].is_video ? (
+                                                            <video src={gig.image_urls[0].url} className="h-32 object-contain drop-shadow-2xl" muted playsInline preload="metadata" />
+                                                        ) : (
+                                                            <img src={gig.image_urls[0].url} className="h-32 object-contain drop-shadow-2xl" />
+                                                        )
                                                     ) : <span className="text-6xl">📢</span>}
                                                 </div>
                                                 <div className="absolute top-4 left-4 flex flex-wrap gap-1">

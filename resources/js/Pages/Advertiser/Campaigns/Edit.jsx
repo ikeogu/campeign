@@ -7,7 +7,8 @@ const formatCurrency = (amount) => `₦${Number(amount).toLocaleString()}`;
 export default function Edit({ auth }) {
     const { campaign } = usePage().props;
 
-    const existingImages = campaign.media || []; // Adjust based on your media relation
+    const [removedIds, setRemovedIds] = useState([]);
+    const existingImages = (campaign.image_urls || []).filter((img) => !removedIds.includes(img.id));
     const [newPreviews, setNewPreviews] = useState([]);
 
     const { data, setData, post, errors, processing } = useForm({
@@ -68,6 +69,16 @@ export default function Edit({ auth }) {
             type: file.type.startsWith('video/') ? 'video' : 'image'
         }));
         setNewPreviews((prev) => [...prev, ...previews]);
+    }
+
+    function removeExistingImage(id) {
+        setRemovedIds((prev) => [...prev, id]);
+        setData('remove_files', [...data.remove_files, id]);
+    }
+
+    function removeNewFile(index) {
+        setData('new_files', data.new_files.filter((_, i) => i !== index));
+        setNewPreviews((prev) => prev.filter((_, i) => i !== index));
     }
 
     function submit(e) {
@@ -177,6 +188,63 @@ export default function Edit({ auth }) {
                                     ))}
                                 </div>
                             </div>
+                        </div>
+
+                        {/* Creative Assets */}
+                        <div className="bg-white p-6 rounded-[2.5rem] border-2 border-dashed border-brand-100">
+                            <label className="block text-[10px] font-black uppercase text-gray-400 tracking-widest mb-4 text-center">
+                                Campaign Creative Assets
+                            </label>
+                            <input
+                                type="file"
+                                multiple
+                                onChange={handleNewFiles}
+                                className="block w-full text-xs text-gray-400 file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 file:bg-gray-900 file:text-white file:text-[10px] file:font-black file:uppercase cursor-pointer"
+                            />
+                            {errors.new_files && <p className="mt-2 text-xs text-brand-600 font-bold">{errors.new_files}</p>}
+                            {Object.keys(errors)
+                                .filter((key) => key.startsWith('new_files.'))
+                                .map((key) => (
+                                    <p key={key} className="mt-2 text-xs text-brand-600 font-bold">{errors[key]}</p>
+                                ))}
+
+                            {(existingImages.length > 0 || newPreviews.length > 0) && (
+                                <div className="grid grid-cols-3 sm:grid-cols-4 gap-4 mt-6">
+                                    {existingImages.map((img) => (
+                                        <div key={img.id} className="relative aspect-square group">
+                                            {img.is_video ? (
+                                                <video src={img.url} className="w-full h-full object-cover rounded-2xl border border-gray-100 shadow-sm bg-black" muted playsInline preload="metadata" controls />
+                                            ) : (
+                                                <img src={img.url} className="w-full h-full object-cover rounded-2xl border border-gray-100 shadow-sm" />
+                                            )}
+                                            <button
+                                                type="button"
+                                                onClick={() => removeExistingImage(img.id)}
+                                                className="absolute -top-2 -right-2 bg-brand-500 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform"
+                                            >
+                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M6 18L18 6M6 6l12 12" /></svg>
+                                            </button>
+                                        </div>
+                                    ))}
+                                    {newPreviews.map((preview, index) => (
+                                        <div key={`new-${index}`} className="relative aspect-square group">
+                                            {preview.type === 'video' ? (
+                                                <video src={preview.url} className="w-full h-full object-cover rounded-2xl border border-brand-200 shadow-sm bg-black" muted playsInline preload="metadata" controls />
+                                            ) : (
+                                                <img src={preview.url} className="w-full h-full object-cover rounded-2xl border border-brand-200 shadow-sm" />
+                                            )}
+                                            <span className="absolute top-2 left-2 text-[8px] font-black uppercase tracking-widest bg-brand-600 text-white px-2 py-0.5 rounded-lg">New</span>
+                                            <button
+                                                type="button"
+                                                onClick={() => removeNewFile(index)}
+                                                className="absolute -top-2 -right-2 bg-brand-500 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform"
+                                            >
+                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M6 18L18 6M6 6l12 12" /></svg>
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
 

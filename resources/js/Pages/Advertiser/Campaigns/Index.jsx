@@ -105,19 +105,30 @@ export default function CampaignIndex() {
 
                             return (
                                 <div key={c.id} className={`bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm ${isPaused ? 'opacity-70' : ''}`}>
-                                    <div className="flex justify-between items-start mb-4">
-                                        <div>
-                                            <h3 className="text-sm font-black text-gray-900 uppercase leading-tight">{c.title}</h3>
-                                            <div className="flex items-center gap-1.5 flex-wrap mt-1">
-                                                <StatusBadge status={c.status} />
-                                                {c.is_trial && (
-                                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[8px] font-black uppercase bg-amber-100 text-amber-800 border border-amber-200">
-                                                        Trial
-                                                    </span>
-                                                )}
+                                    <div className="flex justify-between items-start mb-4 gap-3">
+                                        <div className="flex items-start gap-3 min-w-0">
+                                            {c.image_urls?.[0] && (
+                                                <div className="w-12 h-12 rounded-xl overflow-hidden bg-gray-50 border border-gray-100 shrink-0">
+                                                    {c.image_urls[0].is_video ? (
+                                                        <video src={c.image_urls[0].url} className="w-full h-full object-cover" muted playsInline preload="metadata" />
+                                                    ) : (
+                                                        <img src={c.image_urls[0].url} className="w-full h-full object-cover" />
+                                                    )}
+                                                </div>
+                                            )}
+                                            <div className="min-w-0">
+                                                <h3 className="text-sm font-black text-gray-900 uppercase leading-tight truncate">{c.title}</h3>
+                                                <div className="flex items-center gap-1.5 flex-wrap mt-1">
+                                                    <StatusBadge status={c.status} />
+                                                    {c.is_trial && (
+                                                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[8px] font-black uppercase bg-amber-100 text-amber-800 border border-amber-200">
+                                                            Trial
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
-                                        <p className="text-[10px] font-black text-brand-600 bg-brand-50 px-2 py-1 rounded-lg">
+                                        <p className="text-[10px] font-black text-brand-600 bg-brand-50 px-2 py-1 rounded-lg shrink-0">
                                             {formatCurrency(c.payout)}/share
                                         </p>
                                     </div>
@@ -178,16 +189,29 @@ export default function CampaignIndex() {
                                     return (
                                         <tr key={c.id} className={isPaused ? 'bg-gray-50/40' : 'hover:bg-gray-50/20 transition-colors'}>
                                             <td className="px-6 py-6">
-                                                <p className={`text-sm font-black uppercase ${isPaused ? 'text-gray-400' : 'text-gray-900'}`}>{c.title}</p>
-                                                <div className="flex items-center gap-1.5 flex-wrap mt-1">
-                                                    <span className={`inline-block px-2 py-0.5 rounded-full text-[8px] font-black uppercase border ${getStatusColor(c.status)}`}>
-                                                        {c.status}
-                                                    </span>
-                                                    {c.is_trial && (
-                                                        <span className="inline-block px-2 py-0.5 rounded-full text-[8px] font-black uppercase bg-amber-100 text-amber-800 border border-amber-200">
-                                                            Trial
-                                                        </span>
+                                                <div className="flex items-center gap-3">
+                                                    {c.image_urls?.[0] && (
+                                                        <div className="w-11 h-11 rounded-xl overflow-hidden bg-gray-50 border border-gray-100 shrink-0">
+                                                            {c.image_urls[0].is_video ? (
+                                                                <video src={c.image_urls[0].url} className="w-full h-full object-cover" muted playsInline preload="metadata" />
+                                                            ) : (
+                                                                <img src={c.image_urls[0].url} className="w-full h-full object-cover" />
+                                                            )}
+                                                        </div>
                                                     )}
+                                                    <div>
+                                                        <p className={`text-sm font-black uppercase ${isPaused ? 'text-gray-400' : 'text-gray-900'}`}>{c.title}</p>
+                                                        <div className="flex items-center gap-1.5 flex-wrap mt-1">
+                                                            <span className={`inline-block px-2 py-0.5 rounded-full text-[8px] font-black uppercase border ${getStatusColor(c.status)}`}>
+                                                                {c.status}
+                                                            </span>
+                                                            {c.is_trial && (
+                                                                <span className="inline-block px-2 py-0.5 rounded-full text-[8px] font-black uppercase bg-amber-100 text-amber-800 border border-amber-200">
+                                                                    Trial
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-6">

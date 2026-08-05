@@ -106,11 +106,21 @@ export default function Campaigns({ allGigs = [] }) {
                                         <div className="px-3">
                                             <div className="relative h-44 rounded-[1.5rem] bg-gray-900 overflow-hidden flex items-center justify-center">
                                                 {gig.image_urls && gig.image_urls.length > 0 ? (
-                                                    <img
-                                                        src={gig.image_urls[0].url}
-                                                        alt={gig.title}
-                                                        className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                                    />
+                                                    gig.image_urls[0].is_video ? (
+                                                        <video
+                                                            src={gig.image_urls[0].url}
+                                                            muted
+                                                            playsInline
+                                                            preload="metadata"
+                                                            className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                                        />
+                                                    ) : (
+                                                        <img
+                                                            src={gig.image_urls[0].url}
+                                                            alt={gig.title}
+                                                            className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                                        />
+                                                    )
                                                 ) : (
                                                     <span className="text-5xl opacity-20">📢</span>
                                                 )}
