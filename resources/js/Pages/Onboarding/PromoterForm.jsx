@@ -24,7 +24,17 @@ export default function PromoterOnboard() {
         },
         { key: 'facebook', label: 'Facebook', color: 'bg-[#1877F2]', icon: '📘' },
         { key: 'instagram', label: 'Instagram', color: 'bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7]', icon: '📸' },
-        { key: 'linkedin', label: 'LinkedIn', color: 'bg-[#0077b5]', icon: '💼' }
+        { key: 'linkedin', label: 'LinkedIn', color: 'bg-[#0077b5]', icon: '💼' },
+        {
+            key: 'tiktok',
+            label: 'TikTok',
+            color: 'bg-black',
+            icon: (
+                <svg className="w-5 h-5 fill-current text-white" viewBox="0 0 24 24">
+                    <path d="M16.6 5.82c-1.02-.88-1.7-2.1-1.9-3.47h-3.16v13.5c0 1.61-1.31 2.92-2.92 2.92a2.92 2.92 0 0 1-2.92-2.92 2.92 2.92 0 0 1 2.92-2.92c.3 0 .59.05.86.13V9.9a6.13 6.13 0 0 0-.86-.06A6.14 6.14 0 0 0 2.5 16c0 3.4 2.76 6.16 6.14 6.16S14.78 19.4 14.78 16V9.03a8.16 8.16 0 0 0 4.78 1.53V7.4a4.85 4.85 0 0 1-2.96-1.58Z" />
+                </svg>
+            )
+        }
     ];
 
     const handlePlatformToggle = (platformKey) => {
