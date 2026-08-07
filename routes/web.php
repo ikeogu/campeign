@@ -17,6 +17,21 @@ use Inertia\Inertia;
 
 
 
+Route::get('/sw.js', function () {
+    $path = public_path('build/sw.js');
+
+    abort_unless(file_exists($path), 404);
+
+    return response()->file($path, [
+        'Content-Type' => 'application/javascript',
+        'Cache-Control' => 'no-cache',
+        // The built file physically lives under /build/, but serving it from
+        // this root URL gives it a default max scope of "/" anyway; this header
+        // just makes that explicit/portable across servers.
+        'Service-Worker-Allowed' => '/',
+    ]);
+})->name('pwa.sw');
+
 Route::get('/', function () {
 
     $gigs = app(CampaignService::class)->fetchLiveCampaigns(5);
