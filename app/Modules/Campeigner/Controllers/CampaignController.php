@@ -53,7 +53,12 @@ class CampaignController extends ApiController
 
     public function create()
     {
-        return Inertia::render('Advertiser/Campaigns/Create');
+        /** @var User $user */
+        $user = Auth::user();
+
+        return Inertia::render('Advertiser/Campaigns/Create', [
+            'trialAvailable' => ! $user->campaigns()->where('is_trial', true)->exists(),
+        ]);
     }
 
     public function store(Request $request)

@@ -19,11 +19,11 @@ export default function UpdateSocialHandlesForm() {
 
     const user = auth.user;
     const existingHandles = Array.isArray(user.promoter?.social_handles)
-        ? user.promoter.social_handles
+        ? user.promoter.social_handles.map((item) => ({ ...item, platform: item.platform?.toLowerCase() ?? item.platform }))
         : [];
 
     const { data, setData, post, processing, recentlySuccessful, errors } = useForm({
-        social_handles: existingHandles.length > 0 ? existingHandles : [{ platform: PLATFORMS[0], handle: '' }],
+        social_handles: existingHandles.length > 0 ? existingHandles : [{ platform: PLATFORMS[0].toLowerCase(), handle: '' }],
     });
 
     useEffect(() => {
@@ -71,7 +71,7 @@ export default function UpdateSocialHandlesForm() {
                                 }}
                             >
                                 {PLATFORMS.map(p => (
-                                    <option key={p} value={p}>{p}</option>
+                                    <option key={p} value={p.toLowerCase()}>{p}</option>
                                 ))}
                             </select>
                         </div>
@@ -109,7 +109,7 @@ export default function UpdateSocialHandlesForm() {
                 <div className="flex flex-col sm:flex-row items-center gap-4 pt-6">
                     <button
                         type="button"
-                        onClick={() => setData('social_handles', [...data.social_handles, { platform: PLATFORMS[0], handle: '' }])}
+                        onClick={() => setData('social_handles', [...data.social_handles, { platform: PLATFORMS[0].toLowerCase(), handle: '' }])}
                         className="w-full sm:w-auto px-6 py-4 border-2 border-dashed border-gray-200 text-gray-400 font-black rounded-2xl hover:border-brand-200 hover:text-brand-500 transition-all uppercase text-[10px] tracking-widest"
                     >
                         + Add Another

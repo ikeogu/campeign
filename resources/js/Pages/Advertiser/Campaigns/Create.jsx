@@ -2,7 +2,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { useForm, Link, Head } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 
-export default function Create({ auth }) {
+export default function Create({ auth, trialAvailable = false }) {
     const [previews, setPreviews] = useState([]);
 
     const { data, setData, post, errors, processing } = useForm({
@@ -130,6 +130,41 @@ export default function Create({ auth }) {
                         <h1 className="text-4xl font-black text-gray-900 tracking-tight">Launch <span className="text-brand-600">Gig</span></h1>
                     </div>
                 </div>
+
+                {/* Free trial announcement — impossible to miss, no toggling required to discover it */}
+                {trialAvailable && !data.is_trial && (
+                    <div className="mb-8 rounded-[2.5rem] bg-gradient-to-r from-brand-600 to-brand-700 p-6 sm:p-8 text-white shadow-2xl shadow-brand-600/30 flex flex-col sm:flex-row items-center gap-6">
+                        <div className="text-5xl leading-none">🎁</div>
+                        <div className="flex-1 text-center sm:text-left">
+                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/70 mb-1">First Campaign Perk</p>
+                            <h2 className="text-xl font-black tracking-tight">Your first campaign is on us — completely free</h2>
+                            <p className="text-xs text-white/80 font-medium mt-1">Up to 25 promoters, ₦200 payout each, zero platform fee. See real results before you fund your wallet.</p>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={toggleTrial}
+                            className="shrink-0 bg-white text-brand-700 hover:bg-brand-50 py-4 px-8 rounded-2xl font-black uppercase text-xs tracking-widest transition-all transform active:scale-95 shadow-xl"
+                        >
+                            Activate Free Trial
+                        </button>
+                    </div>
+                )}
+
+                {data.is_trial && (
+                    <div className="mb-8 rounded-[2.5rem] bg-brand-50 border-2 border-brand-200 p-5 flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                            <span className="text-2xl">🎁</span>
+                            <p className="text-sm font-black text-brand-700">Free Trial activated — this campaign costs you ₦0.</p>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={toggleTrial}
+                            className="text-[10px] font-black uppercase tracking-widest text-brand-600 hover:text-brand-800 underline shrink-0"
+                        >
+                            Switch to paid campaign
+                        </button>
+                    </div>
+                )}
 
                 <form onSubmit={submit} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-2 space-y-6">
@@ -305,18 +340,21 @@ export default function Create({ auth }) {
                     {/* RIGHT COLUMN: Budget Summary */}
                     <div className="space-y-6">
                         <div className="bg-gray-900 rounded-[2.5rem] p-8 text-white shadow-2xl sticky top-8">
-                            {/* Trial toggle */}
+                            {/* Trial toggle — only rendered once eligibility is established via the banner above */}
                             <div className="flex items-center justify-between mb-8">
                                 <h3 className="text-xs font-black text-brand-500 uppercase tracking-[0.2em]">
                                     {data.is_trial ? 'Trial Campaign' : 'Budget Summary'}
                                 </h3>
-                                <button
-                                    type="button"
-                                    onClick={toggleTrial}
-                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${data.is_trial ? 'bg-brand-600' : 'bg-white/20'}`}
-                                >
-                                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform ${data.is_trial ? 'translate-x-6' : 'translate-x-1'}`} />
-                                </button>
+                                {trialAvailable && (
+                                    <button
+                                        type="button"
+                                        onClick={toggleTrial}
+                                        title={data.is_trial ? 'Switch to paid campaign' : 'Use free trial'}
+                                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${data.is_trial ? 'bg-brand-600' : 'bg-white/20'}`}
+                                    >
+                                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform ${data.is_trial ? 'translate-x-6' : 'translate-x-1'}`} />
+                                    </button>
+                                )}
                             </div>
 
                             {data.is_trial ? (
