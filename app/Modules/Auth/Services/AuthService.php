@@ -4,12 +4,22 @@ namespace App\Modules\Auth\Services;
 
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class AuthService
 {
 
     public function onboardUser(array $data, User $user)
     {
+        // Guards against duplicate profiles from a resubmitted onboarding form
+        // (back button, double-click, retried request) — this account already
+        // exists as a promoter or campaigner.
+        if ($user->onboarded || $user->promoter()->exists() || $user->campaigner()->exists()) {
+            throw ValidationException::withMessages([
+                'user_type' => 'This account has already completed onboarding.',
+            ]);
+        }
+
         return DB::transaction(function () use ($data, $user) {
 
             $role = '';
