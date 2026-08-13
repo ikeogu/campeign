@@ -34,7 +34,11 @@ class User extends Authenticatable implements FilamentUser
         'referred_by',
         'first_name',
         'last_name',
-        'company_name'
+        'company_name',
+        'is_active',
+        'deactivated_at',
+        'deactivation_reason',
+        'deactivated_by',
     ];
 
     /**
@@ -58,14 +62,16 @@ class User extends Authenticatable implements FilamentUser
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'onboarded' => 'boolean'
+            'onboarded' => 'boolean',
+            'is_active' => 'boolean',
+            'deactivated_at' => 'datetime',
         ];
     }
 
 
     public function canAccessPanel(\Filament\Panel $panel): bool
     {
-        return $this->role === 'admin'; // or role check
+        return $this->role === 'admin' && $this->is_active; // or role check
     }
     public function promoter(): HasOne
     {
@@ -115,6 +121,31 @@ class User extends Authenticatable implements FilamentUser
     public function payoutAccount(): HasOne
     {
         return $this->hasOne(UserPayoutAccount::class);
+    }
+
+    public function deactivatedBy(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class, 'deactivated_by');
+    }
+
+    public function deactivate(?User $admin = null, ?string $reason = null): void
+    {
+        $this->update([
+            'is_active' => false,
+            'deactivated_at' => now(),
+            'deactivation_reason' => $reason,
+            'deactivated_by' => $admin?->id,
+        ]);
+    }
+
+    public function reactivate(): void
+    {
+        $this->update([
+            'is_active' => true,
+            'deactivated_at' => null,
+            'deactivation_reason' => null,
+            'deactivated_by' => null,
+        ]);
     }
 
     public function getNameAttribute()

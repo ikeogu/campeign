@@ -5,14 +5,18 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\PromoterResource\Pages;
 use App\Filament\Resources\PromoterResource\RelationManagers;
 use App\Models\Promoter;
+use App\Notifications\NotifyAnythingNotification;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class PromoterResource extends Resource
@@ -48,6 +52,12 @@ class PromoterResource extends Resource
                 Tables\Columns\TextColumn::make('follower_count')
                     ->numeric()
                     ->sortable(),
+
+                Tables\Columns\TextColumn::make('user.is_active')
+                    ->label('Status')
+                    ->badge()
+                    ->formatStateUsing(fn (?bool $state) => $state === false ? 'Deactivated' : 'Active')
+                    ->color(fn (?bool $state) => $state === false ? 'danger' : 'success'),
             /*
                 Tables\Columns\TextColumn::make('platforms')
                     ->label('Platforms')
@@ -124,6 +134,50 @@ class PromoterResource extends Resource
                             $indicators[] = 'Followers ≤ ' . number_format((int) $data['max']);
                         }
                         return $indicators;
+                    }),
+            ])
+            ->actions([
+                Tables\Actions\Action::make('deactivate')
+                    ->label('Deactivate')
+                    ->icon('heroicon-o-no-symbol')
+                    ->color('danger')
+                    ->visible(fn (Promoter $record) => (bool) $record->user?->is_active)
+                    ->requiresConfirmation()
+                    ->modalHeading('Deactivate Account')
+                    ->modalDescription(fn (Promoter $record) => "This immediately blocks {$record->user?->email} from submitting proof, requesting withdrawals, and using the platform.")
+                    ->form([
+                        Textarea::make('reason')
+                            ->label('Reason (shown to the user)')
+                            ->rows(3),
+                    ])
+                    ->action(function (Promoter $record, array $data) {
+                        $record->user->deactivate(Auth::user(), $data['reason'] ?? null);
+
+                        $record->user->notify(new NotifyAnythingNotification(
+                            'Your Account Has Been Deactivated',
+                            'Your account has been deactivated.' . (!empty($data['reason']) ? " Reason: {$data['reason']}" : '')
+                                . "\n\nContact support if you believe this is a mistake."
+                        ));
+
+                        Notification::make()->title('Account deactivated')->success()->send();
+                    }),
+
+                Tables\Actions\Action::make('activate')
+                    ->label('Activate')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->visible(fn (Promoter $record) => ! $record->user?->is_active)
+                    ->requiresConfirmation()
+                    ->modalHeading('Reactivate Account')
+                    ->action(function (Promoter $record) {
+                        $record->user->reactivate();
+
+                        $record->user->notify(new NotifyAnythingNotification(
+                            'Your Account Has Been Reactivated',
+                            'Your account has been reactivated. You can now use the platform as normal.'
+                        ));
+
+                        Notification::make()->title('Account reactivated')->success()->send();
                     }),
             ])
             ->bulkActions([

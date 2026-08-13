@@ -72,12 +72,21 @@ class PromoterGigController extends ApiController
     {
         $gig = Campaign::with(['images'])->findOrFail($id);
 
-        $hasSubmitted = ShareLog::where([
-            'campaign_id' => $gig->id,
-            'user_id' => Auth::id(),
-        ])
-        ->whereIn('action', ['submitted', 'verified', 'completed'])
-        ->exists();
+        // A platform counts as "submitted" unless that submission was rejected,
+        // in which case the promoter may try that platform again.
+        $submittedPlatforms = PromoterSubmission::where('campaign_id', $gig->id)
+            ->where('user_id', Auth::id())
+            ->where('status', '!=', 'rejected')
+            ->pluck('platform')
+            ->map(fn ($p) => strtolower($p))
+            ->unique()
+            ->values();
+
+        $gigPlatforms = collect(is_array($gig->platforms) ? $gig->platforms : json_decode($gig->platforms ?? '[]', true))
+            ->map(fn ($p) => strtolower($p));
+
+        // Fully submitted only once every platform on this gig has been claimed.
+        $hasSubmitted = $gigPlatforms->isNotEmpty() && $gigPlatforms->diff($submittedPlatforms)->isEmpty();
 
         $followerCount = Auth::user()->promoter?->follower_count ?? 0;
         $minFollowers = (int) $gig->min_followers;
@@ -129,11 +138,30 @@ class PromoterGigController extends ApiController
                 ->with('error', "You need at least " . number_format($minFollowers) . " followers to submit to this campaign. Your current count: " . number_format($followerCount) . ".");
         }
 
+        $submittedPlatforms = PromoterSubmission::where('campaign_id', $gig->id)
+            ->where('user_id', $user->id)
+            ->where('status', '!=', 'rejected')
+            ->pluck('platform')
+            ->map(fn ($p) => strtolower($p));
+
+        $gigPlatforms = is_array($gig->platforms) ? $gig->platforms : json_decode($gig->platforms ?? '[]', true);
+
+        // Only offer platforms the promoter hasn't already submitted (successfully or pending review) for.
+        $availablePlatforms = collect($gigPlatforms)
+            ->reject(fn ($p) => $submittedPlatforms->contains(strtolower($p)))
+            ->values()
+            ->all();
+
+        if (empty($availablePlatforms)) {
+            return redirect()->route('promoter.gigs.show', $id)
+                ->with('error', 'You have already submitted proof for every platform on this campaign.');
+        }
+
         return Inertia::render('Promoter/Gigs/Submit', [
             'gig' => [
                 'id' => $gig->id,
                 'title' => $gig->title,
-                'platforms' => $gig->platforms,
+                'platforms' => $availablePlatforms,
                 'payout' => $gig->payout,
                 'promoter_social_handles' => $user->promoter->social_handles,
             ]
@@ -167,7 +195,28 @@ class PromoterGigController extends ApiController
             ]);
         }
 
-        foreach ($request->submissions as $platform => $data) {
+        // One active submission per platform per campaign — a rejected submission frees the platform back up.
+        $alreadySubmittedPlatforms = PromoterSubmission::where('campaign_id', $id)
+            ->where('user_id', Auth::id())
+            ->where('status', '!=', 'rejected')
+            ->pluck('platform')
+            ->map(fn ($p) => strtolower($p))
+            ->all();
+
+        $duplicatePlatforms = collect($request->submissions)
+            ->pluck('platform')
+            ->filter(fn ($platform) => in_array(strtolower($platform), $alreadySubmittedPlatforms, true))
+            ->map(fn ($platform) => ucfirst($platform))
+            ->unique()
+            ->all();
+
+        if (!empty($duplicatePlatforms)) {
+            return back()->withErrors([
+                'submission' => 'You have already submitted proof for ' . implode(', ', $duplicatePlatforms) . '. Remove ' . (count($duplicatePlatforms) > 1 ? 'those platforms' : 'that platform') . ' and try again.',
+            ]);
+        }
+
+        foreach ($request->submissions as $data) {
 
             $path = null;
 
@@ -179,8 +228,8 @@ class PromoterGigController extends ApiController
                 'user_id'     => Auth::id(),
                 'campaign_id' => $id,
                 'proof_link'  => $path,
-                'platform'    => $platform,        // derived from key
-                'link'        => $data['link'],     // correct source
+                'platform'    => $data['platform'],
+                'link'        => $data['link'],
                 'status'      => 'pending',
             ]);
         }

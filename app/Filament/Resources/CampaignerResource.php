@@ -6,7 +6,9 @@ use App\Filament\Resources\CampaignerResource\Pages;
 use App\Filament\Resources\CampaignerResource\RelationManagers;
 use App\Models\Campaigner;
 use App\Modules\Campeigner\Notifications\CampaignerApprovedNotification;
+use App\Notifications\NotifyAnythingNotification;
 use Filament\Forms;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -78,7 +80,13 @@ class CampaignerResource extends Resource
                     ->sortable(),
                 Tables\Columns\IconColumn::make('is_approved')
                     ->boolean()
-                    ->label('Approved')
+                    ->label('Approved'),
+
+                Tables\Columns\TextColumn::make('user.is_active')
+                    ->label('Status')
+                    ->badge()
+                    ->formatStateUsing(fn (?bool $state) => $state === false ? 'Deactivated' : 'Active')
+                    ->color(fn (?bool $state) => $state === false ? 'danger' : 'success'),
 
             ])
             ->filters([
@@ -102,6 +110,49 @@ class CampaignerResource extends Resource
                     ->visible(fn(Campaigner $record) => ! $record->is_approved)
                     ->requiresConfirmation()
                     ->action(fn(Campaigner $record) => static::approveCampaigner($record)),
+
+                Tables\Actions\Action::make('deactivate')
+                    ->label('Deactivate')
+                    ->icon('heroicon-o-no-symbol')
+                    ->color('danger')
+                    ->visible(fn (Campaigner $record) => (bool) $record->user?->is_active)
+                    ->requiresConfirmation()
+                    ->modalHeading('Deactivate Account')
+                    ->modalDescription(fn (Campaigner $record) => "This immediately blocks {$record->user?->email} from managing campaigns and using the platform.")
+                    ->form([
+                        Textarea::make('reason')
+                            ->label('Reason (shown to the user)')
+                            ->rows(3),
+                    ])
+                    ->action(function (Campaigner $record, array $data) {
+                        $record->user->deactivate(Auth::user(), $data['reason'] ?? null);
+
+                        $record->user->notify(new NotifyAnythingNotification(
+                            'Your Account Has Been Deactivated',
+                            'Your account has been deactivated.' . (!empty($data['reason']) ? " Reason: {$data['reason']}" : '')
+                                . "\n\nContact support if you believe this is a mistake."
+                        ));
+
+                        \Filament\Notifications\Notification::make()->title('Account deactivated')->success()->send();
+                    }),
+
+                Tables\Actions\Action::make('activate')
+                    ->label('Activate')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->visible(fn (Campaigner $record) => ! $record->user?->is_active)
+                    ->requiresConfirmation()
+                    ->modalHeading('Reactivate Account')
+                    ->action(function (Campaigner $record) {
+                        $record->user->reactivate();
+
+                        $record->user->notify(new NotifyAnythingNotification(
+                            'Your Account Has Been Reactivated',
+                            'Your account has been reactivated. You can now use the platform as normal.'
+                        ));
+
+                        \Filament\Notifications\Notification::make()->title('Account reactivated')->success()->send();
+                    }),
 
             ])
             ->bulkActions([

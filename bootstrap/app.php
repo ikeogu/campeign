@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureAccountActive;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\OnboardedMiddleware;
 use Illuminate\Foundation\Application;
@@ -23,7 +24,8 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->alias([
-            'onboarded' => OnboardedMiddleware::class
+            'onboarded' => OnboardedMiddleware::class,
+            'account.active' => EnsureAccountActive::class,
         ]);
 
         $middleware->validateCsrfTokens(except: [
