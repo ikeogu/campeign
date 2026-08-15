@@ -26,7 +26,7 @@ class ProcessPendingWithdrawals extends Command
     {
         $this->line('');
         $this->info('── Processing pending credits (wallet funding) ──────────────');
-       // $this->processPendingCredits();
+        $this->processPendingCredits();
 
         $this->line('');
         $this->info('── Processing pending debits (withdrawals) ──────────────────');
