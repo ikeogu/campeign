@@ -87,6 +87,10 @@ class OpayClient implements PaymentGateWayInterface
         $payload = [
             'amount'       => ['currency' => 'NGN', 'total' => (int) $data['amount']],
             'callbackUrl'  => $data['callback_url'],
+            // Server-to-server notification URL — without this OPay has nowhere
+            // to POST the payment status to, so wallet-funding webhooks never
+            // arrive (callbackUrl is only the browser redirect target).
+            'notifyUrl'    => route('webhook-client-opay'),
             'country'      => $this->country,
             'customerName' => $data['email'],
             'payMethod'    => 'BankTransfer',

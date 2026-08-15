@@ -32,10 +32,11 @@ class OpayWebhookProcessor extends ProcessWebhookJob
 
         match (strtoupper((string) $status)) {
             'SUCCESS', 'SUCCESSFUL' => (function () use ($paymentService, $reference, $fields) {
-                // Try both — each is scoped to its own model/transaction type
-                // and safely no-ops if the reference doesn't belong to it, so
-                // it's safe to attempt both without knowing which product the
-                // webhook came from.
+                // Try all three — each is scoped to its own model/transaction
+                // type and safely no-ops if the reference doesn't belong to
+                // it, so it's safe to attempt all without knowing which
+                // product the webhook came from.
+                $paymentService->verifyPayment($reference, 'opay'); // wallet funding (WAL- credit)
                 $paymentService->handleChargeSuccess(['reference' => $reference, 'data' => $fields]);
                 $paymentService->handleTransferSuccess(['reference' => $reference, ...$fields]);
             })(),

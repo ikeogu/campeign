@@ -33,6 +33,10 @@ class ProcessPendingWithdrawals extends Command
         $this->processPendingDebits();
 
         $this->line('');
+        $this->info('── Expiring stale pending promoter earnings ──────────────────');
+        $this->expireStalePromoterEarnings();
+
+        $this->line('');
         return self::SUCCESS;
     }
 
@@ -43,9 +47,17 @@ class ProcessPendingWithdrawals extends Command
     {
         // Give OPay at least 5 minutes before we poll; freshly created
         // bank transfer payments may still be awaiting the user's transfer.
+        //
+        // Scoped to 'WAL-' references only — those are the only credits ever
+        // created through OpayClient::payin() (see WalletService::walletTopup).
+        // Other pending credits (e.g. 'CRD-' promoter post-verification
+        // earnings from PostVerificationService::initiatePendingPayout) are
+        // resolved internally and don't exist on OPay's side — querying OPay
+        // for them would just error or misreport their status.
         $pending = Transaction::query()
             ->where('type',   'credit')
             ->where('status', 'pending')
+            ->where('reference', 'like', 'WAL-%')
             ->where('created_at', '<=', now()->subMinutes(5))
             ->orderBy('created_at')
             ->get();
@@ -252,5 +264,43 @@ class ProcessPendingWithdrawals extends Command
                 ))
             );
         }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // STALE PROMOTER EARNINGS — 'CRD-' placeholders whose post verification
+    // never resolved
+    // ─────────────────────────────────────────────────────────────────────────
+    private function expireStalePromoterEarnings(): void
+    {
+        // 'CRD-' credits are placeholders created by
+        // PostVerificationService::initiatePendingPayout() while a post
+        // verification is in progress. The wallet balance is only actually
+        // incremented once the submission is approved/rewarded (rewardPromoter
+        // / approvePost) — a pending 'CRD-' transaction never held real funds,
+        // so marking it failed needs no wallet reversal. Still pending after a
+        // month means the verification stalled (abandoned job, never re-checked,
+        // etc.) and it's safe to close out.
+        $stale = Transaction::query()
+            ->where('type',   'credit')
+            ->where('status', 'pending')
+            ->where('reference', 'like', 'CRD-%')
+            ->where('created_at', '<=', now()->subMonth())
+            ->orderBy('created_at')
+            ->get();
+
+        if ($stale->isEmpty()) {
+            $this->info('No stale promoter earnings found.');
+            return;
+        }
+
+        $this->info("Found {$stale->count()} stale pending promoter earning(s). Marking failed...");
+        Log::info('[ProcessPendingWithdrawals:promoter-earnings] Found ' . $stale->count() . ' stale pending credit(s).');
+
+        foreach ($stale as $transaction) {
+            $transaction->update(['status' => 'failed']);
+            $this->warn("  ✗ {$transaction->reference}: pending over a month. Marked failed.");
+        }
+
+        Log::info('[ProcessPendingWithdrawals:promoter-earnings] Done.', ['count' => $stale->count()]);
     }
 }
