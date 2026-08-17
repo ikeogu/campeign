@@ -15,6 +15,6 @@ Artisan::command('inspire', function () {
 // Processes withdrawals that were queued because the Paystack platform
 // balance was insufficient at the time the user submitted.
 Schedule::command('withdrawals:process-pending')
-    ->everyFiveMinutes()
+    ->everyMinute()
     ->withoutOverlapping()
     ->runInBackground();
