@@ -48,6 +48,12 @@ class ProofResource extends Resource
                                 'rejected' => 'Rejected',
                             ])
                             ->required(),
+
+                        Forms\Components\TextInput::make('views')
+                            ->label('Views')
+                            ->numeric()
+                            ->minValue(0)
+                            ->helperText('Reach recorded from the platform post at review time.'),
                     ])->columns(2),
 
                 Forms\Components\Section::make('Relations')
@@ -186,6 +192,12 @@ class ProofResource extends Resource
                         default    => 'warning',
                     }),
 
+                Tables\Columns\TextColumn::make('views')
+                    ->label('Views')
+                    ->numeric()
+                    ->sortable()
+                    ->placeholder('—'),
+
                 Tables\Columns\TextColumn::make('verification.status')
                     ->label('Verification')
                     ->badge()
@@ -228,9 +240,17 @@ class ProofResource extends Resource
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
                     ->visible(fn($record) => $record->status === 'pending')
+                    ->form([
+                        Forms\Components\TextInput::make('views')
+                            ->label('Views on the post')
+                            ->numeric()
+                            ->minValue(0)
+                            ->required()
+                            ->helperText('Check the platform post and enter its current view count.'),
+                    ])
                     ->requiresConfirmation()
-                    ->action(function ($record, PostVerificationService $service) {
-                        $service->approvePost($record);
+                    ->action(function ($record, array $data, PostVerificationService $service) {
+                        $service->approvePost($record, (int) $data['views']);
                     }),
 
                 Tables\Actions\Action::make('reject')
@@ -253,6 +273,7 @@ class ProofResource extends Resource
                         ->icon('heroicon-o-check-circle')
                         ->color('success')
                         ->requiresConfirmation()
+                        ->modalDescription('Views won\'t be recorded here — each post has a different count. Set them individually via the row "Approve" action or the edit screen afterwards.')
                         ->action(function ($records, PostVerificationService $service) {
                             $records->each(fn($record) => $service->approvePost($record));
                         }),

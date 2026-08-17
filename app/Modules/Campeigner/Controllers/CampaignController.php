@@ -510,10 +510,15 @@ class CampaignController extends ApiController
             ->latest()
             ->get();
 
+        // Reach is only known once an admin has verified the post in the
+        // backoffice and entered its view count — unreviewed/rejected
+        // submissions have a null `views` and don't count toward reach.
+        $totalReach = $submissions->sum('views');
 
         return Inertia::render('Advertiser/Campaigns/Submissions', [
             'campaign' => $campaign,
             'submissions' => $submissions,
+            'total_reach' => $totalReach,
         ]);
     }
 

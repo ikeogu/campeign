@@ -18,7 +18,12 @@ class PromoterSubmission extends Model
         'proof_link',
         'status',
         'link',
-        'platform'
+        'platform',
+        'views',
+    ];
+
+    protected $casts = [
+        'views' => 'integer',
     ];
 
     protected $appends = ['full_proof_url'];

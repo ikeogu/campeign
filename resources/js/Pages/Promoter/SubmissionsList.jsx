@@ -146,6 +146,7 @@ export default function SubmissionsIndex({ auth, submissions, total_verified_ear
                                         <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Campaign</th>
                                         <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Post Retention</th>
                                         <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Status</th>
+                                        <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Views</th>
                                         { <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Earned Amount</th>}
                                         <th className="px-6 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Submitted</th>
                                     </tr>
@@ -182,6 +183,12 @@ export default function SubmissionsIndex({ auth, submissions, total_verified_ear
 
                                                 <td className="px-6 py-5 text-center">
                                                     <p className="text-sm font-bold text-gray-900">
+                                                        {sub.views != null ? Number(sub.views).toLocaleString() : '—'}
+                                                    </p>
+                                                </td>
+
+                                                <td className="px-6 py-5 text-center">
+                                                    <p className="text-sm font-bold text-gray-900">
                                                         ₦{sub.share_log?.earned_amount || '0'}
                                                     </p>
                                                 </td>
@@ -198,7 +205,7 @@ export default function SubmissionsIndex({ auth, submissions, total_verified_ear
                                         ))
                                     ) : (
                                         <tr>
-                                            <td colSpan="4" className="px-6 py-32 text-center">
+                                            <td colSpan="6" className="px-6 py-32 text-center">
                                                 <div className="flex flex-col items-center">
                                                     <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 border border-gray-100">
                                                         <svg className="w-8 h-8 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>

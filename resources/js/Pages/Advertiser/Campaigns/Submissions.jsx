@@ -2,7 +2,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
 import { useState } from 'react';
 
-export default function SubmissionsReview({ auth, campaign, submissions }) {
+export default function SubmissionsReview({ auth, campaign, submissions, total_reach }) {
     const [filter, setFilter] = useState('all');
 
     const filteredSubmissions = submissions.filter(s =>
@@ -33,6 +33,9 @@ export default function SubmissionsReview({ auth, campaign, submissions }) {
                             <div className="flex items-center gap-3 text-sm">
                                 <span className="bg-white border border-gray-200 px-3 py-1 rounded-full font-bold text-gray-600 shadow-sm">
                                     {submissions.length} Total Shares
+                                </span>
+                                <span className="bg-gray-900 text-white px-3 py-1 rounded-full font-bold shadow-sm">
+                                    {Number(total_reach || 0).toLocaleString()} Total Reach
                                 </span>
                                 <span className="text-gray-400 font-medium italic hidden sm:inline">
                                     Monitoring activity for "{campaign.title}"
@@ -108,6 +111,11 @@ export default function SubmissionsReview({ auth, campaign, submissions }) {
                                                     {sub.platform}
                                                 </p>
                                             </div>
+                                            {sub.views != null && (
+                                                <span className="ml-auto shrink-0 bg-brand-50 text-brand-700 border border-brand-100 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-tight">
+                                                    {Number(sub.views).toLocaleString()} views
+                                                </span>
+                                            )}
                                         </div>
 
                                         <a

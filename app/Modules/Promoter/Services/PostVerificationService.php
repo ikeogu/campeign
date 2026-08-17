@@ -258,10 +258,15 @@ class PostVerificationService
         });
     }
 
-    public function approvePost(PromoterSubmission $submission): void
+    public function approvePost(PromoterSubmission $submission, ?int $views = null): void
     {
-        DB::transaction(function () use ($submission) {
-            $submission->update(['status' => 'approved']);
+        DB::transaction(function () use ($submission, $views) {
+            $submission->update([
+                'status' => 'approved',
+                // Only overwrite when the reviewer actually entered a number —
+                // re-approving (e.g. via bulk action) shouldn't blank it out.
+                ...($views !== null ? ['views' => $views] : []),
+            ]);
 
             if ($submission->verification) {
                 $submission->verification->update(['status' => 'verified']);
