@@ -4,11 +4,13 @@ namespace App\Models;
 
 use App\Modules\Campeigner\Notifications\CampaignCompletedNotification;
 use App\Modules\Campeigner\Notifications\FundWalletNotification;
+use App\Modules\Promoter\Notifications\NewCampaignPublishedNotification;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Facades\Notification;
 
 class Campaign extends Model
 {
@@ -129,6 +131,12 @@ class Campaign extends Model
             if (!$campaign->is_trial && $campaign->user->wallet->balance < $campaign->total_budget * 100) {
                 $campaign->user->notify(new FundWalletNotification($campaign->user, $campaign));
             }
+
+            // Trial campaigns are created already 'live' (see CampaignController::store),
+            // so they never pass through the 'updated' hook below.
+            if ($campaign->status === 'live') {
+                self::notifyPromotersOfNewCampaign($campaign);
+            }
         });
 
         static::updated(function ($campaign) {
@@ -136,6 +144,26 @@ class Campaign extends Model
 
                 $campaign->user->notify(new CampaignCompletedNotification($campaign));
             }
+
+            // Covers every other path to 'live': gateway charge success,
+            // wallet funding, and the admin "Go Live" backoffice action.
+            if ($campaign->wasChanged('status') && $campaign->status === 'live') {
+                self::notifyPromotersOfNewCampaign($campaign);
+            }
         });
+    }
+
+    /**
+     * Notify every promoter that a new gig is open for submissions.
+     * Chunked so this doesn't load the whole promoter table into memory
+     * as the platform grows.
+     */
+    private static function notifyPromotersOfNewCampaign(self $campaign): void
+    {
+        User::query()
+            ->where('role', 'promoter')
+            ->chunkById(200, function ($promoters) use ($campaign) {
+                Notification::send($promoters, new NewCampaignPublishedNotification($campaign));
+            });
     }
 }
