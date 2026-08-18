@@ -29,7 +29,7 @@ class CampaignCompletedNotification extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['mail', 'database'];
     }
 
     /**
@@ -53,7 +53,10 @@ class CampaignCompletedNotification extends Notification implements ShouldQueue
     public function toArray(object $notifiable): array
     {
         return [
-            //
+            'type'       => 'campaign_completed',
+            'title'      => 'Campaign Completed',
+            'body'       => 'Your campaign "' . $this->campaign->title . '" has filled all its target shares.',
+            'action_url' => route('campaigns.submissions.index', $this->campaign->id),
         ];
     }
 }

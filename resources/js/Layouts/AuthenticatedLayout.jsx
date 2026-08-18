@@ -1,5 +1,6 @@
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import Dropdown from '@/Components/Dropdown';
+import NotificationBell from '@/Components/NotificationBell';
 import { Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import ThemedNavLink from '@/Components/ThemedNavLink'
@@ -116,6 +117,8 @@ export default function AuthenticatedLayout({ header, children }) {
                          <div className="hidden md:flex bg-brand-50 px-4 py-2 rounded-2xl border border-brand-100 items-center gap-2">
                             <span className="text-brand-600 font-black text-xs"></span>
                          </div>
+
+                        <NotificationBell />
 
                         <Dropdown>
                             <Dropdown.Trigger>

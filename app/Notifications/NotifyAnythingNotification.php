@@ -28,7 +28,7 @@ class NotifyAnythingNotification extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['mail', 'database'];
     }
 
     /**
@@ -52,7 +52,10 @@ class NotifyAnythingNotification extends Notification implements ShouldQueue
     public function toArray(object $notifiable): array
     {
         return [
-            //
+            'type'       => 'general',
+            'title'      => $this->title,
+            'body'       => $this->body,
+            'action_url' => null,
         ];
     }
 }

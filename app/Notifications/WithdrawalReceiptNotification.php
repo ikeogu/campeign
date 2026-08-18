@@ -16,7 +16,7 @@ class WithdrawalReceiptNotification extends Notification implements ShouldQueue
 
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['mail', 'database'];
     }
 
     public function toMail(object $notifiable): MailMessage
@@ -43,6 +43,14 @@ class WithdrawalReceiptNotification extends Notification implements ShouldQueue
 
     public function toArray(object $notifiable): array
     {
-        return [];
+        $meta          = $this->transaction->metadata ?? [];
+        $netPayoutKobo = (int) ($meta['net_payout_kobo'] ?? $this->transaction->amount);
+
+        return [
+            'type'       => 'withdrawal_receipt',
+            'title'      => 'Withdrawal Successful',
+            'body'       => '₦' . number_format($netPayoutKobo / 100, 2) . ' was sent to your bank account (ref: ' . $this->transaction->reference . ').',
+            'action_url' => route('wallet.index'),
+        ];
     }
 }

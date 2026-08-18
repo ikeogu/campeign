@@ -29,7 +29,7 @@ class CampaignProcessCompletedNotification extends Notification implements Shoul
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['mail', 'database'];
     }
 
     /**
@@ -52,7 +52,10 @@ class CampaignProcessCompletedNotification extends Notification implements Shoul
     public function toArray(object $notifiable): array
     {
         return [
-            //
+            'type'       => 'submission_received',
+            'title'      => 'New Submission Received',
+            'body'       => 'A promoter shared your campaign "' . $this->campaign->title . '".',
+            'action_url' => route('campaigns.submissions.index', $this->campaign->id),
         ];
     }
 }

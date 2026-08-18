@@ -28,7 +28,7 @@ class WalletFundedNotification extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['mail', 'database'];
     }
 
     /**
@@ -55,7 +55,10 @@ class WalletFundedNotification extends Notification implements ShouldQueue
     public function toArray(object $notifiable): array
     {
         return [
-            //
+            'type'       => 'wallet_funded',
+            'title'      => 'Wallet Funded',
+            'body'       => '₦' . number_format($this->transaction->amount / 100, 2) . ' has been added to your wallet.',
+            'action_url' => route('wallet.index'),
         ];
     }
 }

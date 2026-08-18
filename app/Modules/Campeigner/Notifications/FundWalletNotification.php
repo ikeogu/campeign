@@ -31,7 +31,7 @@ class FundWalletNotification extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['mail', 'database'];
     }
 
     /**
@@ -55,7 +55,10 @@ class FundWalletNotification extends Notification implements ShouldQueue
     public function toArray(object $notifiable): array
     {
         return [
-            //
+            'type'       => 'fund_wallet',
+            'title'      => 'Fund Your Wallet',
+            'body'       => 'Fund your wallet to launch "' . $this->campaign->title . '".',
+            'action_url' => route('wallet-fund'),
         ];
     }
 }

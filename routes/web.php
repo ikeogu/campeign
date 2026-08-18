@@ -9,6 +9,7 @@ use App\Modules\Campeigner\Controllers\CampaignController;
 use App\Modules\Promoter\Controllers\PromoterEarningsController;
 use App\Modules\Promoter\Controllers\PromoterGigController;
 use App\Modules\Shared\Controllers\DashboardController;
+use App\Modules\Shared\Controllers\NotificationController;
 use App\Modules\Shared\Controllers\WalletController;
 use App\Modules\Shared\Services\CampaignService;
 use Illuminate\Foundation\Application;
@@ -120,6 +121,14 @@ Route::middleware(['web', 'auth:web', 'account.active'])->group(function () {
     Route::post('payout', [WalletController::class, 'payout'])->name('withdraw.store');
     Route::get('resolve-bank', [WalletController::class, 'resolveBank'])->name('api.bank.resolve');
     Route::get('/promoter-analysis', [DashboardController::class, 'promoterAnalysis'])->name('promoter.analytics');
+
+    Route::prefix('notifications')->name('notifications.')->controller(NotificationController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('poll', 'poll')->name('poll');
+        Route::post('{id}/read', 'markAsRead')->name('read');
+        Route::post('read-all', 'markAllAsRead')->name('read-all');
+    });
+
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->middleware(['auth', 'verified', 'onboarded'])->name('dashboard');
     Route::get('/referrals', [\App\Modules\User\Controllers\ReferralController::class, 'index'])->name('referrals.index');
 

@@ -54,6 +54,11 @@ class ProofResource extends Resource
                             ->numeric()
                             ->minValue(0)
                             ->helperText('Reach recorded from the platform post at review time.'),
+
+                        Forms\Components\Textarea::make('rejection_reason')
+                            ->label('Rejection Reason')
+                            ->columnSpanFull()
+                            ->helperText('Shown to the promoter — only relevant when status is Rejected.'),
                     ])->columns(2),
 
                 Forms\Components\Section::make('Relations')
@@ -198,6 +203,12 @@ class ProofResource extends Resource
                     ->sortable()
                     ->placeholder('—'),
 
+                Tables\Columns\TextColumn::make('rejection_reason')
+                    ->label('Rejection Reason')
+                    ->limit(40)
+                    ->tooltip(fn($record) => $record->rejection_reason)
+                    ->placeholder('—'),
+
                 Tables\Columns\TextColumn::make('verification.status')
                     ->label('Verification')
                     ->badge()
@@ -258,9 +269,15 @@ class ProofResource extends Resource
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
                     ->visible(fn($record) => $record->status === 'pending')
+                    ->form([
+                        Forms\Components\Textarea::make('reason')
+                            ->label('Rejection Reason')
+                            ->required()
+                            ->helperText('The promoter will see this reason.'),
+                    ])
                     ->requiresConfirmation()
-                    ->action(function ($record, PostVerificationService $service) {
-                        $service->rejectPost($record);
+                    ->action(function ($record, array $data, PostVerificationService $service) {
+                        $service->rejectPost($record, $data['reason']);
                     }),
 
                 Tables\Actions\EditAction::make(),
@@ -282,10 +299,16 @@ class ProofResource extends Resource
                         ->label('Reject Selected')
                         ->icon('heroicon-o-x-circle')
                         ->color('danger')
+                        ->form([
+                            Forms\Components\Textarea::make('reason')
+                                ->label('Rejection Reason')
+                                ->required()
+                                ->helperText('Applied to every selected submission — each promoter will see this reason.'),
+                        ])
                         ->requiresConfirmation()
-                        ->action(function ($records, PostVerificationService $service) {
-                            $records->each(function ($record) use ($service) {
-                                dispatch(fn() => $service->rejectPost($record));
+                        ->action(function ($records, array $data, PostVerificationService $service) {
+                            $records->each(function ($record) use ($service, $data) {
+                                dispatch(fn() => $service->rejectPost($record, $data['reason']));
                             });
                         }),
 

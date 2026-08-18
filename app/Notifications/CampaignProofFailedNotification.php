@@ -17,7 +17,8 @@ class CampaignProofFailedNotification extends Notification
      */
     public function __construct(
         private readonly Campaign $campaign,
-        private string $status
+        private string $status,
+        private ?string $reason = null
     ) {
         //
     }
@@ -29,7 +30,7 @@ class CampaignProofFailedNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['mail', 'database'];
     }
 
     /**
@@ -41,6 +42,7 @@ class CampaignProofFailedNotification extends Notification
             ->subject('Submission Rejected : ' . $this->campaign->title)
             ->view('mails.campaigns.submission-failed', [
                 'campaign' => $this->campaign,
+                'reason'   => $this->reason,
             ]);
     }
 
@@ -51,8 +53,18 @@ class CampaignProofFailedNotification extends Notification
      */
     public function toArray(object $notifiable): array
     {
+        $body = 'Your submission for "' . $this->campaign->title . '" was ' . $this->status . '.';
+
+        if ($this->reason) {
+            $body .= ' Reason: ' . $this->reason;
+        }
+
         return [
-            //
+            'type'       => 'submission_rejected',
+            'title'      => 'Submission Rejected',
+            'body'       => $body,
+            'reason'     => $this->reason,
+            'action_url' => route('promoter.submissions'),
         ];
     }
 }

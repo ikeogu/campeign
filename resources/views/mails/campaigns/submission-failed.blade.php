@@ -17,6 +17,18 @@
     Unfortunately your submission for the campaign <strong style="color:#1a1a4e;">"{{ $campaign->title }}"</strong> did not meet the required standards and has been rejected.
 </p>
 
+@if($reason ?? null)
+{{-- Reason box --}}
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#fef2f2;border-radius:12px;margin-bottom:20px;border:1px solid #fca5a5;">
+    <tr>
+        <td style="padding:16px 20px;">
+            <p style="margin:0 0 4px;font-size:11px;font-weight:900;color:#b91c1c;text-transform:uppercase;letter-spacing:1px;">Reason</p>
+            <p style="margin:0;font-size:13px;color:#374151;line-height:1.7;">{{ $reason }}</p>
+        </td>
+    </tr>
+</table>
+@endif
+
 {{-- Info box --}}
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f9fafb;border-radius:12px;margin-bottom:28px;border:1px solid #e5e7eb;">
     <tr>

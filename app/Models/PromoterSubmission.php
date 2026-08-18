@@ -20,6 +20,7 @@ class PromoterSubmission extends Model
         'link',
         'platform',
         'views',
+        'rejection_reason',
     ];
 
     protected $casts = [

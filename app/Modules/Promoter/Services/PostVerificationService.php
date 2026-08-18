@@ -349,12 +349,16 @@ class PostVerificationService
     }
 
 
-    public function rejectPost(PromoterSubmission $promoterSubmission): void
+    public function rejectPost(PromoterSubmission $promoterSubmission, ?string $reason = null): void
     {
-        DB::transaction(function () use ($promoterSubmission) {
+        DB::transaction(function () use ($promoterSubmission, $reason) {
 
             $promoterSubmission->update([
-                'status' => 'rejected',
+                'status'           => 'rejected',
+                // Only overwrite when a reason was actually given — keeps a
+                // previously recorded reason intact if this ever re-runs
+                // without one (e.g. bulk reject without a shared reason).
+                ...($reason !== null ? ['rejection_reason' => $reason] : []),
             ]);
 
             $verification = $promoterSubmission->verification;
@@ -372,6 +376,7 @@ class PostVerificationService
             Log::info('Post verification rejected', [
                 'verification_id' => $verification->id,
                 'submission_id' => $promoterSubmission->id,
+                'reason' => $reason,
             ]);
         });
 
@@ -379,7 +384,8 @@ class PostVerificationService
         $promoterSubmission->user
             ->notify(new CampaignProofFailedNotification(
                 $promoterSubmission->campaign,
-                'rejected'
+                'rejected',
+                $reason ?? $promoterSubmission->rejection_reason
             ));
     }
 }

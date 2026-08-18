@@ -28,7 +28,7 @@ class CampaignerApprovedNotification extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['mail', 'database'];
     }
 
     /**
@@ -52,7 +52,10 @@ class CampaignerApprovedNotification extends Notification implements ShouldQueue
     public function toArray(object $notifiable): array
     {
         return [
-            //
+            'type'       => 'campaigner_approved',
+            'title'      => 'Profile Approved',
+            'body'       => 'Your campaigner profile has been approved. You can now launch campaigns.',
+            'action_url' => route('campaigns.index'),
         ];
     }
 }

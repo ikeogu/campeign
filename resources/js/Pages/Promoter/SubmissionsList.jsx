@@ -179,6 +179,11 @@ export default function SubmissionsIndex({ auth, submissions, total_verified_ear
                                                     <span className={`px-4 py-1.5 rounded-2xl text-[10px] font-black uppercase border ${getStatusStyle(sub.status)}`}>
                                                         {sub.status}
                                                     </span>
+                                                    {sub.status === 'rejected' && sub.rejection_reason && (
+                                                        <p className="mt-2 text-[10px] font-bold text-red-500 max-w-[160px] mx-auto leading-tight">
+                                                            {sub.rejection_reason}
+                                                        </p>
+                                                    )}
                                                 </td>
 
                                                 <td className="px-6 py-5 text-center">

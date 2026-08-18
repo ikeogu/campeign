@@ -26,7 +26,7 @@ class NewCampaignPublishedNotification extends Notification implements ShouldQue
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['mail', 'database'];
     }
 
     /**
@@ -50,7 +50,10 @@ class NewCampaignPublishedNotification extends Notification implements ShouldQue
     public function toArray(object $notifiable): array
     {
         return [
-            //
+            'type'       => 'new_campaign',
+            'title'      => 'New Gig Available',
+            'body'       => '"' . $this->campaign->title . '" just went live — ₦' . number_format($this->campaign->payout, 2) . ' per share.',
+            'action_url' => route('promoter.gigs.show', $this->campaign->id),
         ];
     }
 }
