@@ -110,10 +110,16 @@ class ProofResource extends Resource
                                 }
 
                                 return collect($handles)
-                                    ->map(
-                                        fn($item) =>
-                                        ucfirst($item['platform']) . ': ' . $item['handle']
-                                    )
+                                    ->map(function ($item) {
+                                        if (is_array($item)) {
+                                            $platform = $item['platform'] ?? '';
+                                            $handle = $item['handle'] ?? '';
+
+                                            return trim(ucfirst($platform) . ': ' . $handle, ': ');
+                                        }
+
+                                        return (string) $item;
+                                    })
                                     ->implode(', ');
                             })
                     ])->columns(2),
