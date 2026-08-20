@@ -13,8 +13,8 @@ class AdminUserSeeder extends Seeder
      */
     public function run(): void
     {
-        User::create([
-            'email' => 'info@gigsandcampaigns.com',
+        User::updateOrCreate(['email' => 'info@gigsandcampaigns.com'], [
+
             'password' => bcrypt('IpRHVhx6Hj2LAVnHsmOEFAbAi'),
             'role' => 'admin',
         ]);
