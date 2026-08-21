@@ -29,7 +29,6 @@ class ProofResource extends Resource
                     ->schema([
                         Forms\Components\TextInput::make('proof_link')
                             ->label('Proof Link')
-                            ->url()
                             ->disabled(),
 
                         Forms\Components\TextInput::make('platform')
