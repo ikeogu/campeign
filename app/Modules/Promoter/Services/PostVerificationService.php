@@ -218,6 +218,15 @@ class PostVerificationService
             return $verification;
         }
         info("initiated post verification - platform detected: $platform");
+
+        if (!config('promoter.auto_verification', true)) {
+            Log::info('Automatic post verification is paused — leaving for manual review', [
+                'verification_id' => $verification->id,
+            ]);
+
+            return $verification;
+        }
+
         VerifyPostInitialJob::dispatch($verification);
 
         return $verification;

@@ -27,6 +27,13 @@ class VerifyPostInitialJob implements ShouldQueue
      */
     public function handle(PostVerificationService $service): void
     {
+        if (!config('promoter.auto_verification', true)) {
+            Log::info('Skipping initial post verification — automatic verification is paused', [
+                'verification_id' => $this->verification->id,
+            ]);
+
+            return;
+        }
 
         $submission = $this->verification->promoterSubmission;
 
