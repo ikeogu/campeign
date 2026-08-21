@@ -129,6 +129,12 @@ class ProcessPendingWithdrawals extends Command
     // ─────────────────────────────────────────────────────────────────────────
     private function processPendingDebits(): void
     {
+        if (!config('wallet.withdrawals_enabled', true)) {
+            $this->warn('Withdrawals are paused (WITHDRAWALS_ENABLED=false). Skipping.');
+            Log::info('[ProcessPendingWithdrawals:debits] Skipped — withdrawals are paused.');
+            return;
+        }
+
         $pending = Transaction::query()
             ->where('type',    'debit')
             ->where('status',  'pending')

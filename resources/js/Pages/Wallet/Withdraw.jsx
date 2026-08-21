@@ -3,7 +3,7 @@ import BankSelect from '@/Components/BankSelect';
 import { useForm, usePage } from '@inertiajs/react';
 import { useState, useEffect, useRef } from 'react';
 
-export default function Withdraw({ banks, kyc_status, user_role, payout_account, withdrawal_count }) {
+export default function Withdraw({ banks, kyc_status, user_role, payout_account, withdrawal_count, withdrawals_enabled }) {
     const { wallet, config, flash } = usePage().props;
     const [confirmed, setConfirmed] = useState(false);
     const [resolving, setResolving] = useState(false);
@@ -81,7 +81,7 @@ export default function Withdraw({ banks, kyc_status, user_role, payout_account,
         ? !!payout_account // advertisers just need an amount; bank details are pre-filled
         : data.bank_code && data.account_number.length === 10 && resolved && !resolving;
 
-    const canSubmit = detailsComplete && confirmed && !isOverBalance && inputAmount > 0 && !needsKyc;
+    const canSubmit = withdrawals_enabled && detailsComplete && confirmed && !isOverBalance && inputAmount > 0 && !needsKyc;
 
     const submit = (e) => {
         e.preventDefault();
@@ -99,6 +99,12 @@ export default function Withdraw({ banks, kyc_status, user_role, payout_account,
                         <h2 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Available Wallet Balance</h2>
                         <p className="text-4xl font-black text-brand-600 tracking-tighter">₦{wallet.toLocaleString()}</p>
                     </div>
+
+                    {!withdrawals_enabled && (
+                        <div className="mb-6 p-4 bg-amber-50 border border-amber-200 text-amber-700 rounded-2xl font-bold text-sm">
+                            Withdrawals are temporarily paused. Please check back later.
+                        </div>
+                    )}
 
                     {flash?.error && (
                         <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-2xl font-bold text-sm">

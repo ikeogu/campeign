@@ -84,17 +84,18 @@ class WalletController extends ApiController
             : 0;
 
         return Inertia('Wallet/Withdraw', [
-            'banks'            => $this->gateway->getBanks()['data'],
-            'wallet'           => $user->wallet->balance / 100,
-            'config'           => [
+            'banks'               => $this->gateway->getBanks()['data'],
+            'wallet'              => $user->wallet->balance / 100,
+            'config'              => [
                 'min_withdrawal' => 1000,
                 'transfer_fee'   => 10,
                 'currency'       => 'NGN',
             ],
-            'kyc_status'       => $user->kyc?->status,
-            'user_role'        => $user->role,
-            'payout_account'   => $isCampaigner ? $user->payoutAccount : null,
-            'withdrawal_count' => $withdrawalCount,
+            'kyc_status'          => $user->kyc?->status,
+            'user_role'           => $user->role,
+            'payout_account'      => $isCampaigner ? $user->payoutAccount : null,
+            'withdrawal_count'    => $withdrawalCount,
+            'withdrawals_enabled' => config('wallet.withdrawals_enabled', true),
         ]);
     }
 
@@ -137,6 +138,12 @@ class WalletController extends ApiController
 
     public function payout(Request $request)
     {
+        if (!config('wallet.withdrawals_enabled', true)) {
+            return back()->withErrors([
+                'amount' => 'Withdrawals are temporarily paused. Please try again later.',
+            ]);
+        }
+
         /** @var User $user */
         $user = Auth::user()->load(['kyc', 'payoutAccount']);
 
