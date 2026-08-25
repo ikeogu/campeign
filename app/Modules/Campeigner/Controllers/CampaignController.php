@@ -8,6 +8,7 @@ use App\Models\Campaign;
 use App\Models\User;
 use App\Modules\Campeigner\Notifications\CampaignFundedNotification;
 use App\Modules\Shared\Services\PaymentService;
+use App\Modules\Shared\Services\ReferralCommissionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -19,6 +20,7 @@ class CampaignController extends ApiController
 {
     public function __construct(
         protected readonly PaystackClient $paystackGatewayInterface,
+        protected readonly ReferralCommissionService $referralCommissionService,
     ) {}
 
 
@@ -445,6 +447,8 @@ class CampaignController extends ApiController
 
         // Notify campaign owner
         $campaign->user->notify(new CampaignFundedNotification($campaign));
+
+        $this->referralCommissionService->creditReferrerIfEligible($campaign);
     }
 
 

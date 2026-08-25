@@ -30,6 +30,7 @@ class Campaign extends Model
         'base_budget',
         'management_fee',
         'total_budget',
+        'referral_credited_kobo',
         'available_slots',
         'status',
         'is_trial',

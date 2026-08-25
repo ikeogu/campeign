@@ -86,6 +86,23 @@ export default function SubmitPage({ gig }) {
         return completedCount * Number(gig.payout);
     }, [data.submissions, gig.payout]);
 
+    // The backend only ever sees the filtered (non-empty) submissions, so a
+    // validation error's index (e.g. "submissions.0.link") refers to position
+    // in that filtered list, not position in `data.submissions`. Map each
+    // rendered row to its filtered position to attribute errors correctly.
+    const activeIndexMap = useMemo(
+        () => data.submissions.reduce((acc, s, i) => {
+            if (s.link.trim() !== '') acc.push(i);
+            return acc;
+        }, []),
+        [data.submissions]
+    );
+    const errorForRow = (index, field) => {
+        const sentIndex = activeIndexMap.indexOf(index);
+        if (sentIndex === -1) return null;
+        return errors[`submissions.${sentIndex}.${field}`] ?? null;
+    };
+
     const submit = (e) => {
         e.preventDefault();
         const activeSubmissions = data.submissions.filter(s => s.link.trim() !== '');
@@ -118,6 +135,11 @@ export default function SubmitPage({ gig }) {
                     </div>
 
                     {localError && <div className="mb-6 p-4 bg-red-50 text-red-700 rounded-2xl font-bold text-[10px] uppercase">⚠️ {localError}</div>}
+                    {(errors.submission || errors.submissions) && (
+                        <div className="mb-6 p-4 bg-red-50 text-red-700 rounded-2xl font-bold text-xs normal-case">
+                            ⚠️ {errors.submission || errors.submissions}
+                        </div>
+                    )}
 
                     <form onSubmit={submit} className="space-y-6">
                         {data.submissions.map((submission, index) => {
@@ -172,10 +194,13 @@ export default function SubmitPage({ gig }) {
                                         <input
                                             type="url"
                                             placeholder={`Paste ${style.name} link...`}
-                                            className="w-full bg-gray-50 border-gray-100 rounded-2xl px-5 py-4 font-bold text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
+                                            className={`w-full bg-gray-50 border rounded-2xl px-5 py-4 font-bold text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all ${errorForRow(index, 'link') ? 'border-red-300' : 'border-gray-100'}`}
                                             value={submission.link}
                                             onChange={e => handleUpdate(index, 'link', e.target.value)}
                                         />
+                                        {errorForRow(index, 'link') && (
+                                            <p className="text-[10px] font-bold text-red-600 px-1">⚠️ {errorForRow(index, 'link')}</p>
+                                        )}
                                     </div>
 
                                     {/* Media Upload */}
@@ -185,6 +210,9 @@ export default function SubmitPage({ gig }) {
                                             {submission.proof ? `✅ ${submission.proof.name}` : '📸 Upload Screenshot (Optional)'}
                                         </p>
                                     </div>
+                                    {errorForRow(index, 'proof') && (
+                                        <p className="text-[10px] font-bold text-red-600 px-1">⚠️ {errorForRow(index, 'proof')}</p>
+                                    )}
                                 </div>
                             );
                         })}

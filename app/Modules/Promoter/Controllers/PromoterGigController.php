@@ -216,6 +216,25 @@ class PromoterGigController extends ApiController
             ]);
         }
 
+        // A link claimed by someone else is the fraud signal worth blocking — two
+        // promoters can't both take credit for the same post. A promoter reusing
+        // their OWN link (e.g. their profile URL) across submissions is expected
+        // and fine, so this only checks other users, never the current one.
+        $submittedLinks = collect($request->submissions)->pluck('link');
+
+        $linksClaimedByOthers = PromoterSubmission::whereIn('link', $submittedLinks)
+            ->where('user_id', '!=', Auth::id())
+            ->where('status', '!=', 'rejected')
+            ->pluck('link')
+            ->unique()
+            ->all();
+
+        if (!empty($linksClaimedByOthers)) {
+            return back()->withErrors([
+                'submission' => 'One of these links has already been submitted by another user. Please check the link and try again.',
+            ]);
+        }
+
         foreach ($request->submissions as $data) {
 
             $path = null;

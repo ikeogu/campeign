@@ -7,6 +7,7 @@ namespace App\Models;
 use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -111,6 +112,25 @@ class User extends Authenticatable implements FilamentUser
     public function referrals()
     {
         return $this->hasMany(User::class, 'referred_by');
+    }
+
+    public function referredBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'referred_by');
+    }
+
+    /**
+     * Generate a referral code guaranteed to be unique among existing users.
+     * Shared by registration (RegisteredUserController) and the
+     * users:backfill-referral-codes command so every account ends up with one.
+     */
+    public static function generateReferralCode(): string
+    {
+        do {
+            $code = substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'), 0, 6);
+        } while (static::where('referral_code', $code)->exists());
+
+        return $code;
     }
 
     public function kyc(): HasOne

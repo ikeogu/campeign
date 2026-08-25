@@ -46,7 +46,7 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'onboarded' => false,
-            'referral_code' => $this->generateReferralCode(),
+            'referral_code' => User::generateReferralCode(),
             'accepted_terms' => $request->accepted_terms,
             'referred_by' => $refferedBy ? $refferedBy->id : null
         ]);
@@ -56,15 +56,5 @@ class RegisteredUserController extends Controller
         Auth::login($user);
 
         return redirect()->route('onboardingUser');
-    }
-
-
-    public function generateReferralCode(): string
-    {
-        do {
-            $code = substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'), 0, 6);
-        } while (User::where('referral_code', $code)->exists());
-
-        return $code;
     }
 }
