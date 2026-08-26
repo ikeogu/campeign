@@ -80,8 +80,20 @@ export default function NotificationBell() {
                 </button>
             </Dropdown.Trigger>
 
-            <Dropdown.Content contentClasses="py-0 bg-white">
-                <div className="w-80 max-w-[85vw]">
+            {/*
+                The panel is much wider than the bell it opens from, so
+                anchoring it to the bell's own ~40px box (the Dropdown
+                default) leaves it floating detached from everything below
+                sm — it just doesn't have 320px of clear room to grow into.
+                Below sm it's pinned to the viewport instead, as a sheet
+                under the header; at sm and up there's enough room for the
+                normal trigger-relative right-aligned panel.
+            */}
+            <Dropdown.Content
+                contentClasses="py-0 bg-white"
+                panelClassName="fixed z-50 inset-x-4 top-24 rounded-md shadow-lg sm:absolute sm:inset-x-auto sm:top-auto sm:right-0 sm:mt-2"
+            >
+                <div className="w-full sm:w-80">
                     <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
                         <p className="text-xs font-black uppercase tracking-widest text-gray-900">Notifications</p>
                         {unreadCount > 0 && (

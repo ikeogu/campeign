@@ -18,7 +18,7 @@ export default function Referrals({ referrals, totalEarnings }) {
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                         <div>
                             <h1 className="text-4xl font-black text-gray-900 tracking-tighter uppercase">Affiliate Hub</h1>
-                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mt-2">Earn 10% commission from your network</p>
+                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mt-2">Earn commission from your network</p>
                         </div>
 
                         {/* Referral Link Box */}
@@ -39,7 +39,7 @@ export default function Referrals({ referrals, totalEarnings }) {
                     </div>
 
                     {/* Stats Bento Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm">
                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Network Size</p>
                             <h3 className="text-3xl font-black text-gray-900">{totalReferred} Users</h3>
@@ -47,10 +47,6 @@ export default function Referrals({ referrals, totalEarnings }) {
                         <div className="bg-brand-600 p-8 rounded-[2.5rem] shadow-xl shadow-brand-100">
                             <p className="text-[10px] font-black text-brand-200 uppercase tracking-widest mb-1">Total Commission</p>
                             <h3 className="text-3xl font-black text-white"> ₦{totalEarnings.toFixed(2)}</h3>
-                        </div>
-                        <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm">
-                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Commission Rate</p>
-                            <h3 className="text-3xl font-black text-gray-900">10.0%</h3>
                         </div>
                     </div>
 
@@ -66,7 +62,7 @@ export default function Referrals({ referrals, totalEarnings }) {
                                         <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">User</th>
                                         <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Joined Date</th>
                                         <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Completed Posts</th>
-                                        <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Your 10%</th>
+                                        <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Your Commission</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-50">

@@ -39,6 +39,7 @@ const Content = ({
     align = 'right',
     width = '48',
     contentClasses = 'py-1 bg-white',
+    panelClassName,
     children,
 }) => {
     const { open, setOpen } = useContext(DropDownContext);
@@ -57,6 +58,13 @@ const Content = ({
         widthClasses = 'w-48';
     }
 
+    // Default positioning anchors the panel to the trigger's own box, which
+    // only looks right when the panel is roughly as wide as the trigger.
+    // Wider panels (e.g. NotificationBell) pass panelClassName to anchor to
+    // the viewport instead — see that component for why.
+    const wrapperClasses = panelClassName
+        ?? `absolute z-50 mt-2 rounded-md shadow-lg ${alignmentClasses} ${widthClasses}`;
+
     return (
         <>
             <Transition
@@ -69,7 +77,7 @@ const Content = ({
                 leaveTo="opacity-0 scale-95"
             >
                 <div
-                    className={`absolute z-50 mt-2 rounded-md shadow-lg ${alignmentClasses} ${widthClasses}`}
+                    className={wrapperClasses}
                     onClick={() => setOpen(false)}
                 >
                     <div
