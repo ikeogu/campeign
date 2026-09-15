@@ -33,6 +33,8 @@ class User extends Authenticatable implements FilamentUser
         'accepted_terms',
         'referral_code',
         'referred_by',
+        'is_ambassador',
+        'ambassador_commission_rate',
         'first_name',
         'last_name',
         'company_name',
@@ -66,6 +68,8 @@ class User extends Authenticatable implements FilamentUser
             'onboarded' => 'boolean',
             'is_active' => 'boolean',
             'deactivated_at' => 'datetime',
+            'is_ambassador' => 'boolean',
+            'ambassador_commission_rate' => 'float',
         ];
     }
 
@@ -117,6 +121,18 @@ class User extends Authenticatable implements FilamentUser
     public function referredBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'referred_by');
+    }
+
+    /**
+     * Whether this user is an active ambassador — set from the backoffice —
+     * meaning ReferralCommissionService should pay them a percentage of
+     * every campaign their referrals fund (instead of the standard,
+     * first-campaign-only management-fee split). See is_ambassador and
+     * ambassador_commission_rate on the users table.
+     */
+    public function isActiveAmbassador(): bool
+    {
+        return $this->is_ambassador && (float) $this->ambassador_commission_rate > 0;
     }
 
     /**

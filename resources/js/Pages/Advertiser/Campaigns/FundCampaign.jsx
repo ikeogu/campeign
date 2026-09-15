@@ -72,6 +72,18 @@ export default function FundCampaign() {
                         </Link>
                     </div>
 
+                    {flash?.error && (
+                        <div className="bg-red-50 border border-red-200 text-red-700 rounded-2xl p-4 mb-6 font-bold text-sm">
+                            {flash.error}
+                        </div>
+                    )}
+
+                    {flash?.info && (
+                        <div className="bg-brand-50 border border-brand-200 text-brand-700 rounded-2xl p-4 mb-6 font-bold text-sm">
+                            {flash.info}
+                        </div>
+                    )}
+
                     {/* OPay virtual account — shown after gateway payment initialised */}
                     {opayPayment && (
                         <div className="bg-green-50 border border-green-200 rounded-2xl p-6 mb-6 space-y-4">

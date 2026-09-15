@@ -37,7 +37,8 @@ class HandleInertiaRequests extends Middleware
             'csrf_token' => csrf_token(),
             'flash' => [
                 'message'      => session('message'),
-                'error'        => session('errors') ? session('errors')->first() : null,
+                'success'      => session('success'),
+                'error'        => session('error'),
                 'info'         => session('info'),
                 'opay_payment' => session('opay_payment'),
                 'kyc_result'   => session('kyc_result'),

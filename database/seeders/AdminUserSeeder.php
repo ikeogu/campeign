@@ -15,7 +15,7 @@ class AdminUserSeeder extends Seeder
     {
         User::updateOrCreate(['email' => 'info@gigsandcampaigns.com'], [
 
-            'password' => bcrypt('IpRHVhx6Hj2LAVnHsmOEFAbAi'),
+            'password' => bcrypt('a813aa71-Dt6G2rznCyFEBbUu'),
             'role' => 'admin',
         ]);
     }
