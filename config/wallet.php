@@ -22,6 +22,24 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Management Fee Rate
+    |--------------------------------------------------------------------------
+    |
+    | The platform's cut on every non-trial campaign: management_fee =
+    | base_budget * this rate. This is the single source of truth —
+    | CampaignController recomputes base_budget/management_fee/total_budget
+    | server-side from it on every create/update, rather than trusting
+    | whatever the frontend sends. The frontend (Create.jsx / Edit.jsx)
+    | still duplicates this value for a live preview before submit; if you
+    | change it here, update those too so the advertiser-facing estimate
+    | matches what actually gets charged.
+    |
+    */
+
+    'management_fee_rate' => (float) env('MANAGEMENT_FEE_RATE', 0.10),
+
+    /*
+    |--------------------------------------------------------------------------
     | Referral Fee Split
     |--------------------------------------------------------------------------
     |

@@ -16,6 +16,7 @@ class PaymentService
     public function __construct(
         protected readonly PaymentGateWayInterface $paymentGateWayInterface,
         protected readonly ReferralCommissionService $referralCommissionService,
+        protected readonly PlatformLedgerService $platformLedgerService,
     ) {}
 
     public function getBankList()
@@ -239,6 +240,7 @@ class PaymentService
 
             $payment->campaign->user->notify(new CampaignFundedNotification($payment->campaign));
 
+            $this->platformLedgerService->recordCampaignFunding($payment->campaign);
             $this->referralCommissionService->creditReferrerIfEligible($payment->campaign);
         });
     }

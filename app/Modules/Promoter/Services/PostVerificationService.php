@@ -8,6 +8,7 @@ use App\Models\PromoterSubmission;
 use App\Models\Transaction;
 use App\Modules\Campeigner\Notifications\CampaignProcessCompletedNotification;
 use App\Modules\Promoter\Jobs\VerifyPostInitialJob;
+use App\Modules\Shared\Services\PlatformLedgerService;
 use App\Notifications\CampaignProofFailedNotification;
 use App\Notifications\NotifyAnythingNotification;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +17,10 @@ use Illuminate\Support\Facades\Log;
 
 class PostVerificationService
 {
+    public function __construct(
+        protected readonly PlatformLedgerService $platformLedgerService,
+    ) {}
+
 
     public function isAccessible(string $url): bool
     {
@@ -257,6 +262,17 @@ class PostVerificationService
                     'status'      => 'successful',
                     'description' => 'Earnings from verified post for campaign: ' . $campaign->title,
                 ]);
+
+                // Money earmarked for promoters on this campaign just got
+                // paid out to one — take it out of promoter_payable so that
+                // balance keeps reflecting only what's still owed.
+                $this->platformLedgerService->debit(
+                    PlatformLedgerService::PROMOTER_PAYABLE,
+                    $campaign->payout * 100,
+                    channel: 'promoter_payout',
+                    description: "Promoter paid — campaign \"{$campaign->title}\"",
+                    campaign: $campaign,
+                );
             } else {
                 Transaction::where('reference', 'CRD-' . $submission->id)
                     ->where('status', 'pending')
@@ -299,6 +315,17 @@ class PostVerificationService
                     'status'      => 'successful',
                     'description' => 'Earnings from approved post for campaign: ' . $campaign->title,
                 ]);
+
+                // Money earmarked for promoters on this campaign just got
+                // paid out to one — take it out of promoter_payable so that
+                // balance keeps reflecting only what's still owed.
+                $this->platformLedgerService->debit(
+                    PlatformLedgerService::PROMOTER_PAYABLE,
+                    $campaign->payout * 100,
+                    channel: 'promoter_payout',
+                    description: "Promoter paid — campaign \"{$campaign->title}\"",
+                    campaign: $campaign,
+                );
             } else {
                 Transaction::where('reference', 'CRD-' . $submission->id)
                     ->where('status', 'pending')

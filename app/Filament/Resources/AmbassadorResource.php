@@ -61,7 +61,7 @@ class AmbassadorResource extends Resource
                     ->columns(2),
 
                 Forms\Components\Section::make('Ambassador Commission')
-                    ->description('When enabled, this user earns a percentage of the total ad spend on every campaign funded by anyone they referred — for as long as this stays on, with no cap on how many campaigns.')
+                    ->description('When enabled, this user\'s rate is carved straight out of the platform\'s 10% management fee on every campaign funded by anyone they referred — not an extra charge to the advertiser. For as long as this stays on, with no cap on how many campaigns.')
                     ->schema([
                         Forms\Components\Toggle::make('is_ambassador')
                             ->label('Ambassador')
@@ -72,11 +72,11 @@ class AmbassadorResource extends Resource
                             ->label('Commission Rate (%)')
                             ->numeric()
                             ->minValue(0)
-                            ->maxValue(100)
+                            ->maxValue(10)
                             ->suffix('%')
                             ->visible(fn (Forms\Get $get) => (bool) $get('is_ambassador'))
                             ->required(fn (Forms\Get $get) => (bool) $get('is_ambassador'))
-                            ->helperText('e.g. 5 = 5% of total campaign spend, credited to their wallet each time a referral funds a campaign.'),
+                            ->helperText('e.g. a 100k campaign carries a 10k (10%) management fee — a rate of 5 here pays the ambassador 5k of that fee, leaving the platform the other 5k. Keep this at or below 10 so the platform never nets negative on the fee.'),
                     ])
                     ->columns(2),
             ]);

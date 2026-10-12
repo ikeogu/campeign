@@ -8,6 +8,7 @@ use App\Models\Campaign;
 use App\Models\User;
 use App\Modules\Campeigner\Notifications\CampaignFundedNotification;
 use App\Modules\Shared\Services\PaymentService;
+use App\Modules\Shared\Services\PlatformLedgerService;
 use App\Modules\Shared\Services\ReferralCommissionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,6 +22,7 @@ class CampaignController extends ApiController
     public function __construct(
         protected readonly PaystackClient $paystackGatewayInterface,
         protected readonly ReferralCommissionService $referralCommissionService,
+        protected readonly PlatformLedgerService $platformLedgerService,
     ) {}
 
 
@@ -105,9 +107,6 @@ class CampaignController extends ApiController
                 'mimes:jpg,jpeg,png,mp4,mov,avi,webm',
                 'max:51200',
             ],
-            'total_budget'   => ['nullable', 'numeric', 'min:0'],
-            'management_fee' => ['nullable', 'numeric', 'min:0'],
-            'base_budget'    => ['nullable', 'numeric', 'min:0'],
             'min_followers'  => ['required', 'string'],
             'is_trial'       => ['nullable', 'boolean'],
         ], [
@@ -116,13 +115,23 @@ class CampaignController extends ApiController
             'files.*.max'   => 'Each file must be 50 MB or smaller.',
         ]);
 
-        // Force trial values server-side so they cannot be tampered with.
+        // base_budget/management_fee/total_budget are derived server-side,
+        // never trusted from the client — otherwise an advertiser could
+        // submit any total_budget/management_fee pair they like, which
+        // would also corrupt the platform ledger these numbers feed into.
+        // The frontend computes the same formula purely for a live preview.
         if ($isTrial) {
             $validated['payout']         = 200;
             $validated['target_shares']  = 25;
             $validated['base_budget']    = 5000;
             $validated['management_fee'] = 0;
             $validated['total_budget']   = 5000;
+        } else {
+            $feeRate = (float) config('wallet.management_fee_rate', 0.10);
+
+            $validated['base_budget']    = round($validated['payout'] * $validated['target_shares'], 2);
+            $validated['management_fee'] = round($validated['base_budget'] * $feeRate, 2);
+            $validated['total_budget']   = $validated['base_budget'] + $validated['management_fee'];
         }
 
         /*  abort_if(
@@ -227,15 +236,37 @@ class CampaignController extends ApiController
             ],
             'remove_files'   => 'nullable|array',
             'remove_files.*' => 'string|exists:campaign_media,id',
-            'total_budget'   => ['required', 'numeric', 'min:0'],
-            'management_fee' => ['nullable', 'numeric', 'min:0'],
-            'base_budget'    => ['nullable', 'numeric', 'min:0'],
             'min_followers'  => ['required', 'string'],
         ], [
             'new_files.*.file'  => 'Each upload must be a valid file.',
             'new_files.*.mimes' => 'Allowed formats: jpg, jpeg, png, mp4, mov, avi, webm.',
             'new_files.*.max'   => 'Each file must be 50 MB or smaller.',
         ]);
+
+        // Once a campaign has been funded, its payout/target_shares are
+        // frozen — the advertiser already paid for exactly this budget, and
+        // it's already been recorded in the platform ledger. Changing them
+        // now would desync both without any further payment.
+        if (
+            $campaign->status !== 'pending'
+            && ((float) $validated['payout'] !== (float) $campaign->payout
+                || (int) $validated['target_shares'] !== (int) $campaign->target_shares)
+        ) {
+            return back()->withErrors([
+                'payout' => 'This campaign has already been funded — payout and target shares can no longer be changed.',
+            ])->withInput();
+        }
+
+        // base_budget/management_fee/total_budget are derived server-side
+        // from payout × target_shares, never trusted from the client — see
+        // the same comment in store(). Safe to always recompute here: the
+        // guard above guarantees payout/target_shares are unchanged for any
+        // campaign that was already funded, so this reproduces the exact
+        // numbers already charged and ledger-recorded.
+        $feeRate = (float) config('wallet.management_fee_rate', 0.10);
+        $baseBudget = round($validated['payout'] * $validated['target_shares'], 2);
+        $managementFee = round($baseBudget * $feeRate, 2);
+        $totalBudget = $baseBudget + $managementFee;
 
         $campaign->update([
             'title'         => $validated['title'],
@@ -246,9 +277,9 @@ class CampaignController extends ApiController
             'category'      => $validated['category'],
             //'target_budget' => $validated['target_budget'],
             'status'        => $validated['status'],
-            'total_budget' => $validated['total_budget'],
-            'management_fee'  => $validated['management_fee'] ?? null,
-            'base_budget'  => $validated['base_budget'] ?? null,
+            'total_budget' => $totalBudget,
+            'management_fee'  => $managementFee,
+            'base_budget'  => $baseBudget,
             'min_followers'  => $validated['min_followers'],
         ]);
 
@@ -448,6 +479,7 @@ class CampaignController extends ApiController
         // Notify campaign owner
         $campaign->user->notify(new CampaignFundedNotification($campaign));
 
+        $this->platformLedgerService->recordCampaignFunding($campaign);
         $this->referralCommissionService->creditReferrerIfEligible($campaign);
     }
 

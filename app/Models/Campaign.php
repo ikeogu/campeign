@@ -31,6 +31,7 @@ class Campaign extends Model
         'management_fee',
         'total_budget',
         'referral_credited_kobo',
+        'ledger_recorded_at',
         'available_slots',
         'status',
         'is_trial',
@@ -40,6 +41,7 @@ class Campaign extends Model
         'target_shares' => 'integer',
         'platforms' => 'array',
         'is_trial' => 'boolean',
+        'ledger_recorded_at' => 'datetime',
     ];
 
 

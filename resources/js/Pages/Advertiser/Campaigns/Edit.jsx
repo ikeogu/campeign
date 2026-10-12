@@ -49,7 +49,7 @@ export default function Edit({ auth }) {
         const payout = Number(data.payout) || 0;
         const shares = Number(data.target_shares) || 0;
         const baseCost = payout * shares;
-        const fee = baseCost * 0.03;
+        const fee = baseCost * 0.1; // must match Create.jsx's management fee rate
         const total = baseCost + fee;
 
         setData((prev) => ({
