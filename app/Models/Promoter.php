@@ -52,6 +52,14 @@ class Promoter extends Model
      */
     public static function pairPlatformsAndHandles(array $platforms, array $handles): array
     {
+        // array_values() first — either array can arrive with non-sequential
+        // or string keys (an associative array mixed in by mistake, a
+        // sparse result from decoding malformed stored JSON, a filtered
+        // collection reindexed oddly upstream, etc.), and indexing by
+        // 0..count-1 against that throws "Undefined array key".
+        $platforms = array_values($platforms);
+        $handles = array_values($handles);
+
         $count = min(count($platforms), count($handles));
 
         return collect(range(0, $count - 1))
