@@ -2,6 +2,7 @@
 
 namespace App\Modules\Auth\Services;
 
+use App\Models\Promoter;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -26,13 +27,21 @@ class AuthService
             if ($data['user_type'] === 'promoter') {
 
                // $user->update(['first_name' => $data['first_name'], 'last_name' => $data['last_name']]);
-                $user->promoter()->create([
+                // Stored in the canonical [{platform, handle}, ...] shape —
+                // the registration form still submits two parallel arrays,
+                // but everything downstream (profile edits, duplicate
+                // checks) expects paired objects, so it's normalized once,
+                // here, rather than two different shapes existing in the DB.
+                $pairedHandles = Promoter::pairPlatformsAndHandles($data['platforms'], $data['social_handles']);
+
+                $promoter = $user->promoter()->create([
                     'first_name'     => $data['first_name'],
                     'last_name'      => $data['last_name'],
-                    'social_handles' => json_encode($data['social_handles']),
+                    'social_handles' => $pairedHandles,
                     'follower_count' => $data['follower_count'],
-                    'platforms'      => json_encode($data['platforms']),
+                    'platforms'      => $data['platforms'],
                 ]);
+                $promoter->syncSocialHandleRows();
                 $role = 'promoter';
             } else {
 

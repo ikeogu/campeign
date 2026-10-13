@@ -2,7 +2,10 @@
 
 namespace App\Modules\Auth\Requests;
 
+use App\Models\Promoter;
+use App\Models\PromoterSocialHandle;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 
 class RegisterRequest extends FormRequest
 {
@@ -48,5 +51,35 @@ class RegisterRequest extends FormRequest
         }
 
         return $rules;
+    }
+
+    /**
+     * Reject registration up front if a submitted handle is already
+     * registered to a different promoter — the database unique constraint
+     * on promoter_social_handles is the real enforcement (see
+     * Promoter::syncSocialHandleRows()), this is just the friendly,
+     * pre-save version of the same check.
+     */
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator) {
+            if ($this->input('user_type') !== 'promoter') {
+                return;
+            }
+
+            $pairs = Promoter::pairPlatformsAndHandles(
+                (array) $this->input('platforms', []),
+                (array) $this->input('social_handles', []),
+            );
+
+            foreach ($pairs as $pair) {
+                if ($conflict = PromoterSocialHandle::findConflictingPromoter($pair['platform'], $pair['handle'])) {
+                    $validator->errors()->add(
+                        'social_handles',
+                        "The {$pair['platform']} handle \"{$pair['handle']}\" is already registered to another account.",
+                    );
+                }
+            }
+        });
     }
 }

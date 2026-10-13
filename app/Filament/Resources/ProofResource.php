@@ -223,6 +223,17 @@ class ProofResource extends Resource
                         default    => 'warning',
                     }),
 
+                Tables\Columns\IconColumn::make('ownership_unverified')
+                    ->label('Ownership')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-exclamation-triangle')
+                    ->falseIcon('heroicon-o-check-badge')
+                    ->trueColor('warning')
+                    ->falseColor('success')
+                    ->tooltip(fn($record) => $record->ownership_unverified
+                        ? "Couldn't auto-confirm this post belongs to the promoter's own registered handle — review the link before approving."
+                        : "Link matched the promoter's own registered handle."),
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Submitted')
                     ->dateTime()
@@ -238,6 +249,10 @@ class ProofResource extends Resource
 
                 SelectFilter::make('platform')
                     ->relationship('campaign', 'title'),
+
+                Filter::make('ownership_unverified')
+                    ->label('Needs ownership review')
+                    ->query(fn (Builder $query) => $query->where('ownership_unverified', true)),
 
                 Filter::make('below_follower_requirement')
                     ->label('Below follower requirement')

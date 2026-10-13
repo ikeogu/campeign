@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\PromoterSocialHandle;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -99,18 +100,39 @@ class ProfileController extends Controller
 
         $user = $request->user();
 
-        if ($user->promoter) {
-            $user->promoter()->update([
-                'social_handles' => $request->input('social_handles'),
-                'platforms' => collect($request->input('social_handles'))->pluck('platform')->toArray(),
-            ]);
-
-            return back()->with([
-                'status' => 'Social handles updated successfully.',
-                'message' => 'Social handles updated successfully.', // Add this for backup
-            ]);
+        if (! $user->promoter) {
+            return back()->withErrors(['error' => 'Promoter profile not found.']);
         }
 
-        return back()->withErrors(['error' => 'Promoter profile not found.']);
+        foreach ($request->input('social_handles') as $pair) {
+            $conflict = PromoterSocialHandle::findConflictingPromoter(
+                $pair['platform'],
+                $pair['handle'],
+                excludePromoterId: $user->promoter->id,
+            );
+
+            if ($conflict) {
+                return back()->withErrors([
+                    'social_handles' => "The {$pair['platform']} handle \"{$pair['handle']}\" is already registered to another account.",
+                ])->withInput();
+            }
+        }
+
+        // Update the model instance directly (not via the ->promoter()
+        // relation query builder) so the in-memory attributes are actually
+        // refreshed before syncSocialHandleRows() reads social_handles off
+        // of it — a relation-builder ->update() would persist to the DB
+        // without updating this already-loaded instance.
+        $promoter = $user->promoter;
+        $promoter->update([
+            'social_handles' => $request->input('social_handles'),
+            'platforms' => collect($request->input('social_handles'))->pluck('platform')->toArray(),
+        ]);
+        $promoter->syncSocialHandleRows();
+
+        return back()->with([
+            'status' => 'Social handles updated successfully.',
+            'message' => 'Social handles updated successfully.', // Add this for backup
+        ]);
     }
 }

@@ -21,10 +21,12 @@ class PromoterSubmission extends Model
         'platform',
         'views',
         'rejection_reason',
+        'ownership_unverified',
     ];
 
     protected $casts = [
         'views' => 'integer',
+        'ownership_unverified' => 'boolean',
     ];
 
     protected $appends = ['full_proof_url'];
