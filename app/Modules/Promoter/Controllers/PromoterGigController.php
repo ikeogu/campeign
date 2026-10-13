@@ -5,6 +5,7 @@ namespace App\Modules\Promoter\Controllers;
 use App\Http\Controllers\ApiController;
 use App\Models\Campaign;
 use App\Models\CampaignMedia;
+use App\Models\PromoterSocialHandle;
 use App\Models\PromoterSubmission;
 use App\Models\ShareLog;
 use App\Modules\Promoter\Requests\SubmitPostRequest;
@@ -235,7 +236,49 @@ class PromoterGigController extends ApiController
             ]);
         }
 
-        foreach ($request->submissions as $data) {
+        // Ownership check: the link above only rules out someone else's
+        // post — it doesn't confirm this post is actually the submitting
+        // promoter's own. Where the URL shape carries a username (Twitter/X,
+        // TikTok, Facebook posts/videos, LinkedIn posts), cross-check it
+        // against this promoter's own registered handle and reject outright
+        // on a genuine mismatch. Where it doesn't (Instagram posts, YouTube,
+        // most Facebook share/watch links) — or this promoter has no
+        // registered handle for that platform yet — ownership can't be
+        // auto-verified at all, so flag it for manual review instead of
+        // either blocking or silently trusting it.
+        $registeredHandles = Auth::user()->promoter
+            ? PromoterSocialHandle::where('promoter_id', Auth::user()->promoter->id)
+                ->get()
+                ->keyBy('platform')
+            : collect();
+
+        $ownershipFlags = [];
+
+        foreach ($request->submissions as $index => $data) {
+            $extracted = PromoterSocialHandle::extractFromUrl($data['link']);
+
+            if ($extracted === null) {
+                $ownershipFlags[$index] = true; // can't verify this link shape — flag for review
+                continue;
+            }
+
+            $registered = $registeredHandles->get($extracted['platform']);
+
+            if (! $registered) {
+                $ownershipFlags[$index] = true; // no handle on file for this platform — flag for review
+                continue;
+            }
+
+            if ($registered->normalized_handle !== PromoterSocialHandle::normalizeHandle($extracted['platform'], $extracted['handle'])) {
+                return back()->withErrors([
+                    'submission' => "The {$extracted['platform']} link for \"{$data['platform']}\" doesn't match your registered {$extracted['platform']} handle. Submit a post from your own profile.",
+                ]);
+            }
+
+            $ownershipFlags[$index] = false; // matched — verified
+        }
+
+        foreach ($request->submissions as $index => $data) {
 
             $path = null;
 
@@ -250,6 +293,7 @@ class PromoterGigController extends ApiController
                 'platform'    => $data['platform'],
                 'link'        => $data['link'],
                 'status'      => 'pending',
+                'ownership_unverified' => $ownershipFlags[$index] ?? true,
             ]);
         }
 
