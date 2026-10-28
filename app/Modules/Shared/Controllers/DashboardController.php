@@ -238,6 +238,13 @@ class DashboardController extends ApiController
 
         return Inertia::render('Promoter/Gigs/Index', [
             'gigs' => $gigs,
+            // Sourced from config, not hardcoded in the frontend copy — so
+            // the terms shown always match what ReferralCommissionService
+            // actually pays out, even if these get tuned later.
+            'referralTerms' => [
+                'sharePercent'  => (int) round(((float) config('wallet.referral_fee_share', 0.5)) * 100),
+                'campaignLimit' => (int) config('wallet.referral_campaign_limit', 1),
+            ],
         ]);
     }
 }
