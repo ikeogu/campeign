@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Link, usePage, Head } from '@inertiajs/react';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 
 const getPlatformStyle = (platform) => {
     switch (platform?.toLowerCase()) {
@@ -21,8 +21,68 @@ const getPlatformStyle = (platform) => {
 
 const formatCurrency = (amount) => `₦${Number(amount).toLocaleString('en-NG')}`;
 
+function ReferralPromoCard({ referralCode, referralTerms }) {
+    const [copied, setCopied] = useState(false);
+    const referralLink = `${window.location.origin}/register?ref=${referralCode}`;
+    const sharePercent = referralTerms?.sharePercent ?? 50;
+    const campaignLimit = referralTerms?.campaignLimit ?? 1;
+
+    const handleCopy = () => {
+        navigator.clipboard.writeText(referralLink);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+
+    return (
+        <div className="mb-10 bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-8">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+                <div className="max-w-xl">
+                    <span className="inline-block mb-3 px-3 py-1 bg-brand-50 text-brand-600 text-[10px] font-black uppercase tracking-widest rounded-full border border-brand-100">
+                        Referral Program
+                    </span>
+                    <h2 className="text-xl font-black text-gray-900 uppercase tracking-tight mb-2">
+                        Invite an Advertiser, Earn a Commission
+                    </h2>
+                    <p className="text-gray-500 font-medium text-sm leading-relaxed">
+                        Share your link with a brand or business. When they sign up as an advertiser and fund their first
+                        campaign using your referral code, you earn {sharePercent}% of the platform's management fee on
+                        that campaign — paid straight into your wallet automatically.
+                    </p>
+                </div>
+
+                <div className="flex-shrink-0 w-full lg:w-auto lg:min-w-[22rem]">
+                    <div className="bg-gray-50 border border-gray-100 p-2 rounded-2xl flex items-center gap-2 shadow-sm">
+                        <code className="flex-1 min-w-0 truncate text-[11px] font-bold text-brand-600 px-3 uppercase">
+                            {referralLink}
+                        </code>
+                        <button
+                            onClick={handleCopy}
+                            className="flex-shrink-0 bg-gray-900 text-white text-[10px] font-black uppercase px-4 py-3 rounded-xl hover:bg-brand-600 transition-all active:scale-95"
+                        >
+                            {copied ? 'Copied!' : 'Copy Link'}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* Terms */}
+            <div className="mt-6 pt-6 border-t border-gray-100">
+                <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-3">Terms</p>
+                <ul className="space-y-1.5 text-[11px] text-gray-500 font-medium">
+                    <li>• Applies to new advertiser accounts only — the link must be used at sign-up.</li>
+                    <li>
+                        • Commission is paid once {campaignLimit > 1 ? `the advertiser's first ${campaignLimit} fee-bearing campaigns are funded` : "the advertiser's first fee-bearing campaign is funded"}, not on every campaign after that.
+                    </li>
+                    <li>• Trial campaigns (which carry no management fee) don't trigger a payout.</li>
+                    <li>• Credited automatically to your wallet balance — no claim or request needed.</li>
+                </ul>
+            </div>
+        </div>
+    );
+}
+
 export default function PromoterCampaignIndex() {
-    const { gigs, auth } = usePage().props;
+    const { gigs, auth, referralTerms } = usePage().props;
 
     // 1. UPDATED SORTING LOGIC: Check both Percentage AND Status
     const sortedGigs = useMemo(() => {
@@ -63,6 +123,8 @@ export default function PromoterCampaignIndex() {
                             </p>
                         </div>
                     </div>
+
+                    <ReferralPromoCard referralCode={auth.user.referral_code} referralTerms={referralTerms} />
 
                     {sortedGigs.length === 0 ? (
                         <div className="p-16 bg-white rounded-[3rem] text-center shadow-sm border border-gray-100">
