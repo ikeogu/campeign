@@ -62,6 +62,10 @@ class CampaignController extends ApiController
 
         return Inertia::render('Advertiser/Campaigns/Create', [
             'trialAvailable' => ! $user->campaigns()->where('is_trial', true)->exists(),
+            // Referral attribution is permanent and one-time — once an
+            // advertiser has a referrer (from signup or an earlier campaign),
+            // there's nothing left for a code to do, so hide the field.
+            'canEnterReferralCode' => ! $user->referred_by,
         ]);
     }
 
@@ -109,11 +113,32 @@ class CampaignController extends ApiController
             ],
             'min_followers'  => ['required', 'string'],
             'is_trial'       => ['nullable', 'boolean'],
+            'referral_code'  => ['nullable', 'string', 'max:20'],
         ], [
             'files.*.file'  => 'Each upload must be a valid file.',
             'files.*.mimes' => 'Allowed formats: jpg, jpeg, png, mp4, mov, avi, webm.',
             'files.*.max'   => 'Each file must be 50 MB or smaller.',
         ]);
+
+        // One-time referrer attribution: an advertiser who never used a
+        // referral link at signup gets one more chance here, the first time
+        // they launch a campaign. This is permanent — same effect as having
+        // signed up with ?ref= — and only ever applies once; an advertiser
+        // who already has a referrer can't submit this field at all (hidden
+        // client-side), but it's rejected here too in case of a stale form.
+        if (! empty($validated['referral_code'])) {
+            if ($user->referred_by) {
+                return back()->withErrors(['referral_code' => 'Your account already has a referrer on file.'])->withInput();
+            }
+
+            $referrer = User::where('referral_code', $validated['referral_code'])->first();
+
+            if (! $referrer || $referrer->id === $user->id) {
+                return back()->withErrors(['referral_code' => 'That referral code is invalid.'])->withInput();
+            }
+
+            $user->update(['referred_by' => $referrer->id]);
+        }
 
         // base_budget/management_fee/total_budget are derived server-side,
         // never trusted from the client — otherwise an advertiser could

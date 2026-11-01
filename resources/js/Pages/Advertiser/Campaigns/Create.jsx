@@ -2,7 +2,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { useForm, Link, Head } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 
-export default function Create({ auth, trialAvailable = false }) {
+export default function Create({ auth, trialAvailable = false, canEnterReferralCode = false }) {
     const [previews, setPreviews] = useState([]);
 
     const { data, setData, post, errors, processing } = useForm({
@@ -18,6 +18,7 @@ export default function Create({ auth, trialAvailable = false }) {
         total_budget: 0,
         files: [],
         is_trial: false,
+        referral_code: '',
     });
 
     const toggleTrial = () => {
@@ -241,6 +242,25 @@ export default function Create({ auth, trialAvailable = false }) {
                                     onChange={(e) => setData('description', e.target.value)}
                                 />
                             </div>
+
+                            {canEnterReferralCode && (
+                                <div>
+                                    <label className="block text-[10px] font-black uppercase text-gray-400 tracking-widest mb-2">
+                                        Referral Code <span className="normal-case font-bold text-gray-300">(optional)</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        placeholder="Got referred by someone? Enter their code"
+                                        className="w-full bg-gray-50 border-none rounded-2xl py-4 px-6 focus:ring-2 focus:ring-brand-500 font-bold text-gray-700 placeholder:text-gray-300 placeholder:font-medium uppercase"
+                                        value={data.referral_code}
+                                        onChange={(e) => setData('referral_code', e.target.value)}
+                                    />
+                                    <p className="mt-2 text-[10px] text-gray-400 font-medium">
+                                        One-time only — this permanently links your account to whoever referred you. You can't change it later.
+                                    </p>
+                                    {errors.referral_code && <p className="mt-2 text-xs text-brand-600 font-bold">{errors.referral_code}</p>}
+                                </div>
+                            )}
                         </div>
 
                         {/* Targeting Card */}
